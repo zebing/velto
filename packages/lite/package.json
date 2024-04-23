@@ -1,0 +1,22 @@
+{
+  "name": "@lite/lite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "tsc --watch --declaration",
+    "build": "rm -rf dist/* && tsc --build --declaration"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+  }
+}
