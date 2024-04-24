@@ -5,7 +5,6 @@ import { JSXOpeningElement, isJSXIdentifier, isJSXMemberExpression, isJSXNamespa
 import { NodePath } from '@babel/core';
 
 export * from './importHelper';
-export * from './getParentId';
 
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);

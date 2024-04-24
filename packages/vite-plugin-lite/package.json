@@ -1,0 +1,21 @@
+{
+  "name": "@lite/vite-plugin-lite",
+  "version": "1.0.0",
+  "description": "vite plugin lite",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsc --watch --declaration",
+    "build": "rm -rf dist/* && tsc --build --declaration"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.24.4",
+    "@lite/babel-plugin-lite": "^1.0.0",
+    "typescript": "^5.4.2",
+    "vite": "^5.2.8"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5"
+  }
+}
