@@ -1,6 +1,6 @@
 export enum HelperName {
-  source = '@litejs/lite',
-  createComponent = 'createComponent',
+  source = '@lite/lite',
+  createComponentInstance = 'createComponentInstance',
   renderComponent = 'renderComponent',
   createElement = 'createElement',
   createText = 'createText',

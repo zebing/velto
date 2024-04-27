@@ -16,12 +16,13 @@ export default function solidPlugin(): Plugin {
       }
 
       id = id.replace(/\?.+$/, '');
-
+debugger
       const { code, map } = await transformAsync(source, {
         root: projectRoot,
         filename: id,
         sourceFileName: id,
-        plugins: ['typescript', lite],
+        presets: ['@babel/preset-typescript'],
+        plugins: [lite],
         ast: false,
         sourceMaps: true,
       }) as BabelFileResult;

@@ -1,20 +1,22 @@
-import { isFunction, isArray, isString, isNativeTag } from "../utils";
-import { createText, appendChild } from "./nodeOps";
-import { setProp, trackEffect, EffectWithEl, Style } from "./propsOps";
-import { createComponent, ComponentContext, Component, getComponentContext } from "./component";
+import { isFunction, isRenderFn, isArray, isString, isNativeTag, toDisplayString } from "../utils";
+import { appendChild, createText } from "./nodeOps";
+import { setProp, Style } from "./propsOps";
+import { Component, createComponentInstance, Props, renderComponent, getCurrentInstance } from "./component";
+import { createElement as nodeCreateElement } from "./nodeOps";
 
+export {
+  appendChild,
+  insert,
+  remove,
+  createText,
+  createComment,
+  setText,
+  setElementText,
+  parentNode,
+  nextSibling,
+  querySelector,
+} from './nodeOps';
 export * from './component';
-
-export interface Props {
-  name?: string;
-  style?: Style;
-  [key: string]: unknown,
-};
-
-export interface ReturnElement {
-  el: Element | Text;
-  componentContext?: ComponentContext[];
-}
 
 export function normalizeContainer(
   container: Element | string | null
@@ -31,73 +33,31 @@ export function render(type: Component, containerOrSelector: HTMLElement| Elemen
 
   if (container) {
     container.innerHTML = '';
-    const child = createElement(type, init);
-
-    if (child) {
-      appendChild(child, container);
-    }
-
-    const ctx = getComponentContext();
-    console.log('++++ctx', ctx?.unMounted, ctx)
-
-    ctx?.unMounted?.forEach(unMounted => unMounted())
+    const instance = createComponentInstance(type);
+    renderComponent(container, instance, init);
   }
 }
 
-export function createElement(type: string | Component | null, props?: Props | null, children?: unknown): Element | Text | null {
-  if (!type) {
-    return null;
+export function append(parent: Element, child: unknown) {
+  if (isRenderFn(child)) {
+    return child(parent);
   }
-  if (isFunction(type)) {
-    return createComponent(type, { ...(props ?? {}), children });
-  }
-  
-  return createHtmlElement(type, props, children);
+
+  appendChild(parent, createText(toDisplayString(child)));
 }
 
-export function createHtmlElement(type: string | null, props?: Props | null, children?: unknown): Element | Text | null {
-  if (!type) {
-    return null;
-  }
-
-  if (!isNativeTag(type)) {
-    const el = createText(type);
-    if (props?.effect) {
-      trackEffect(el, props?.effect as EffectWithEl);
+export function createElement(tag: string, props: () => Props | null, isSVG?: boolean, is?: string) {
+  const el = nodeCreateElement(tag, isSVG, is);
+  let propsData: Props | null = isFunction(props) ? props() : props;
+  const instance = getCurrentInstance();
+  const effect = () => {
+    // set props
+    for (const key in propsData) {
+      setProp(el, key, propsData[key]);
     }
-    
-    return el;
   }
-  
-  const el = document.createElement(type);
-  // set props
-  for (const key in props) {
-    setProp(el, key, props[key]);
-  }
-
-  if (children) {
-    if (!isArray(children)) {
-      children = [children];
-    }
-
-    (children as (unknown)[]).forEach(element => {
-      if (element instanceof Element || element instanceof Text) {
-        appendChild(element, el);
-    
-      } else {
-        appendChild(createText(element as string), el);
-      }
-    });
-  }
-  
-  return el;
-}
-
-export function createTextElement(type: string, props?: Props | null) {
-  const el = createText(type);
-  if (props?.effect) {
-    trackEffect(el, props?.effect as EffectWithEl);
-  }
+  instance?.effectList.push(effect);
+  effect();
 
   return el;
 }

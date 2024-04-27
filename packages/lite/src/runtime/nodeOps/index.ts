@@ -2,11 +2,11 @@ export const svgNS = 'http://www.w3.org/2000/svg'
 
 const doc = (typeof document !== 'undefined' ? document : null) as Document
 
-export const appendChild = (child: Element | Text, parent: Element) => {
+export const appendChild = (parent: Element, child: Element | Text) => {
   parent.appendChild(child);
 }
 
-export const insert = (child: Element, parent: Element, anchor: any) => {
+export const insert = (parent: Element, child: Element, anchor: any) => {
   parent.insertBefore(child, anchor || null)
 }
 
@@ -17,14 +17,10 @@ export const remove = (child: Element) => {
   }
 }
 
-export const createElement = (tag: string, isSVG: boolean, is: string, props: { multiple: string | null }): Element => {
+export const createElement = (tag: string, isSVG?: boolean, is?: string): Element => {
   const el = isSVG
     ? doc.createElementNS(svgNS, tag)
     : doc.createElement(tag, is ? { is } : undefined)
-
-  if (tag === 'select' && props && props.multiple != null) {
-    ;(el as HTMLSelectElement).setAttribute('multiple', props.multiple)
-  }
 
   return el
 }

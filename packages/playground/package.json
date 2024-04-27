@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@lite/lite": "^1.0.0",
     "@lite/vite-plugin-lite": "^1.0.0",
     "sass": "^1.74.1",
     "vite": "^5.2.8",

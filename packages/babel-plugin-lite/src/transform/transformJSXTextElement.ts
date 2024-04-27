@@ -17,7 +17,7 @@ export default function transformJSXTextElement(path: NodePath<JSXText | Express
   const id = createVariableDeclaration({
     name: 'text',
     argument,
-    callee: identifier(HelperName.createText),
+    callee: state.get(HelperName.createText),
     rootPath: jsxRootPath,
   });
 

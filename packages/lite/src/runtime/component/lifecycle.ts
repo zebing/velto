@@ -1,30 +1,32 @@
-import type { ComponentContext } from "./componentContext";
-import { getComponentContext } from "./componentContext";
 import { isArray, callUnstableFunc } from "../../utils";
+import type { ComponentInstance } from "./";
+import { getCurrentInstance } from "./";
 
 export const enum LifecycleHooks {
-  // BEFORE_RENDER = 'beforeRender',
+  CREATED = 'created',
+  BEFORE_RENDER = 'beforeRender',
   RENDERED = 'rendered',
   BEFORE_UPDATE = 'beforeUpdate',
   UPDATED = 'updated',
+  BEFORE_UNMOUNT = 'beforeUnmount',
   UNMOUNTED = 'unMounted',
 }
 
 export const createHook = (lifecycle: LifecycleHooks) => (hook: () => any) => {
-  const target = getComponentContext();
-  if (!target) {
+  const instance = getCurrentInstance();
+  if (!instance) {
     return;
   }
 
-  if (!isArray(target[lifecycle])) {
-    target[lifecycle] = [];
+  if (!isArray(instance[lifecycle])) {
+    instance[lifecycle] = [];
   }
 
-  target[lifecycle]?.push(hook);
+  instance[lifecycle]?.push(hook);
 }
 
-export const callHook = (lifecycle: LifecycleHooks, target: ComponentContext) => {
-  const hook = target?.[lifecycle];
+export const callHook = (lifecycle: LifecycleHooks, instance: ComponentInstance) => {
+  const hook = instance?.[lifecycle];
 
   if (!hook) {
     return ;
@@ -37,13 +39,10 @@ export const callHook = (lifecycle: LifecycleHooks, target: ComponentContext) =>
   }
 }
 
-export const createAndCallHook = (hook: () => any) => {
-  callUnstableFunc(hook);
-}
-
-
-export const onBeforeRender = createAndCallHook;
+export const onCreated = createHook(LifecycleHooks.CREATED);
+export const onBeforeRender = createHook(LifecycleHooks.BEFORE_RENDER);
 export const onRendered = createHook(LifecycleHooks.RENDERED);
 export const onBeforeUpdate = createHook(LifecycleHooks.BEFORE_UPDATE);
 export const onUpdated = createHook(LifecycleHooks.UPDATED);
-export const onUnmounted = createHook(LifecycleHooks.UNMOUNTED);
+export const onBeforeUnMount = createHook(LifecycleHooks.BEFORE_UNMOUNT);
+export const onUnMounted = createHook(LifecycleHooks.UNMOUNTED);

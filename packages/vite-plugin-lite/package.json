@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.24.4",
+    "@babel/plugin-transform-typescript": "^7.24.4",
+    "@babel/preset-typescript": "^7.24.1",
     "@lite/babel-plugin-lite": "^1.0.0",
     "typescript": "^5.4.2",
     "vite": "^5.2.8"

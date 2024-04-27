@@ -1,7 +1,5 @@
 import { track, trigger } from "./effect";
 
-export type Effect = () => any;
-
 export class Ref<T> {
   private _value: T
 
@@ -16,10 +14,11 @@ export class Ref<T> {
 
   set value(newVal) {
     this._value = newVal;
+    console.log('+++++++set value')
     trigger(this);
   }
 }
 
-export function ref<T = any>(value: T): Ref<T | undefined> {
+export function ref<T = any>(value: T): Ref<T> {
   return new Ref(value)
 }

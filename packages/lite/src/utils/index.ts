@@ -6,6 +6,7 @@ export const isSVGTag = stringCurrying(SVG_TAGS, true);
 export const isNativeTag = (name: string) => isHTMLTag(name) || isSVGTag(name);
 export const isString = (val: unknown): val is string => typeof val === 'string';
 export const isFunction = (val: unknown): val is Function => typeof val === 'function';
+export const isRenderFn = (fn: unknown): fn is Function => isFunction(fn) && fn.name === 'render';
 export const isArray = Array.isArray;
 export const isObject = (val: unknown): val is Record<any, any> => val !== null && typeof val === 'object';
 export const camelize = (str: string): string => {
@@ -27,4 +28,17 @@ export function callUnstableFunc<F extends Function, R = null>(
     console.log(err);
   }
   return null;
+}
+
+export const hash = () => Math.random().toString(16).slice(2);
+export const toDisplayString = (val: unknown): string => {
+  return isString(val)
+    ? val
+    : val == null
+    ? ''
+    : isArray(val) ||
+      (isObject(val) &&
+        (val.toString === Object.prototype.toString || !isFunction(val.toString)))
+    ? JSON.stringify(val)
+    : String(val)
 }
