@@ -5,4 +5,3 @@ export { default as transformProps } from './transformProps';
 export { default as transformConditionalExpression } from './transformConditionalExpression';
 export { default as transformLogicalExpression } from './transformLogicalExpression';
 export { default as transformJSXToBlockStatement } from './transformJSXToBlockStatement';
-export { default as transformComponent } from './transformComponent';

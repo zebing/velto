@@ -5,8 +5,8 @@ export type Effect = () => void;
 
 /**
  * WeakMap {
- *   name1: Set[ComponentContext1, ComponentContext2]
- *   name2: Set[ComponentContext1, ComponentContext2]
+ *   ref1: Set[ComponentContext1, ComponentContext2]
+ *   ref2: Set[ComponentContext1, ComponentContext2]
  * }
  */
 const contextMap = new WeakMap<object, Set<ComponentInstance>>();
@@ -28,4 +28,8 @@ export function track(key: Ref<any>) {
 export function trigger(key: Ref<any>) {
   const dep = contextMap.get(key);
   dep?.forEach((instance) => instance?.renderEffect?.())
+}
+
+export function effect(effect: Effect) {
+
 }

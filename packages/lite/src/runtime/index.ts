@@ -4,6 +4,8 @@ import { setProp, Style } from "./propsOps";
 import { Component, createComponentInstance, Props, renderComponent, getCurrentInstance } from "./component";
 import { createElement as nodeCreateElement } from "./nodeOps";
 
+export { setProp } from './propsOps';
+
 export {
   appendChild,
   insert,

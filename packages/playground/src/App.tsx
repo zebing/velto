@@ -28,7 +28,7 @@ export default function App() {
     console.log('+++++onUnMounted')
   })
   return (
-    <div>
+    <div name={'name'}>
       <Test />
     </div>
   )

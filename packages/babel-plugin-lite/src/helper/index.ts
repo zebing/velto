@@ -1,3 +1,3 @@
 export * from './renderFunction';
-export * from './createVariableDeclaration';
+export * from './createExpression';
 export * from './parentId';

@@ -1,13 +1,13 @@
 import { NodePath } from '@babel/core';
 import { variableDeclaration, JSXElement, callExpression, Expression, SpreadElement, ArgumentPlaceholder, JSXNamespacedName, stringLiteral, identifier, variableDeclarator, isObjectExpression, objectProperty, objectExpression, booleanLiteral } from '@babel/types';
-import { State } from '../types';
-import { getTagLiteral, isNativeTag } from '../utils';
-import transformChildren from './transformChildren';
-import transformProps from './transformProps';
-import { HelperName, StateName } from '../constants';
-import { RenderFunctionParamsName, createVariableDeclaration, renderFunction, setParentId, getParentId } from '../helper';
+import { State } from '../../types';
+import { getTagLiteral, isNativeTag } from '../../utils';
+import transformChildren from '../transformChildren';
+import transformProps from '../transformProps';
+import { HelperName, StateName } from '../../constants';
+import { RenderFunctionParamsName, createComponentInstanceExpression, renderFunction, setParentId, getParentId } from '../../helper';
 
-export default function transformComponent(path: NodePath<JSXElement>, state: State) {
+export default function component(path: NodePath<JSXElement>, state: State) {
   const jsxRootPath = state.get(StateName.jsxRootPath);
   const tag = getTagLiteral(path.get('openingElement'));
 
@@ -35,9 +35,9 @@ export default function transformComponent(path: NodePath<JSXElement>, state: St
     }
   }
 
-  const id = createVariableDeclaration({
+  const id = createComponentInstanceExpression({
     name: 'instance',
-    callee: state.get(HelperName.createComponentInstance),
+    state,
     argument: [
       identifier(tag),
     ],
