@@ -1,6 +1,6 @@
 import {
-  onCreated, onBeforeRender, onRendered, onBeforeUpdate, onUpdated,
-  onBeforeUnMount, onUnMounted,
+  onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
+  onBeforeDestroy, onDestroyed,
 } from "@lite/lite"
 import Test from "./components/Test";
 
@@ -9,11 +9,11 @@ export default function App() {
   onCreated(() => {
     console.log('+++++onCreated')
   })
-  onBeforeRender(() => {
-    console.log('+++++onBeforeRender')
+  onBeforeMount(() => {
+    console.log('+++++onBeforeMount')
   })
-  onRendered(() => {
-    console.log('+++++onRendered')
+  onMounted(() => {
+    console.log('+++++onMounted')
   })
   onBeforeUpdate(() => {
     console.log('+++++onBeforeUpdate')
@@ -21,11 +21,11 @@ export default function App() {
   onUpdated(() => {
     console.log('+++++onUpdated')
   })
-  onBeforeUnMount(() => {
-    console.log('+++++onBeforeUnMount')
+  onBeforeDestroy(() => {
+    console.log('+++++onBeforeDestroy')
   })
-  onUnMounted(() => {
-    console.log('+++++onUnMounted')
+  onDestroyed(() => {
+    console.log('+++++onDestroyed')
   })
   return (
     <div name={'name'}>

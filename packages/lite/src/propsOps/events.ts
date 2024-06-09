@@ -1,4 +1,4 @@
-export function setEvent(
+export default function event(
   el: Element,
   rawName: string,
   value: EventListener,

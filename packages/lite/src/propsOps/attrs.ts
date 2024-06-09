@@ -2,7 +2,7 @@ export const xlinkNS = 'http://www.w3.org/1999/xlink'
 export const isSpecialBooleanAttr = (value: string) => 
   ['itemscope', 'allowfullscreen', 'formnovalidate', 'ismap', 'nomodule', 'novalidate', 'readonly'].includes(value)
 
-export function setAttribute(
+export default function attr(
   el: Element,
   key: string,
   value: any,

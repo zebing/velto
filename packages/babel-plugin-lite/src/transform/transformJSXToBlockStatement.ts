@@ -3,24 +3,29 @@ import { Expression,  blockStatement, CallExpression, ExpressionStatement, IfSta
 import { State } from '../types';
 import transformChildren from './transformChildren';
 import transformJSXElement from './transformJSXElement';
+import Render from '../render';
 
-export default function getBlockStatementFromJSX(path: NodePath<Expression>, state: State) {
-  let list: (CallExpression | ExpressionStatement | IfStatement)[] = [];
+export default function getBlockStatementFromJSX(
+  path: NodePath<Expression>, 
+  state: State,
+  render: Render,
+) {
+  // let list: (CallExpression | ExpressionStatement | IfStatement)[] = [];
 
-  if (path.isJSXElement()) {
-    list = transformJSXElement(path, state);
-  } else if (path.isJSXFragment()) {
-    list = transformChildren(path.get('children'), state);
-  } else {
-    list = [expressionStatement(path.node)];
-  }
+  // if (path.isJSXElement()) {
+  //   list = transformJSXElement(path, state);
+  // } else if (path.isJSXFragment()) {
+  //   list = transformChildren(path.get('children'), state);
+  // } else {
+  //   list = [expressionStatement(path.node)];
+  // }
 
-  const statementBody = list.map((node) => {
-    if (isExpressionStatement(node) || isIfStatement(node)) {
-      return node;
-    }
-    return expressionStatement(node);
-  });
+  // const statementBody = list.map((node) => {
+  //   if (isExpressionStatement(node) || isIfStatement(node)) {
+  //     return node;
+  //   }
+  //   return expressionStatement(node);
+  // });
 
-  return blockStatement(statementBody);
+  // return blockStatement(statementBody);
 }

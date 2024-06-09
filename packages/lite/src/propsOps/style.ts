@@ -1,7 +1,7 @@
-import { isString, isArray, camelize, capitalize, hyphenate } from "../../utils";
+import { isString, isArray, camelize, capitalize, hyphenate } from "../utils";
 export type Style = string | Record<string, string | string[]> | null
 
-export function setStyle(el: Element, value: Style) {
+export default function style(el: Element, value: Style) {
   if (!value) {
     return el.removeAttribute('style');
   }

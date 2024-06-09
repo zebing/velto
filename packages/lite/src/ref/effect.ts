@@ -1,5 +1,5 @@
 import type { Ref } from "./ref";
-import { ComponentInstance, getCurrentInstance } from "../";
+import { ComponentInstance, getCurrentInstance } from "../component";
 
 export type Effect = () => void;
 
@@ -27,9 +27,5 @@ export function track(key: Ref<any>) {
 
 export function trigger(key: Ref<any>) {
   const dep = contextMap.get(key);
-  dep?.forEach((instance) => instance?.renderEffect?.())
-}
-
-export function effect(effect: Effect) {
-
+  dep?.forEach((instance) => instance?.update?.(key))
 }

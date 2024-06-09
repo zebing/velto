@@ -1,14 +1,20 @@
-import { NodePath } from '@babel/core';
+import { NodePath } from '@babel/traverse';
 import { JSXElement } from '@babel/types';
-import { transformJSXElement } from '../transform';
 import { State } from '../types';
 import { StateName } from '../constants';
-import { renderFunction } from '../helper';
+import transformJSXRoot from '../transform/transformJSXRoot';
+import Render from '../render';
 
 export default function JSXElement(path: NodePath<JSXElement>, state: State) {
-  state.set(StateName.hasJSX, true);
   state.set(StateName.jsxRootPath, path.getStatementParent());
-
-  const nodeList = transformJSXElement(path, state);
-  path.replaceWith(renderFunction({ children: nodeList, path }));
+  const render = new Render({
+    nodePath: path,
+    state,
+  });
+  transformJSXRoot(path, state, render);
+  const id = render.hoist(
+    render.generateFunctionDeclaration()
+  );
+  
+  path.replaceWith(id);
 }

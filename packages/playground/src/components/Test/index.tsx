@@ -1,9 +1,12 @@
 import {
-  onCreated, onBeforeRender, onRendered, onBeforeUpdate, onUpdated,
-  onBeforeUnMount, onUnMounted, ref,
+  onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
+  onBeforeDestroy, onDestroyed, ref,
 } from "@lite/lite"
 
+import styles from "./styles.module.scss";
+
 export default function Test() {
+  const style = ref(styles.blue)
   const state = ref({
     name: 'name',
   })
@@ -11,11 +14,11 @@ export default function Test() {
   onCreated(() => {
     console.log('+++++Test onCreated')
   })
-  onBeforeRender(() => {
-    console.log('+++++Test onBeforeRender')
+  onBeforeMount(() => {
+    console.log('+++++Test onBeforeMount')
   })
-  onRendered(() => {
-    console.log('+++++Test onRendered')
+  onMounted(() => {
+    console.log('+++++Test onMounted')
   })
   onBeforeUpdate(() => {
     console.log('+++++Test onBeforeUpdate')
@@ -23,20 +26,21 @@ export default function Test() {
   onUpdated(() => {
     console.log('+++++Test onUpdated')
   })
-  onBeforeUnMount(() => {
-    console.log('+++++Test onBeforeUnMount')
+  onBeforeDestroy(() => {
+    console.log('+++++Test onBeforeDestroy')
   })
-  onUnMounted(() => {
-    console.log('+++++Test onUnMounted')
+  onDestroyed(() => {
+    console.log('+++++Test onDestroyed')
   })
   const click = () => {
     console.log('+++++++click')
     state.value = {
       name: 'new name'
     };
+    style.value = styles.yellow;
   }
   return (
-    <div name="name" state={name}>
+    <div name="name" state={name} class={style.value}>
       <div onClick={click}>change name</div>
       <div>name: {state.value?.name}</div>
     </div>

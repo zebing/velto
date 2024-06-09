@@ -1,4 +1,4 @@
-export default function setClass(el: Element, value: string | null, isSVG: boolean) {
+export default function classe(el: Element, value: string | null, isSVG: boolean) {
   if (value == null) {
     el.removeAttribute('class')
   } else if (isSVG) {

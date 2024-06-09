@@ -1,9 +1,9 @@
 import { File } from '@babel/types';
-import { StateName, HelperName } from '../constants';
+import { StateName } from '../constants';
 
 export type State = {
-  get: (name: StateName | HelperName) => any;
-  set: (name: StateName | HelperName, value: any) => any;
+  get<T = any>(name: StateName): T;
+  set<T = any>(name: StateName, value: T): void;
   opts: Record<string, any>;
   file: File;
 };

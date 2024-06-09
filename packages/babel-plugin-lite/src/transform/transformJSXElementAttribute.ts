@@ -11,25 +11,27 @@ import {
   Expression,
   SpreadElement,
   spreadElement,
-  objectExpression,
+  JSXIdentifier,
+  JSXOpeningElement,
 } from '@babel/types';
 import { State } from '../types';
-import { getTagLiteral } from '../utils';
+import { getTagLiteral, getParentId, getRefs } from '../utils';
 import transformChildren from './transformChildren';
 import transformJSXElement from './transformJSXElement';
 import transformJSXRoot from './transformJSXRoot';
+import { StateName } from '../constants';
 import Render from '../render';
 
-export default function transformProps(
-  path: NodePath<JSXAttribute | JSXSpreadAttribute>[],
+export default function transformJSXElementAttribute(
+  path: NodePath<JSXAttribute | JSXSpreadAttribute>[], 
   state: State,
   render: Render,
 ) {
   if (!path.length) {
-    return objectExpression([]);
+    return;
   }
+  const target = getParentId(path[0]);
 
-  const properties: (ObjectProperty | SpreadElement)[] = [];
 
   path.forEach((attribute) => {
     // JSXAttribute
@@ -49,10 +51,12 @@ export default function transformProps(
         const renderFunctionDeclaration = render.hoist(
           subRender.generateFunctionDeclaration()
         );
-        properties.push(objectProperty(
-          identifier(nameLiteral),
-          renderFunctionDeclaration,
-        ));
+        render.attr({
+          target,
+          name: nameLiteral, 
+          value: renderFunctionDeclaration,
+          refList: [],
+        });
 
         // JSXExpressionContainer
         // {expression}
@@ -71,32 +75,40 @@ export default function transformProps(
           const renderFunctionDeclaration = render.hoist(
             subRender.generateFunctionDeclaration()
           );
-          properties.push(objectProperty(
-            identifier(nameLiteral),
-            renderFunctionDeclaration,
-          ));
+          render.attr({
+            target,
+            name: nameLiteral, 
+            value: renderFunctionDeclaration,
+            refList: [],
+          });
 
         } else if (expression.isExpression()) {
-          properties.push(objectProperty(
-            identifier(nameLiteral),
-            expression.node,
-          ));
+          const refList = getRefs(value);
+
+          render.attr({
+            target,
+            name: nameLiteral, 
+            value: expression.node,
+            refList,
+          });
         }
         
         // StringLiteral
       } else if (value.isStringLiteral()) {
-        properties.push(objectProperty(
-          identifier(nameLiteral),
-          value.node,
-        ));
+        render.attr({
+          target,
+          name: nameLiteral, 
+          value: value.node,
+          refList: [],
+        });
       }
 
       // JSXSpreadAttribute
     } else {
-      properties.push(spreadElement((attribute.node as JSXSpreadAttribute).argument));
+      render.spreadAttr({
+        target,
+        express: (attribute.node as JSXSpreadAttribute).argument,
+      });
     }
   });
-
-
-  return objectExpression(properties);
 }

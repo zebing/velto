@@ -1,6 +1,6 @@
 import { track, trigger } from "./effect";
 
-export class Ref<T> {
+export class Ref<T = any> {
   private _value: T
 
   constructor(value: T) {
@@ -14,7 +14,6 @@ export class Ref<T> {
 
   set value(newVal) {
     this._value = newVal;
-    console.log('+++++++set value')
     trigger(this);
   }
 }

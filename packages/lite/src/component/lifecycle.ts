@@ -1,15 +1,15 @@
-import { isArray, callUnstableFunc } from "../../utils";
+import { isArray, callUnstableFunc } from "../utils";
 import type { ComponentInstance } from "./";
 import { getCurrentInstance } from "./";
 
 export const enum LifecycleHooks {
   CREATED = 'created',
-  BEFORE_RENDER = 'beforeRender',
-  RENDERED = 'rendered',
+  BEFORE_MOUNT = 'beforeMount',
+  MOUNTED = 'mounted',
   BEFORE_UPDATE = 'beforeUpdate',
   UPDATED = 'updated',
-  BEFORE_UNMOUNT = 'beforeUnmount',
-  UNMOUNTED = 'unMounted',
+  BEFORE_DESTROY = 'beforeDestroy',
+  DESTROYED = 'destroyed',
 }
 
 export const createHook = (lifecycle: LifecycleHooks) => (hook: () => any) => {
@@ -40,9 +40,9 @@ export const callHook = (lifecycle: LifecycleHooks, instance: ComponentInstance)
 }
 
 export const onCreated = createHook(LifecycleHooks.CREATED);
-export const onBeforeRender = createHook(LifecycleHooks.BEFORE_RENDER);
-export const onRendered = createHook(LifecycleHooks.RENDERED);
+export const onBeforeMount = createHook(LifecycleHooks.BEFORE_MOUNT);
+export const onMounted = createHook(LifecycleHooks.MOUNTED);
 export const onBeforeUpdate = createHook(LifecycleHooks.BEFORE_UPDATE);
 export const onUpdated = createHook(LifecycleHooks.UPDATED);
-export const onBeforeUnMount = createHook(LifecycleHooks.BEFORE_UNMOUNT);
-export const onUnMounted = createHook(LifecycleHooks.UNMOUNTED);
+export const onBeforeDestroy = createHook(LifecycleHooks.BEFORE_DESTROY);
+export const onDestroyed = createHook(LifecycleHooks.DESTROYED);
