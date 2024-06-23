@@ -2,13 +2,15 @@ import { Identifier, identifier, blockStatement, Statement, returnStatement,
   objectExpression, objectMethod, functionExpression, variableDeclaration, 
   variableDeclarator, callExpression, stringLiteral, expressionStatement, 
   importDeclaration, importSpecifier, ImportDeclaration, ImportSpecifier, 
-  Expression, StringLiteral, memberExpression, CallExpression, ObjectExpression, 
-  ifStatement, arrayExpression, arrowFunctionExpression } from "@babel/types"
+  Expression, StringLiteral, memberExpression, MemberExpression, ObjectExpression, 
+  ifStatement, arrayExpression, arrowFunctionExpression, logicalExpression,
+  assignmentExpression, nullLiteral } from "@babel/types"
 import { NodePath } from "@babel/traverse";
 import { State } from "../types";
-import CallExpressionName from "./helperName";
+import { CallExpressionName } from "./helperName";
 import { StateName, targetIdentifier, anchorIdentifier, refIdentifier } from "../constants";
 
+export * from "./helperName";
 export interface RenderOption {
   nodePath: NodePath;
   state: State;
@@ -18,7 +20,7 @@ export default class Render {
   private nodePath: NodePath;
   private pathState: State;
   private renderName: Identifier;
-  private callExpressionNameMap = {} as Record<CallExpressionName, Identifier>;
+  public callExpressionNameMap = {} as Record<CallExpressionName, Identifier>;
   private renderStatement: Statement[] = [];
   private mounteStatement: Statement[] = [];
   private updateStatement: Statement[] = [];
@@ -71,6 +73,23 @@ export default class Render {
     return id;
   }
 
+  public space(target: Identifier) {
+    const id = this.nodePath.scope.generateUidIdentifier('spaceAnchor');
+    this.pushRenderStatement({
+      id,
+      callee: this.callExpressionNameMap[CallExpressionName.text],
+      argumentList: [
+        stringLiteral(' '),
+      ],
+    });
+    this.pushMounteStatement({
+      callee: this.callExpressionNameMap[CallExpressionName.append],
+      id,
+      target,
+    });
+    return id;
+  }
+
   public attr(options: {
     target: Identifier;
     name: string;
@@ -108,6 +127,8 @@ export default class Render {
         refList,
         callee,
         argumentList,
+        id: identifier(name),
+        express: nullLiteral(),
       });
     }
   }
@@ -208,7 +229,9 @@ export default class Render {
 
     this.pushUpdateStatement({
       refList: [],
-      callee: memberExpression(id, identifier('mount')),
+      callee: memberExpression(id, identifier('update')),
+      id,
+      express: nullLiteral(),
     });
 
     this.pushDestroyStatement({
@@ -223,32 +246,41 @@ export default class Render {
     target?: Identifier,
     anchor?: Identifier,
     refList?: Identifier[],
+    test?: Expression; // if (test) expression()
   }) {
-    const { express, target = targetIdentifier, anchor, refList = [] } = options;
-    debugger
+    const { express, target = targetIdentifier, anchor = anchorIdentifier, refList = [], test } = options;
     const id = this.nodePath.scope.generateUidIdentifier('express');
+
     this.pushRenderStatement({
       id,
       callee: this.callExpressionNameMap[CallExpressionName.expression],
       argumentList: [
         arrowFunctionExpression([], express),
       ],
+      test,
     });
     
     this.pushMounteStatement({
-      argumentList: [target, anchorIdentifier],
+      argumentList: [target, anchor],
       callee: memberExpression(id, identifier('mount')),
+      test,
     });
 
     if (refList.length) {
       this.pushUpdateStatement({
         refList,
         callee: memberExpression(id, identifier('update')),
+        test,
+        id,
+        express,
+        target,
+        anchor
       });
     }
 
     this.pushDestroyStatement({
       callee: memberExpression(id, identifier('destroy')),
+      test,
     });
 
     return id;
@@ -257,17 +289,76 @@ export default class Render {
   // callee(id)
   // callee()
   public pushUpdateStatement(options: {
+    target?: Identifier,
+    anchor?: Identifier,
+    id: Identifier;
     callee: Expression;
     refList: Identifier[];
     argumentList?: Expression[];
+    test?: Expression;
+    express: Expression;
   }) {
-    const { callee, refList, argumentList } = options;
-    const callExpressionNode = expressionStatement(
-      callExpression(
-        callee,
-        argumentList || [refIdentifier],
-      ),
+    const { callee, refList, argumentList, test, express, id, target, anchor } = options;
+    let statementNode = blockStatement(
+      [
+        expressionStatement(
+          callExpression(
+            callee,
+            argumentList || [refIdentifier],
+          ),
+        )
+      ]
     );
+
+    if (test) {
+      statementNode = blockStatement([
+        ifStatement(
+          test, 
+          blockStatement([
+            ifStatement(
+              id,
+              statementNode,
+              blockStatement([
+                expressionStatement(
+                  // id = expression(() => express)
+                  assignmentExpression(
+                    '=',
+                    id,
+                    callExpression(
+                      this.callExpressionNameMap[CallExpressionName.expression],
+                      [
+                        arrowFunctionExpression([], express),
+                      ],
+                    ),
+                  ),
+                ),
+                expressionStatement(
+                  callExpression(
+                    memberExpression(id, identifier('mount')),
+                    [target!, anchor!],
+                  ),
+                )
+              ]),
+            )
+          ]),
+          blockStatement([
+            expressionStatement(
+              callExpression(
+                memberExpression(id, identifier('destroy')),
+                [],
+              ),
+            ),
+            expressionStatement(
+              assignmentExpression(
+                '=',
+                id,
+                nullLiteral(),
+              ),
+            ),
+          ]),
+        )
+      ]);
+    }
 
     const ifStatementNode = ifStatement(
       callExpression(
@@ -278,33 +369,44 @@ export default class Render {
         [refIdentifier]
       ),
       
-      callExpressionNode,
+      statementNode,
     );
 
     this.updateStatement.push(
-      refList.length ? ifStatementNode : callExpressionNode,
+      refList.length ? ifStatementNode : statementNode,
     );
   }
 
   // callee(id)
   // callee()
   public pushRenderStatement(options: {
+    kind?: "var" | "let" | "const",
     callee: Expression;
     id: Identifier;
     argumentList: Expression[];
+    test?: Expression;
   }) {
-    const { id, callee, argumentList } = options;
+    const { id, callee, argumentList, kind = 'const', test } = options;
+    let init: Expression = callExpression(
+      callee,
+      argumentList,
+    );
+
+    if (test) {
+      init = logicalExpression(
+        '&&',
+        test,
+        init,
+      )
+    }
 
     this.renderStatement.push(
       variableDeclaration(
-        'const',
+        test ? 'let' : kind,
         [
           variableDeclarator(
             id,
-            callExpression(
-              callee,
-              argumentList,
-            )
+            init,
           )
         ]
       )
@@ -315,12 +417,13 @@ export default class Render {
   // callee(target, anchor)
   public pushMounteStatement(options: {
     callee: Expression;
-    target?: Identifier,
-    id?: Identifier,
-    anchor?: Identifier,
+    target?: Identifier, // 跟 argumentList 互斥
+    id?: Identifier, // 跟 argumentList 互斥
+    anchor?: Identifier, // 跟 argumentList 互斥
     argumentList?: Expression[];
+    test?: Expression; // if (test) {expression}
   }) {
-    const { id,  target, anchor, callee, argumentList } = options;
+    const { id,  target, anchor, callee, argumentList, test } = options;
     const defaultArgumentList: Identifier[] = [];
     if (target) {
       defaultArgumentList.push(target);
@@ -334,13 +437,15 @@ export default class Render {
       defaultArgumentList.push(anchor);
     }
 
-    this.mounteStatement.push(
-      expressionStatement(
-        callExpression(
-          callee,
-          argumentList || defaultArgumentList,
-        )
+    const expression = expressionStatement(
+      callExpression(
+        callee,
+        argumentList || defaultArgumentList,
       )
+    );
+
+    this.mounteStatement.push(
+      test ? ifStatement(test, expression) : expression,
     );
   }
 
@@ -350,21 +455,24 @@ export default class Render {
     callee: Expression;
     id?: Identifier;
     argumentList?: Expression[];
+    test?: Expression;
   }) {
-    const { id, callee, argumentList } = options;
+    const { id, callee, argumentList, test } = options;
     const defaultArgumentList: Identifier[] = [];
 
     if (id) {
       defaultArgumentList.push(id);
     }
 
-    this.destroyStatement.push(
-      expressionStatement(
-        callExpression(
-          callee,
-          argumentList || defaultArgumentList,
-        )
+    const expression = expressionStatement(
+      callExpression(
+        callee,
+        argumentList || defaultArgumentList,
       )
+    )
+
+    this.destroyStatement.push(
+      test ? ifStatement(test, expression) : expression,
     );
   }
 

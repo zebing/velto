@@ -3,6 +3,7 @@ import {
   onBeforeDestroy, onDestroyed,
 } from "@lite/lite"
 import Test from "./components/Test";
+import LogicalExpression from "./components/LogicalExpression";
 
 export default function App() {
   const name: string = 'name';
@@ -30,6 +31,7 @@ export default function App() {
   return (
     <div name={'name'}>
       <Test />
+      <LogicalExpression />
     </div>
   )
 }

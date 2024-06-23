@@ -2,7 +2,7 @@ import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
   onBeforeDestroy, onDestroyed, ref,
 } from "@lite/lite"
-import Test from "../Test";
+import styles from './styles.module.scss';
 
 export default function LogicalExpression() {
   const state = ref(true)
@@ -11,10 +11,13 @@ export default function LogicalExpression() {
     state.value = !state.value;
   }
   return (
-    <div name="name" state={name}>
-      <div onClick={click}>change name</div>
-      {state.value && <div>test</div>}
-      {state.value && <div><Test /></div>}
+    <div class={styles.wrap}>
+      <div>Logical start</div>
+      <button onClick={click}>click</button>
+      {state.value && <div>Logical jsx</div>}
+      <div>Logical object: {state.value && {test: true}}</div>
+      <div>Logical number: {state.value && 2}</div>
+      <div onClick={click}>Logical end</div>
     </div>
   )
 }

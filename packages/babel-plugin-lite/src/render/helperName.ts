@@ -1,4 +1,4 @@
-enum CallExpressionName {
+export enum CallExpressionName {
   source = '@lite/lite',
   // component
   buildComponent = 'buildComponent',
@@ -19,5 +19,3 @@ enum CallExpressionName {
 
   expression = 'expression',
 }
-
-export default CallExpressionName;

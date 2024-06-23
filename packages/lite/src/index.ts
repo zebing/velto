@@ -34,14 +34,14 @@ export function expression(expressContainerFunction: any) {
     return express();
   }
 
-  const id = text(expressContainerFunction());
+  const id = text(toDisplayString(express));
   
   return {
     mount(target: Element, anchor?: Element) {
       insert(target, id, anchor);
     },
     update(ref: Ref) {
-      id.textContent = expressContainerFunction();
+      id.textContent = toDisplayString(expressContainerFunction());
     },
     destroy() {
       remove(id);

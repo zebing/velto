@@ -1,12 +1,11 @@
 import { NodePath, Binding, Scope } from "@babel/traverse";
-import { Identifier, VariableDeclarator, CallExpression } from "@babel/types";
+import { Identifier, VariableDeclarator, CallExpression, MemberExpression } from "@babel/types";
 
 export function getRefs(expressPath: NodePath<any>) {
   const refList: Identifier[] = [];
 
-  expressPath.traverse({
-    MemberExpression(path, state) {
-      const object = path.get('object');
+  const memberExpressionHelper = (path: NodePath<MemberExpression>) => {
+    const object = path.get('object');
 
       if (object.isIdentifier()) {
         const binding = getBinding(path.scope, object.node.name);
@@ -19,6 +18,15 @@ export function getRefs(expressPath: NodePath<any>) {
           }
         }
       }
+  }
+
+  if (expressPath.isMemberExpression()) {
+    memberExpressionHelper(expressPath);
+  }
+
+  expressPath.traverse({
+    MemberExpression(path, state) {
+      memberExpressionHelper(path);
     }
   });
 

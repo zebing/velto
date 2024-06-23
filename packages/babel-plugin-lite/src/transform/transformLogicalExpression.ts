@@ -3,38 +3,49 @@ import { LogicalExpression, callExpression, expressionStatement, CallExpression,
 import { State } from '../types';
 import transformChildren from './transformChildren';
 import transformJSXElement from './transformJSXElement';
-import transformJSXToBlockStatement from './transformJSXToBlockStatement';
+import transformJSXRoot from './transformJSXRoot';
 import { StateName } from '../constants';
-import Render from '../render';
+import Render, { CallExpressionName } from '../render';
+import { getParentId, getRefs } from '../utils';
 
 export default function transformLogicalExpression(
   path: NodePath<LogicalExpression>, 
   state: State,
   render: Render,
 ) {
-  // const left = path.get('left');
-  // const right = path.get('right');
-  // const jsxRootPath = state.get(StateName.jsxRootPath);
-  // const place = createTextExpression({
-  //   kind: 'const',
-  //   name: 'place',
-  //   argument: [stringLiteral(' ')],
-  //   rootPath: jsxRootPath,
-  //   state,
-  // });
+  const left = path.get('left');
+  const right = path.get('right');
+  const target = getParentId(path);
+  const spaceAnchor = render.space(target);
 
-  // return [
-  //   callExpression(
-  //     state.get(HelperName.effect),
-  //     [
-  //       arrowFunctionExpression(
-  //         [], blockStatement([
-  //           ifStatement(
-  //             left.node,
-  //             transformJSXToBlockStatement(right, state),
-  //           )
-  //       ]))
-  //     ],
-  //   )
-  // ];
+  if (right.isJSXElement() || right.isJSXFragment()) {
+    const subRender = new Render({
+      nodePath: right,
+      state,
+    });
+    
+    transformJSXRoot(right, state, subRender);
+    const renderFunctionDeclaration = render.hoist(
+      subRender.generateFunctionDeclaration()
+    );
+
+    const refList = getRefs(left);
+
+    render.expression({
+      express: renderFunctionDeclaration,
+      target,
+      anchor: spaceAnchor,
+      refList,
+      test: left.node,
+    });
+  } else {
+    const refList = getRefs(path);
+    render.expression({
+      express: right.node,
+      target,
+      anchor: spaceAnchor,
+      refList,
+      test: left.node,
+    });
+  }
 }

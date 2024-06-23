@@ -1,6 +1,8 @@
 import { stringCurrying } from "./stringCurrying";
 import { HTML_TAGS, SVG_TAGS } from "../constants";
 
+export * from './toDisplayString';
+
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);
 export const isNativeTag = (name: string) => isHTMLTag(name) || isSVGTag(name);
@@ -9,15 +11,14 @@ export const isFunction = (val: unknown): val is Function => typeof val === 'fun
 export const isRenderFn = (fn: unknown): fn is Function => isFunction(fn) && fn.name === 'render';
 export const isArray = Array.isArray;
 export const isObject = (val: unknown): val is Record<any, any> => val !== null && typeof val === 'object';
-export const camelize = (str: string): string => {
-  return str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
-}
-
-export const capitalize = (str: string) => {
-  return (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<string>;
-}
+export const toTypeString = (value: unknown): string => Object.prototype.toString.call(value);
+export const isMap = (val: unknown): val is Map<any, any> => toTypeString(val) === '[object Map]';
+export const isSet = (val: unknown): val is Set<any> => toTypeString(val) === '[object Set]';
+export const isPlainObject = (val: unknown): val is object => toTypeString(val) === '[object Object]';
+export const camelize = (str: string): string => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
+export const capitalize = (str: string) => (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<string>;
 export const hyphenate = (str: string) => str.replace(/\B([A-Z])/g, '-$1').toLowerCase();
-
+export const hash = () => Math.random().toString(16).slice(2);
 export function callUnstableFunc<F extends Function, R = null>(
   fn: F,
   args?: unknown[],
@@ -28,17 +29,4 @@ export function callUnstableFunc<F extends Function, R = null>(
     console.log(err);
   }
   return null;
-}
-
-export const hash = () => Math.random().toString(16).slice(2);
-export const toDisplayString = (val: unknown): string => {
-  return isString(val)
-    ? val
-    : val == null
-    ? ''
-    : isArray(val) ||
-      (isObject(val) &&
-        (val.toString === Object.prototype.toString || !isFunction(val.toString)))
-    ? JSON.stringify(val)
-    : String(val)
 }
