@@ -342,10 +342,13 @@ export default class Render {
             )
           ]),
           blockStatement([
-            expressionStatement(
-              callExpression(
-                memberExpression(id, identifier('destroy')),
-                [],
+            ifStatement(
+              id, 
+              expressionStatement(
+                callExpression(
+                  memberExpression(id, identifier('destroy')),
+                  [],
+                ),
               ),
             ),
             expressionStatement(

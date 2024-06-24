@@ -4,6 +4,7 @@ import {
 } from "@lite/lite"
 import Test from "./components/Test";
 import LogicalExpression from "./components/LogicalExpression";
+import ConditionalExpression from "./components/ConditionalExpression";
 
 export default function App() {
   const name: string = 'name';
@@ -32,6 +33,7 @@ export default function App() {
     <div name={'name'}>
       <Test />
       <LogicalExpression />
+      <ConditionalExpression />
     </div>
   )
 }

@@ -44,6 +44,7 @@ export function expression(expressContainerFunction: any) {
       id.textContent = toDisplayString(expressContainerFunction());
     },
     destroy() {
+      console.log('++++++destroy', id)
       remove(id);
     }
   }
