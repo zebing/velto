@@ -1,6 +1,9 @@
+import { isObject } from "../utils";
 import { track, trigger } from "./effect";
 
-export class Ref<T = any> {
+export type Ref = RefImpl<any> | Record<any, any>;
+
+export class RefImpl<T = any> {
   private _value: T
 
   constructor(value: T) {
@@ -18,6 +21,24 @@ export class Ref<T = any> {
   }
 }
 
-export function ref<T = any>(value: T): Ref<T> {
-  return new Ref(value)
+const handler: ProxyHandler<any> = {
+  get(target, prop, receiver) {
+    track(receiver);
+    return target[prop];
+  },
+  set(target, prop, value, receiver) {
+    target[prop] = value;
+    trigger(receiver);
+    return true;
+  }
+}
+
+export function ref<T extends object = Record<any, any>>(value: T): T;
+export function ref<T = any>(value: T): RefImpl<T>;
+export function ref(value: any) {
+  if (isObject(value)) {
+    return new Proxy(value, handler);
+  }
+
+  return new RefImpl(value)
 }

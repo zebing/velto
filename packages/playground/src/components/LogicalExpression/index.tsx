@@ -6,6 +6,7 @@ import styles from './styles.module.scss';
 
 export default function LogicalExpression() {
   const state = ref(true)
+  const state1 = ref(true)
   
   const click = () => {
     state.value = !state.value;
@@ -16,7 +17,7 @@ export default function LogicalExpression() {
       <button onClick={click}>click</button>
       {state.value && <div>Logical jsx</div>}
       <div>Logical object: {state.value && {test: true}}</div>
-      <div>Logical number: {state.value && 2}</div>
+      <div>Logical number: {state.value  && state1.value && 2}</div>
       <div onClick={click}>Logical end</div>
     </div>
   )

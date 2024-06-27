@@ -6,10 +6,11 @@ import {
 import styles from "./styles.module.scss";
 
 export default function Test() {
-  const style = ref(styles.blue)
-  const state = ref({
+  const style = ref<string>(styles.blue)
+  const state = ref<{name: string}>({
     name: 'name',
   })
+  console.log(style.value, state.name)
   const name: string = 'name';
   onCreated(() => {
     console.log('+++++Test onCreated')
@@ -34,15 +35,13 @@ export default function Test() {
   })
   const click = () => {
     console.log('+++++++click')
-    state.value = {
-      name: 'new name'
-    };
-    style.value = styles.yellow;
+    state.name = 'new name';
+    style.value = styles.green;
   }
   return (
     <div name="name" state={name} class={style.value}>
       <div onClick={click}>change name</div>
-      <div>name: {state.value?.name}</div>
+      <div>name: {state.name}</div>
     </div>
   )
 }

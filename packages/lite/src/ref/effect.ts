@@ -11,7 +11,7 @@ export type Effect = () => void;
  */
 const contextMap = new WeakMap<object, Set<ComponentInstance>>();
 
-export function track(key: Ref<any>) {
+export function track(key: Ref) {
   const instance = getCurrentInstance();
   let dep = contextMap.get(key);
 
@@ -25,7 +25,7 @@ export function track(key: Ref<any>) {
   }
 }
 
-export function trigger(key: Ref<any>) {
+export function trigger(key: Ref) {
   const dep = contextMap.get(key);
   dep?.forEach((instance) => instance?.update?.(key))
 }
