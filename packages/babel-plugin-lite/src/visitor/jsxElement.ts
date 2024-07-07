@@ -12,9 +12,6 @@ export default function JSXElement(path: NodePath<JSXElement>, state: State) {
     state,
   });
   transformJSXRoot(path, state, render);
-  const id = render.hoist(
-    render.generateFunctionDeclaration()
-  );
   
-  path.replaceWith(id);
+  path.replaceWith(render.generateFunctionDeclaration());
 }
