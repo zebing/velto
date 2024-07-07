@@ -5,6 +5,8 @@ import {
 import Test from "./components/Test";
 import LogicalExpression from "./components/LogicalExpression";
 import ConditionalExpression from "./components/ConditionalExpression";
+import List from "./components/List";
+
 
 export default function App() {
   const name: string = 'name';
@@ -31,9 +33,10 @@ export default function App() {
   })
   return (
     <div name={'name'}>
-      <Test />
+      {/* <Test />
       <LogicalExpression />
-      <ConditionalExpression />
+      <ConditionalExpression /> */}
+      <List />
     </div>
   )
 }

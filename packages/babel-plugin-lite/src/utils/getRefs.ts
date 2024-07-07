@@ -1,5 +1,7 @@
 import { NodePath, Binding, Scope } from "@babel/traverse";
 import { Identifier, VariableDeclarator, CallExpression, MemberExpression } from "@babel/types";
+import { NodePathDataKey } from "../constants";
+import { getArrayMapCalleeNameRef } from "./arrayMap";
 
 export function getRefs(expressPath: NodePath<any>) {
   const refList: Identifier[] = [];
@@ -11,6 +13,9 @@ export function getRefs(expressPath: NodePath<any>) {
         const binding = getBinding(path.scope, object.node.name);
 
         if (binding) {
+          const stateRefList = getArrayMapCalleeNameRef<typeof binding.path.node>(binding.path, NodePathDataKey.refList) || [];
+          refList.push(...stateRefList);
+
           const ref = getRefFromBinding(binding);
 
           if (ref) {

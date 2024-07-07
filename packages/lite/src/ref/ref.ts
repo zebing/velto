@@ -1,4 +1,4 @@
-import { isObject } from "../utils";
+import { isObject, isArray } from "../utils";
 import { track, trigger } from "./effect";
 
 export type Ref = RefImpl<any> | Record<any, any>;
@@ -28,7 +28,16 @@ const handler: ProxyHandler<any> = {
   },
   set(target, prop, value, receiver) {
     target[prop] = value;
-    trigger(receiver);
+
+    if(isArray(target)) {
+      if (prop === 'length') {
+        trigger(receiver);
+      }
+      return true;
+      
+    } else {
+      trigger(receiver);
+    }
     return true;
   }
 }

@@ -58,6 +58,7 @@ export default class Render {
   }
 
   public hoist(express: Expression) {
+    return express;
     const rootPath = this.pathState.get(StateName.jsxRootPath);
     const id = rootPath.scope.generateUidIdentifier('hoist_render');
     const el = variableDeclaration(

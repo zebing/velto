@@ -30,7 +30,7 @@ export default function transformChildren(
   path.forEach((children) => {
     // JSXElement
     if (children.isJSXElement()) {
-      transformJSXElement(children, state, render)
+      transformJSXElement(children, state, render);
       
       // JSXFragment
     } else if (children.isJSXFragment()) {

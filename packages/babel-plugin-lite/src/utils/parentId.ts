@@ -1,12 +1,12 @@
 import { NodePath } from '@babel/core';
 import { JSXEmptyExpression, Expression, SpreadElement, JSXText, JSXSpreadChild, Identifier, ExpressionStatement, BlockStatement, Statement, JSXAttribute, JSXSpreadAttribute, JSXExpressionContainer } from '@babel/types';
-import { targetIdentifier } from '../constants';
+import { targetIdentifier, NodePathDataKey } from '../constants';
 
 export function getParentId(path: NodePath<JSXEmptyExpression | JSXSpreadChild | JSXText | Expression | SpreadElement | JSXAttribute | JSXSpreadAttribute | JSXExpressionContainer>) {
   let parent = path.parentPath;
   while(parent) {
-    if (parent?.state?.parentId) {
-      return parent.state.parentId;
+    if (parent?.data?.[NodePathDataKey.parentId]) {
+      return parent.data?.[NodePathDataKey.parentId] as Identifier;
     }
 
     if (parent.parentPath) {
@@ -15,14 +15,15 @@ export function getParentId(path: NodePath<JSXEmptyExpression | JSXSpreadChild |
       return targetIdentifier;
     }
   }
+  return targetIdentifier;
 }
 
-export function setParentId(path?: NodePath<JSXText | Expression | SpreadElement | ExpressionStatement | BlockStatement | Statement>, id: Identifier = targetIdentifier) {
+export function setParentId(path: NodePath<JSXText | Expression | SpreadElement | ExpressionStatement | BlockStatement | Statement>, id: Identifier = targetIdentifier) {
   if (path) {
-    if (!path.state) {
-      path.state = {};
+    if (!path.data) {
+      path.data = {};
     }
   
-    path.state.parentId = id;
+    path.data[NodePathDataKey.parentId] = id;
   }
 }

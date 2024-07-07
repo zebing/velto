@@ -22,5 +22,4 @@ export default function transformExpression(
     express: expression.node as Expression,
     refList,
   });
-  
 }

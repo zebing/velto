@@ -8,7 +8,7 @@ export const isSVGTag = stringCurrying(SVG_TAGS, true);
 export const isNativeTag = (name: string) => isHTMLTag(name) || isSVGTag(name);
 export const isString = (val: unknown): val is string => typeof val === 'string';
 export const isFunction = (val: unknown): val is Function => typeof val === 'function';
-export const isRenderFn = (fn: unknown): fn is Function => isFunction(fn) && fn.name === 'render';
+export const isRenderFn = (fn: unknown): fn is Function => isFunction(fn) && fn.name.indexOf('render') !== -1;
 export const isArray = Array.isArray;
 export const isObject = (val: unknown): val is Record<any, any> => val !== null && typeof val === 'object';
 export const toTypeString = (value: unknown): string => Object.prototype.toString.call(value);

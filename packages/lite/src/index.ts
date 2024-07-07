@@ -1,5 +1,5 @@
 import { isFunction, isRenderFn, isArray, isString, isNativeTag, toDisplayString } from "./utils";
-import { Component, buildComponent, Props } from "./component";
+import { Component, buildComponent, Props, RenderResult } from "./component";
 import { insert, remove, text } from "./nodeOps";
 import { Ref } from "./ref";
 
@@ -28,10 +28,48 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
   }
 }
 
-export function expression(expressContainerFunction: any) {
+export function expression(expressContainerFunction: any): RenderResult {
   const express = expressContainerFunction();
-  if (isFunction(express) && express.name === 'render') {
+  if (isRenderFn(express)) {
     return express();
+  }
+
+  if (isArray(express) && isRenderFn(express[0])) {
+    let cache: RenderResult[] = [];
+    let catchTarget: Element; 
+    let cahceAnchor: Element | undefined;
+
+    return {
+      mount(target: Element, anchor?: Element) {
+        catchTarget = target;
+        cahceAnchor = anchor;
+        const renderList = express;
+        renderList.forEach((render, index) => {
+          const renderResult = cache[index] = render();
+          renderResult.mount(target, anchor);
+        });
+      },
+      update(ref: Ref) {
+        const renderList = expressContainerFunction() as (() => RenderResult)[];
+        renderList.forEach((render, index) => {
+          let renderResult = cache[index]
+
+          if (renderResult) {
+            return renderResult.update(ref);
+          }
+          renderResult = cache[index] = render();
+          renderResult.mount(catchTarget, cahceAnchor);
+        });
+
+        for(let i = renderList.length; i < cache.length; i++) {
+          cache[i].destroy();
+        }
+      },
+      destroy() {
+        cache.map(render => render.destroy());
+        cache = [];
+      }
+    }
   }
 
   const id = text(toDisplayString(express));
@@ -44,7 +82,6 @@ export function expression(expressContainerFunction: any) {
       id.textContent = toDisplayString(expressContainerFunction());
     },
     destroy() {
-      console.log('++++++destroy', id)
       remove(id);
     }
   }

@@ -1,5 +1,6 @@
 import { identifier } from '@babel/types';
 export * from './stateName';
+export * from './nodePathDataKey';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 export const HTML_TAGS =

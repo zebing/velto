@@ -14,7 +14,7 @@ export default function transformConsequentExpression(options: {
 }) {
   const { test, testRefList, consequent, state, render } = options;
   const target = getParentId(consequent);
-  const spaceAnchor = render.space(target);
+  const spaceAnchor = render.space(target as Identifier);
 
   if (consequent.isJSXElement() || consequent.isJSXFragment()) {
     const subRender = new Render({
