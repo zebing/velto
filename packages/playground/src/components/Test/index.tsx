@@ -1,18 +1,22 @@
 import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
   onBeforeDestroy, onDestroyed, ref,
+  RefImpl,
 } from "@lite/lite"
 
 import styles from "./styles.module.scss";
 
 export default function Test() {
   const style = ref<string>(styles.blue)
+  const refStyle = ref<RefImpl<string>>(style)
   const state = ref<{name: string}>({
     name: 'name',
   })
+  const refState = ref<{name: string}>(state)
   console.log(style.value, state.name)
   const name: string = 'name';
   onCreated(() => {
+    console.log('+++style', style === refStyle, refState === state)
     console.log('+++++Test onCreated')
   })
   onBeforeMount(() => {
@@ -41,7 +45,9 @@ export default function Test() {
   return (
     <div name="name" state={name} class={style.value}>
       <div onClick={click}>change name</div>
-      <div>name: {state.name}</div>
+      <div>name: {refState.name}</div>
+      <div>{style.value}</div>
+      <div>{refStyle.value}</div>
     </div>
   )
 }
