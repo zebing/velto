@@ -1,5 +1,6 @@
 import type { Ref } from "./ref";
 import { ComponentInstance, getCurrentInstance } from "../component";
+import { enqueueScheduler, Scheduler } from "./scheduler";
 
 export type Effect = () => void;
 
@@ -20,12 +21,17 @@ export function track(key: Ref) {
     contextMap.set(key, dep);
   }
 
-  if (instance) {
+  if (instance && !dep.has(instance)) {
     dep.add(instance);
   }
 }
 
 export function trigger(key: Ref) {
   const dep = contextMap.get(key);
-  dep?.forEach((instance) => instance?.update?.(key))
+
+  dep?.forEach((instance) => {
+    const schedule: Scheduler = () => instance?.update?.(key);
+    schedule.id = instance.uid;
+    enqueueScheduler(schedule);
+  })
 }
