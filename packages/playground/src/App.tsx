@@ -6,6 +6,8 @@ import Test from "./components/Test";
 import LogicalExpression from "./components/LogicalExpression";
 import ConditionalExpression from "./components/ConditionalExpression";
 import List from "./components/List";
+import ParentChild from "./components/ParentChild";
+
 
 
 export default function App() {
@@ -36,7 +38,8 @@ export default function App() {
       {/* <Test />
       <LogicalExpression />
       <ConditionalExpression /> */}
-      <List />
+      {/* <List /> */}
+      <ParentChild />
     </div>
   )
 }

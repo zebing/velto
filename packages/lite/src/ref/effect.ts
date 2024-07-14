@@ -30,7 +30,13 @@ export function trigger(key: Ref) {
   const dep = contextMap.get(key);
 
   dep?.forEach((instance) => {
-    const schedule: Scheduler = () => instance?.update?.(key);
+    const schedule: Scheduler = () => {
+      if (!instance.updatedWithRefs.includes(key)) {
+        instance?.update?.(key);
+      }
+      
+      instance.updatedWithRefs.length = 0;
+    }
     schedule.id = instance.uid;
     enqueueScheduler(schedule);
   })

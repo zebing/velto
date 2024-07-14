@@ -18,6 +18,8 @@ export interface Props {
 
 export interface ComponentInstance {
   uid: number;
+  // Prevents duplicate updates for parent-child components when both components introduce the same ref.
+  updatedWithRefs: Ref[],
   renderResult: RenderResult;
   mount: (target: Element, anchor?: Element) => void;
   update: (ref: Ref) => void;
@@ -40,6 +42,7 @@ let uid = 0
 export function buildComponent(type: Component, props: Props) {
   const instance: ComponentInstance = {
     uid: uid++,
+    updatedWithRefs: [],
     renderResult: {
       mount: () => undefined,
       update: () => undefined,
@@ -53,6 +56,7 @@ export function buildComponent(type: Component, props: Props) {
       popCurrentInstance();
     },
     update: (ref) => {
+      instance.updatedWithRefs.push(ref);
       pushCurrentInstance(instance);
       callHook(LifecycleHooks.BEFORE_UPDATE, instance);
       instance.renderResult.update(ref);
