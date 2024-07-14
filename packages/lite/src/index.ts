@@ -64,6 +64,7 @@ export function expression(expressContainerFunction: any): RenderResult {
         for(let i = renderList.length; i < cache.length; i++) {
           cache[i].destroy();
         }
+        cache.length = renderList.length;
       },
       destroy() {
         cache.map(render => render.destroy());
@@ -72,17 +73,21 @@ export function expression(expressContainerFunction: any): RenderResult {
     }
   }
 
-  const id = text(toDisplayString(express));
+  const node = text(toDisplayString(express));
   
   return {
     mount(target: Element, anchor?: Element) {
-      insert(target, id, anchor);
+      insert(target, node, anchor);
     },
     update(ref: Ref) {
-      id.textContent = toDisplayString(expressContainerFunction());
+      const text = toDisplayString(expressContainerFunction());
+      if (node.textContent !== text) {
+        node.textContent = text;
+      }
+      
     },
     destroy() {
-      remove(id);
+      remove(node);
     }
   }
 }

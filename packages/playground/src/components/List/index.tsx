@@ -16,17 +16,32 @@ export default function List() {
     { id: i++, name: '小王', grade: '二年级', age: 9 },
     { id: i++, name: '小李', grade: '一年级', age: 8 },
   ])
-  const click = () => {
+  const unshift = () => {
     // list[0].name = 'name'
-    for(let j = 0; j < 50; j++) {
-      list.unshift({ id: i++, name: '小丽', grade: '一年级', age: 8 });
+    for(let j = 0; j < 10; j++) {
+      list.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
+  }
+
+  const append = () => {
+    list.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
+  }
+
+  const insert = () => {
+    list.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
+  }
+
+  const deletefrom10 = () => {
+    list.splice(10, 1);
   }
  
   return (
     <div class={styles.wrap}>
       <div>List Component</div>
-      <button onClick={click}>click</button>
+      <button onClick={unshift}>unshift</button>
+      <button onClick={append}>append</button>
+      <button onClick={insert}>insert</button>
+      <button onClick={deletefrom10}>deletefrom10</button>
       <div class={styles.list}>
         {list.map((student) => (
           <div class={styles.item}>
