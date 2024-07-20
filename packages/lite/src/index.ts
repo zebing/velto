@@ -1,12 +1,12 @@
 import { isFunction, isRenderFn, isArray, isString, isNativeTag, toDisplayString } from "./utils";
 import { Component, buildComponent, Props, RenderResult } from "./component";
 import { insert, remove, text } from "./nodeOps";
-import { Ref } from "./ref";
+import { Ref } from "./reactive";
 
 export * from './nodeOps';
 export * from './propsOps';
 export * from './component';
-export * from './ref';
+export * from './reactive';
 
 export function normalizeContainer(
   container: Element | string | null

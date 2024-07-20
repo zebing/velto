@@ -1,7 +1,7 @@
 import { LifecycleHooks, callHook } from "./lifecycle";
 // import { Style } from "./propsOps";
 import { callUnstableFunc, hash } from "../utils";
-import { Ref } from "../ref";
+import { Ref } from "../reactive";
 
 export * from "./lifecycle";
 export interface RenderResult {
