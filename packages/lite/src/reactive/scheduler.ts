@@ -1,7 +1,9 @@
 import { callUnstableFunc } from "../utils";
+import { Ref } from "./ref";
 
 export interface Scheduler extends Function {
   id: number;
+  ref: Ref;
   active?: boolean;
   computed?: boolean;
 }
@@ -20,7 +22,7 @@ export function enqueueScheduler(schedule: Scheduler) {
       insertIndex = index + 1;
     }
     
-    return item.id === schedule.id;
+    return item.id === schedule.id && item.ref === schedule.ref;
   });
 
   if (!queue.length || !existInQueue) {

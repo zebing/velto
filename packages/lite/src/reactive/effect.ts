@@ -1,35 +1,32 @@
 import type { Ref } from "./ref";
-import { ComponentInstance, getCurrentInstance } from "../component";
+import { ComponentInstance, currentInstance } from "../component";
 import { enqueueScheduler, Scheduler } from "./scheduler";
-
-export type Effect = () => void;
 
 /**
  * WeakMap {
- *   ref1: Set[ComponentContext1, ComponentContext2]
- *   ref2: Set[ComponentContext1, ComponentContext2]
+ *   ref1: Set[ComponentInstance, ComponentInstance]
+ *   ref2: Set[ComponentInstance, ComponentInstance]
  * }
  */
 const contextMap = new WeakMap<object, Set<ComponentInstance>>();
 
 export function track(key: Ref) {
-  const instance = getCurrentInstance();
-  let dep = contextMap.get(key);
+  let effectList = contextMap.get(key);
 
-  if (!dep) {
-    dep = new Set<ComponentInstance>();
-    contextMap.set(key, dep);
+  if (!effectList) {
+    effectList = new Set<ComponentInstance>();
+    contextMap.set(key, effectList);
   }
 
-  if (instance && !dep.has(instance)) {
-    dep.add(instance);
+  if (currentInstance && !effectList.has(currentInstance)) {
+    effectList.add(currentInstance);
   }
 }
 
 export function trigger(key: Ref) {
-  const dep = contextMap.get(key);
+  const effectList = contextMap.get(key);
 
-  dep?.forEach((instance) => {
+  effectList?.forEach((instance) => {
     const schedule: Scheduler = () => {
       if (!instance.updatedWithRefs.includes(key)) {
         instance?.update?.(key);
@@ -37,7 +34,8 @@ export function trigger(key: Ref) {
       
       instance.updatedWithRefs.length = 0;
     }
-    schedule.id = instance.uid;
+    schedule.id = instance?.uid || 0;
+    schedule.ref = key;
     enqueueScheduler(schedule);
   })
 }

@@ -1,6 +1,6 @@
 import { isArray, callUnstableFunc } from "../utils";
 import type { ComponentInstance } from "./";
-import { getCurrentInstance } from "./";
+import { currentInstance } from "./";
 
 export const enum LifecycleHooks {
   CREATED = 'created',
@@ -12,8 +12,7 @@ export const enum LifecycleHooks {
   DESTROYED = 'destroyed',
 }
 
-export const createHook = (lifecycle: LifecycleHooks) => (hook: () => any) => {
-  const instance = getCurrentInstance();
+export const createHook = (lifecycle: LifecycleHooks) => (hook: () => any, instance = currentInstance) => {
   if (!instance) {
     return;
   }

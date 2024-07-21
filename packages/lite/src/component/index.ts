@@ -18,6 +18,8 @@ export interface Props {
 
 export interface ComponentInstance {
   uid: number;
+  type: Component;
+  props: Props;
   // Prevents duplicate updates for parent-child components when both components introduce the same ref.
   updatedWithRefs: Ref[],
   renderResult: RenderResult;
@@ -42,6 +44,8 @@ let uid = 0
 export function buildComponent(type: Component, props: Props) {
   const instance: ComponentInstance = {
     uid: uid++,
+    type,
+    props,
     updatedWithRefs: [],
     renderResult: {
       mount: () => undefined,
@@ -49,19 +53,17 @@ export function buildComponent(type: Component, props: Props) {
       destroy: () => undefined,
     },
     mount: (target, anchor) => {
-      pushCurrentInstance(instance);
+      setCurrentInstance(instance);
       callHook(LifecycleHooks.BEFORE_MOUNT, instance);
       instance.renderResult.mount(target, anchor);
       callHook(LifecycleHooks.MOUNTED, instance);
-      popCurrentInstance();
     },
     update: (ref) => {
+      setCurrentInstance(instance);
       instance.updatedWithRefs.push(ref);
-      pushCurrentInstance(instance);
       callHook(LifecycleHooks.BEFORE_UPDATE, instance);
       instance.renderResult.update(ref);
       callHook(LifecycleHooks.UPDATED, instance);
-      popCurrentInstance();
     },
     destroy: () => {
       callHook(LifecycleHooks.BEFORE_DESTROY, instance);
@@ -77,95 +79,23 @@ export function buildComponent(type: Component, props: Props) {
     [LifecycleHooks.UPDATED]: null,
     [LifecycleHooks.BEFORE_DESTROY]: null,
     [LifecycleHooks.DESTROYED]: null,
-  }
+  };
 
-  pushCurrentInstance(instance);
+  setCurrentInstance(instance);
   const render = callUnstableFunc<Component, () => RenderResult>(type, [props]);
+
   if (render) {
     instance.renderResult = render();
 
     // created hook
     callHook(LifecycleHooks.CREATED, instance);
   }
-  popCurrentInstance();
-  
 
   return instance
 }
 
 export let currentInstance: ComponentInstance | null = null;
-const currentInstances: ComponentInstance[] = [];
 
-export const getCurrentInstance: () => ComponentInstance | null = () => currentInstance;
-
-export const pushCurrentInstance = (instance: ComponentInstance) => {
-  if (currentInstance) {
-    currentInstances.push(instance);
-  }
-
-  currentInstance = instance;
+export const setCurrentInstance = (instance: ComponentInstance) => {
+  currentInstance = instance
 }
-
-export const popCurrentInstance = () => {
-  currentInstance = currentInstances.pop() || null;
-}
-
-// export function renderComponent(container: Element, instance: ComponentInstance, props?: Props) {
-//   instance.renderEffect = () => renderEffect(container, instance, props);
-//   instance.renderEffect();
-// }
-
-// export function renderEffect(container: Element, instance: ComponentInstance, props?: Props) {
-//   pushCurrentInstance(instance);
-//   if (!instance.isCreated) {
-//     instance.render = callUnstableFunc(instance.type, [props]);
-//     instance.isCreated = true;
-
-//     // created hook
-//     callHook(LifecycleHooks.CREATED, instance);
-//   }
-
-//   container.innerHTML = '';
-//   // mounte
-//   if (!instance.isMounted) {
-//     // beforeRender hook
-//     callHook(LifecycleHooks.BEFORE_RENDER, instance);
-//     instance?.render?.(container);
-//     // rendered hook
-//     callHook(LifecycleHooks.RENDERED, instance);
-//     return;
-//   }
-  
-//   instance.hash = hash();
-
-//   // update
-//   // beforeRender hook
-//   callHook(LifecycleHooks.BEFORE_UPDATE, instance);
-//   instance?.effectList.forEach(effect => effect());
-//   instance?.render?.(container);
-//   // rendered hook
-//   callHook(LifecycleHooks.UPDATED, instance);
-
-//   popCurrentInstance();
-
-//   const unMountComponentInstances = instance.subComponentInstance.filter(subInstance => 
-//     subInstance.hash !== instance.hash);
-  
-//   if (unMountComponentInstances.length) {
-//     unMountComponentInstances.forEach(instance => unMountComponent(instance));
-//   }
-
-//   if (instance.parent?.hash) {
-//     instance.hash = instance.parent.hash;
-//   }
-// }
-
-// export function unMountComponent(instance: ComponentInstance) {
-//   // beforeUnmount hook
-//   callHook(LifecycleHooks.BEFORE_UNMOUNT, instance);
-
-//   Object.assign(instance, createComponentInstance(instance.type));
-
-//   // unmounted hook
-//   callHook(LifecycleHooks.UNMOUNTED, instance);
-// }
