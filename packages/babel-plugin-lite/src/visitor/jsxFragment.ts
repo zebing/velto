@@ -1,17 +1,13 @@
 import { NodePath,  } from '@babel/traverse';
 import { JSXFragment } from '@babel/types';
-import { State } from '../types';
-import { StateName } from '../constants';
 import Render from '../render';
-import transformJSXRoot from '../transform/transformJSXRoot';
+import { transformJSX } from '../transform';
 
-export default function JSXFragment(path: NodePath<JSXFragment>, state: State) {
-  state.set(StateName.jsxRootPath, path.getStatementParent());
+export default function JSXFragment(path: NodePath<JSXFragment>) {
   const render = new Render({
-    nodePath: path,
-    state,
+    rootPath: path,
   });
-  transformJSXRoot(path, state, render);
+  transformJSX({ path, render, root: true });
   
-  path.replaceWith(render.generateFunctionDeclaration());
+  path.replaceWith(render.generate());
 }

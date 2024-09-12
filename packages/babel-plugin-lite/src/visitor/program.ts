@@ -1,30 +1,19 @@
-import { NodePath,  } from '@babel/traverse';
-import { Program, ImportDeclaration, jSXElement, jSXOpeningElement, jSXIdentifier, jSXAttribute, jSXExpressionContainer, expressionStatement } from '@babel/types';
-import { State } from '../types';
-import { StateName } from '../constants';
+import { NodePath } from '@babel/traverse';
+import { Program } from '@babel/types';
+import { runtimeReactive } from '../transform';
+import { Helper } from '../helper';
+import { NodePathState } from '../types';
 
 export default {
-  enter(path: NodePath<Program>, state: State) {
-    // (Object.keys(HelperName) as HelperName[]).forEach((key: HelperName) => {
-    //   state.set(key, path.scope.generateUidIdentifier(key));
-    // });
+  enter(path: NodePath<Program>) {
+    path.state = {} as NodePathState;
+    path.state.helper = new Helper({ rootPath: path });
+    runtimeReactive(path);
   },
-  exit(path: NodePath<Program>, state: State) {
-    if (state.get(StateName.importHelper)) {
-      path.node.body.unshift(state.get<ImportDeclaration>(StateName.importHelper));
+  exit(path: NodePath<Program>) {
+    const state = path.state as NodePathState;
+    if (state.helper.hasSpecifier) {
+      path.node.body.unshift(state.helper.helperImportDeclaration);
     }
-
-    // const test = jSXElement(
-    //   jSXOpeningElement(
-    //     jSXIdentifier('div'),
-    //     [
-    //       jSXAttribute(jSXIdentifier('id'), jSXExpressionContainer(jSXEmptyExpression())),
-    //     ],
-    //   ),
-    //   null,
-    //   [],
-    // )
-
-    // path.node.body.push(expressionStatement(test))
   }
 }

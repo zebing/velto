@@ -1,6 +1,4 @@
 import { identifier } from '@babel/types';
-export * from './stateName';
-export * from './nodePathDataKey';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 export const HTML_TAGS =
@@ -27,6 +25,8 @@ export const SVG_TAGS =
   'polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,' +
   'text,textPath,title,tspan,unknown,use,view';
 
-  export const  targetIdentifier = identifier('target');
-  export const  anchorIdentifier = identifier('anchor');
-  export const  refIdentifier = identifier('ref');
+export const targetIdentifier = identifier('target');
+export const anchorIdentifier = identifier('anchor');
+export const reactiveIdentifier = identifier('reactive');
+
+export const isJSX = Symbol('jsx');

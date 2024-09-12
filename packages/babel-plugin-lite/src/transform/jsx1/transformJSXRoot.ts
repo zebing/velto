@@ -1,30 +1,28 @@
 import { NodePath } from '@babel/traverse';
 import { JSXElement, JSXFragment, JSXExpressionContainer, JSXSpreadChild, JSXText, identifier, Expression, stringLiteral } from '@babel/types';
-import { State } from '../types';
-import { StateName, anchorIdentifier } from '../constants';
 import transformJSXElement from './transformJSXElement';
 import transformExpression from './transformExpression';
 import transformChildren from './transformChildren';
 import transformLogicalExpression from './transformLogicalExpression';
 import transformConditionalExpression from './transformConditionalExpression';
 import transformJSXElementAttribute from './transformJSXElementAttribute';
-import { getTagLiteral, getParentId, setParentId } from '../utils';
-import { isNativeTag } from '../utils';
-import Render from '../render';
+import { getTagLiteral, getParentId, setParentId } from '../../utils';
+import { isNativeTag } from '../../utils';
+import Render from '../../render';
+import { HelperNameType } from '../../helper';
 
 export default function transformJSXRoot(
   path: NodePath<JSXElement | JSXFragment | JSXExpressionContainer | JSXSpreadChild | JSXText>,
-  state: State,
   render: Render,
 ) {
 
   // JSXElement
   if (path.isJSXElement()) {
-    transformJSXElement(path, state, render, { root: true });
+    transformJSXElement(path, render, { root: true });
 
     // JSXFragment
   } else if (path.isJSXFragment()) {
-    path.get('children').forEach(path => transformJSXRoot(path, state, render));
+    path.get('children').forEach(path => transformJSXRoot(path, render));
 
     // JSXExpressionContainer
   } else if (path.isJSXExpressionContainer()) {
@@ -32,29 +30,29 @@ export default function transformJSXRoot(
 
      // JSXElement
      if (expression.isJSXElement()) {
-      transformJSXElement(expression, state, render, { root: true });
+      transformJSXElement(expression, render, { root: true });
       
       // JSXFragment
     } else if (expression.isJSXFragment()) {
-      transformJSXRoot(path, state, render);
+      transformJSXRoot(path, render);
 
       // LogicalExpression
     } else if (expression.isLogicalExpression()) {
-      transformLogicalExpression(expression, state, render);
+      transformLogicalExpression(expression, render);
 
       // ConditionalExpression
     } else if (expression.isConditionalExpression()) {
-      transformConditionalExpression(expression, state, render);
+      transformConditionalExpression(expression, render);
 
 
       // ignore JSXEmptyExpression
     } else if (!expression.isJSXEmptyExpression()) {
-      transformExpression(path, state, render);
+      transformExpression(path, render);
     }
     
     // JSXSpreadChild
   }  else if (path.isJSXSpreadChild()) {
-    transformExpression(path, state, render);
+    transformExpression(path, render);
 
     // JSXText
   } else {
@@ -65,7 +63,7 @@ export default function transformJSXRoot(
       render.text({
         target: parentId,
         str: stringLiteral(str),
-        type: 'insert',
+        type: HelperNameType.insert,
       });
     }
   }

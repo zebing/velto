@@ -13,28 +13,26 @@ import {
   identifier,
   stringLiteral
 } from '@babel/types';
-import { State } from '../types';
 import transformJSXElement from './transformJSXElement';
-import { StateName } from '../constants';
-import Render from '../render';
+import Render from '../../render';
 import transformLogicalExpression from './transformLogicalExpression';
 import transformConditionalExpression from './transformConditionalExpression';
 import transformExpression from './transformExpression';
-import { getParentId } from '../utils';
+import { getParentId } from '../../utils';
+import { HelperNameType } from '../../helper';
 
 export default function transformChildren(
   path: NodePath<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>[],
-  state: State,
   render: Render,
 ){
   path.forEach((children) => {
     // JSXElement
     if (children.isJSXElement()) {
-      transformJSXElement(children, state, render);
+      transformJSXElement(children, render);
       
       // JSXFragment
     } else if (children.isJSXFragment()) {
-      transformChildren(children.get('children'), state, render);
+      transformChildren(children.get('children'), render);
 
       // JSXExpressionContainer
     } else if (children.isJSXExpressionContainer()) {
@@ -42,26 +40,26 @@ export default function transformChildren(
 
       // JSXElement
       if (expression.isJSXElement()) {
-        transformJSXElement(expression, state, render);
+        transformJSXElement(expression, render);
         
         // JSXFragment
       } else if (expression.isJSXFragment()) {
-        transformChildren(expression.get('children'), state, render);
+        transformChildren(expression.get('children'), render);
 
         // LogicalExpression
         // expression && <div></div>
       } else if (expression.isLogicalExpression()) {
-        transformLogicalExpression(expression, state, render);
+        transformLogicalExpression(expression, render);
 
         // ConditionalExpression
         // expression ? <div></div> : null
       } else if (expression.isConditionalExpression()) {
-        transformConditionalExpression(expression, state, render);
+        transformConditionalExpression(expression, render);
 
 
         // ignore JSXEmptyExpression
       } else if (!expression.isJSXEmptyExpression()) {
-        transformExpression(children, state, render);
+        transformExpression(children, render);
       }
       
       // JSXSpreadChild
@@ -84,7 +82,7 @@ export default function transformChildren(
           render.text({ 
             target: parentId,
             str: stringLiteral(str), 
-            type: 'append',
+            type: HelperNameType.append,
           });
         }
     }

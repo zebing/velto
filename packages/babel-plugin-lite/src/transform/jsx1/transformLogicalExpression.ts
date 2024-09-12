@@ -1,13 +1,11 @@
 import { NodePath } from '@babel/core';
 import { LogicalExpression } from '@babel/types';
-import { State } from '../types';
 import transformConsequentExpression from './transformConsequentExpression';
-import Render from '../render';
-import { getRefs } from '../utils';
+import Render from '../../render';
+import { getReactives } from '../../utils';
 
 export default function transformLogicalExpression(
   path: NodePath<LogicalExpression>, 
-  state: State,
   render: Render,
 ) {
   const left = path.get('left');
@@ -15,9 +13,8 @@ export default function transformLogicalExpression(
 
   transformConsequentExpression({
     test: left.node, 
-    testRefList: getRefs(left),
+    testRefList: getReactives(left),
     consequent: right, 
-    state, 
     render,
   });
 }

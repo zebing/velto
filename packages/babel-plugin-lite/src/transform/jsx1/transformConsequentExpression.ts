@@ -1,38 +1,31 @@
 import { NodePath } from '@babel/core';
 import { Expression, Identifier, unaryExpression, logicalExpression } from '@babel/types';
-import { State } from '../types';
 import transformJSXRoot from './transformJSXRoot';
-import Render from '../render';
-import { getParentId, getRefs } from '../utils';
+import Render from '../../render';
+import { getParentId, getReactives } from '../../utils';
 
 export default function transformConsequentExpression(options: {
   test: Expression;
   testRefList: Identifier[];
   consequent: NodePath<Expression>;
-  state: State;
   render: Render;
 }) {
-  const { test, testRefList, consequent, state, render } = options;
+  const { test, testRefList, consequent, render } = options;
   const target = getParentId(consequent);
   const spaceAnchor = render.space(target as Identifier);
 
   if (consequent.isJSXElement() || consequent.isJSXFragment()) {
     const subRender = new Render({
       nodePath: consequent,
-      state,
     });
     
-    transformJSXRoot(consequent, state, subRender);
-    const renderFunctionDeclaration = render.hoist(
-      subRender.generateFunctionDeclaration()
-    );
-
+    transformJSXRoot(consequent, subRender);
 
     render.expression({
-      express: renderFunctionDeclaration,
+      express: subRender.generateFunctionDeclaration(),
       target,
       anchor: spaceAnchor,
-      refList: testRefList,
+      reactiveList: testRefList,
       test,
     });
     // ConditionalExpression
@@ -41,13 +34,12 @@ export default function transformConsequentExpression(options: {
     const subTest = consequent.get('test');
     const subconsequent = consequent.get('consequent');
     const subAlternate = consequent.get('alternate');
-    const subTestRefList = getRefs(subTest);
+    const subTestRefList = getReactives(subTest);
 
     transformConsequentExpression({
       test: logicalExpression('&&', test, subTest.node), 
       testRefList: [...testRefList, ...subTestRefList],
       consequent: subconsequent, 
-      state, 
       render,
     });
 
@@ -55,17 +47,16 @@ export default function transformConsequentExpression(options: {
       test: logicalExpression('&&', test, unaryExpression('!', subTest.node)), 
       testRefList: [...testRefList, ...subTestRefList],
       consequent: subAlternate, 
-      state, 
       render,
     });
 
   } else {
-    const refList = getRefs(consequent);
+    const reactiveList = getReactives(consequent);
     render.expression({
       express: consequent.node,
       target,
       anchor: spaceAnchor,
-      refList: [...testRefList, ...refList],
+      reactiveList: [...testRefList, ...reactiveList],
       test: test,
     });
   }

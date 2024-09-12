@@ -4,9 +4,9 @@ import { HTML_TAGS, SVG_TAGS } from '../constants';
 import { JSXOpeningElement, isJSXIdentifier, isJSXMemberExpression, isJSXNamespacedName } from '@babel/types';
 import { NodePath } from '@babel/traverse';
 
-export * from './getRefs';
-export * from './parentId';
+export * from './getReactives';
 export * from './arrayMap';
+export * from './isReactive';
 
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);

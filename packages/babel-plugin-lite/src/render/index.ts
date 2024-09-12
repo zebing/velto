@@ -4,116 +4,72 @@ import { Identifier, identifier, blockStatement, Statement, returnStatement,
   importDeclaration, importSpecifier, ImportDeclaration, ImportSpecifier, 
   Expression, StringLiteral, memberExpression, MemberExpression, ObjectExpression, 
   ifStatement, arrayExpression, arrowFunctionExpression, logicalExpression,
-  assignmentExpression, nullLiteral } from "@babel/types"
+  assignmentExpression, nullLiteral, objectProperty, booleanLiteral, forInStatement } from "@babel/types"
 import { NodePath } from "@babel/traverse";
-import { State } from "../types";
-import { CallExpressionName } from "./helperName";
-import { StateName, targetIdentifier, anchorIdentifier, refIdentifier } from "../constants";
-
-export * from "./helperName";
+import { targetIdentifier, anchorIdentifier, reactiveIdentifier, isJSX } from "../constants";
+import { HelperNameType } from "../helper";
+import { NodePathState } from "../types";
 export interface RenderOption {
-  nodePath: NodePath;
-  state: State;
+  rootPath: NodePath;
 }
 
 export default class Render {
-  private nodePath: NodePath;
-  private pathState: State;
+  public rootPath: NodePath;
+  private pathState: NodePathState;
   private renderName: Identifier;
-  public callExpressionNameMap = {} as Record<CallExpressionName, Identifier>;
   private renderStatement: Statement[] = [];
   private mounteStatement: Statement[] = [];
   private updateStatement: Statement[] = [];
   private destroyStatement: Statement[] = [];
 
   constructor(options: RenderOption) {
-    const { nodePath, state } = options || {};
-    this.nodePath = nodePath;
-    this.pathState = state;
+    const { rootPath } = options || {};
+    this.rootPath = rootPath;
+    this.pathState = rootPath.state as NodePathState;
     this.renderName = identifier('render');
-
-    this.initHelperName();
   }
 
-  private initHelperName() {
-    const importHelperState = this.pathState.get<ImportDeclaration>(StateName.importHelper);
-    if (importHelperState) {
-      (importHelperState.specifiers as ImportSpecifier[]).forEach((specifier) => {
-        this.callExpressionNameMap[(specifier.imported as Identifier).name as CallExpressionName] = specifier.local;
-      });
-
-      return;
-    }
-
-    const importHelper = importDeclaration(
-      (Object.keys(CallExpressionName) as CallExpressionName[]).map((key: CallExpressionName) => {
-        const localName = this.nodePath.scope.generateUidIdentifier(key);
-        this.callExpressionNameMap[key] = localName;
-        return importSpecifier(localName, identifier(key));
-      }),
-      stringLiteral(CallExpressionName.source),
-    );
-
-    this.pathState.set<ImportDeclaration>(StateName.importHelper, importHelper);
-  }
-
-  public hoist(express: Expression) {
-    const rootPath = this.pathState.get(StateName.jsxRootPath);
-    const id = rootPath.scope.generateUidIdentifier('hoist_render');
-    const el = variableDeclaration(
-      "const",
-      [
-        variableDeclarator(
-          id,
-          express,
-        )
-      ]
-    );
-    rootPath?.insertBefore(el);
-    return id;
-  }
-
-  public space(target: Identifier) {
-    const id = this.nodePath.scope.generateUidIdentifier('spaceAnchor');
-    this.pushRenderStatement({
-      id,
-      callee: this.callExpressionNameMap[CallExpressionName.text],
-      argumentList: [
-        stringLiteral(' '),
-      ],
-    });
-    this.pushMounteStatement({
-      callee: this.callExpressionNameMap[CallExpressionName.append],
-      id,
-      target,
-    });
-    return id;
-  }
+  // public space(target: Identifier) {
+  //   const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
+  //   this.pushRenderStatement({
+  //     id,
+  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
+  //     argumentList: [
+  //       stringLiteral(' '),
+  //     ],
+  //   });
+  //   this.pushMounteStatement({
+  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.append),
+  //     id,
+  //     target,
+  //   });
+  //   return id;
+  // }
 
   public attr(options: {
     target: Identifier;
     name: string;
     value: Expression;
-    refList: Identifier[],
+    reactiveList: Identifier[],
   }) {
-    const { target, name, value, refList } = options;
+    const { target, name, value, reactiveList } = options;
     let callee: Expression;
     let argumentList: Expression[] = [];
 
     if (name === 'style') {
-      callee = this.callExpressionNameMap[CallExpressionName.style];
+      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.style),
       argumentList = [target, value];
 
     } else if (name === 'class') {
-      callee = this.callExpressionNameMap[CallExpressionName.classe];
+      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.classe),
       argumentList = [target, value];
 
     } else if (/^on[^a-z]/.test(name)) {
-      callee = this.callExpressionNameMap[CallExpressionName.event];
+      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.event),
       argumentList = [target, stringLiteral(name), value];
 
     } else {
-      callee = this.callExpressionNameMap[CallExpressionName.attr];
+      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.attr),
       argumentList = [target, stringLiteral(name), value];
     }
 
@@ -122,9 +78,9 @@ export default class Render {
       argumentList,
     });
 
-    if (refList.length) {
+    if (reactiveList.length) {
       this.pushUpdateStatement({
-        refList,
+        reactiveList,
         callee,
         argumentList,
         id: identifier(name),
@@ -136,44 +92,74 @@ export default class Render {
   public spreadAttr(options: {
     target: Identifier;
     express: Expression;
+    reactiveList: Identifier[];
   }) {
-    const { target, express } = options;
+    const { target, express, reactiveList } = options;
+    const callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.attr)
+    const id = identifier('key');
+    const node = forInStatement(
+      variableDeclaration('const', [
+        variableDeclarator(id)
+      ]),
+      express,
+      blockStatement([
+        expressionStatement(
+          callExpression(callee, [
+            target,
+            id,
+            memberExpression(express, id, true)
+          ])
+        ),
+      ]),
+    )
+    this.mounteStatement.push(node);
 
-    this.pushMounteStatement({
-      callee: this.callExpressionNameMap[CallExpressionName.spreadAttr],
-      argumentList: [target, express],
-    });
+    if (reactiveList.length) {
+      const ifStatementNode = ifStatement(
+        callExpression(
+          memberExpression(
+            arrayExpression(reactiveList),
+            identifier('includes'),
+          ),
+          [reactiveIdentifier]
+        ),
+        
+        node,
+      );
+  
+      this.updateStatement.push(ifStatementNode);
+    }
   }
 
   public element(options: {
     tag: string;
-    type: 'insert' | 'append';
-    target?: Identifier;
+    type: HelperNameType;
+    target: Identifier;
     anchor?: Identifier;
   }) {
     const {
       tag,
-      type = CallExpressionName.insert,
-      target = targetIdentifier,
+      type = HelperNameType.insert,
+      target,
       anchor,
     } = options;
-    const id = this.nodePath.scope.generateUidIdentifier(tag);
+    const id = this.rootPath.scope.generateUidIdentifier(tag);
 
     this.pushRenderStatement({
       id,
-      callee: this.callExpressionNameMap[CallExpressionName.element],
+      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.element),
       argumentList: [stringLiteral(tag)],
     });
     
     this.pushMounteStatement({ 
-      id, target, anchor,
-      callee: this.callExpressionNameMap[type],
+      argumentList: [target, id, anchor].filter(Boolean) as Identifier[],
+      callee: this.pathState.helper.getHelperNameIdentifier(type),
     });
     
     if (type === 'insert') {
       this.pushDestroyStatement({
-        callee: this.callExpressionNameMap[CallExpressionName.remove],
-        id,
+        callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.remove),
+        argumentList: [id],
       });
     }
 
@@ -182,32 +168,27 @@ export default class Render {
 
   public text(options: {
     str: StringLiteral,
-    type: 'insert' | 'append',
-    target?: Identifier,
+    type: HelperNameType.insert | HelperNameType.append,
+    target: Identifier,
     anchor?: Identifier,
   }) {
-    const {
-      str,
-      type = CallExpressionName.insert,
-      target = targetIdentifier,
-      anchor,
-    } = options;
-    const id = this.nodePath.scope.generateUidIdentifier('text');
+    const { str, type, target, anchor } = options;
+    const id = this.rootPath.scope.generateUidIdentifier('text');
     this.pushRenderStatement({
       id,
-      callee: this.callExpressionNameMap[CallExpressionName.text],
+      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
       argumentList: [str],
     });
     
     this.pushMounteStatement({ 
-      id, target, anchor,
-      callee: this.callExpressionNameMap[type],
+      argumentList: [target, id, anchor].filter(Boolean) as Identifier[],
+      callee: this.pathState.helper.getHelperNameIdentifier(type),
     });
     
     if (type === 'insert') {
       this.pushDestroyStatement({
-        callee: this.callExpressionNameMap[CallExpressionName.remove],
-        id,
+        callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.remove),
+        argumentList: [id]
       });
     }
     
@@ -215,10 +196,10 @@ export default class Render {
   }
 
   public component(tag: string, props: ObjectExpression) {
-    const id = this.nodePath.scope.generateUidIdentifier('component');
+    const id = this.rootPath.scope.generateUidIdentifier('component');
     this.pushRenderStatement({
       id,
-      callee: this.callExpressionNameMap[CallExpressionName.buildComponent],
+      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.buildComponent),
       argumentList: [identifier(tag), props],
     });
 
@@ -228,7 +209,7 @@ export default class Render {
     });
 
     this.pushUpdateStatement({
-      refList: [],
+      reactiveList: [],
       callee: memberExpression(id, identifier('update')),
       id,
       express: nullLiteral(),
@@ -236,55 +217,56 @@ export default class Render {
 
     this.pushDestroyStatement({
       callee: memberExpression(id, identifier('destroy')),
+      argumentList: [],
     });
 
     return id;
   }
 
-  public expression(options: {
-    express: Expression,
-    target?: Identifier,
-    anchor?: Identifier,
-    refList?: Identifier[],
-    test?: Expression; // if (test) expression()
-  }) {
-    const { express, target = targetIdentifier, anchor = anchorIdentifier, refList = [], test } = options;
-    const id = this.nodePath.scope.generateUidIdentifier('express');
+  // public expression(options: {
+  //   express: Expression,
+  //   target?: Identifier,
+  //   anchor?: Identifier,
+  //   reactiveList?: Identifier[],
+  //   test?: Expression; // if (test) expression()
+  // }) {
+  //   const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
+  //   const id = this.rootPath.scope.generateUidIdentifier('express');
 
-    this.pushRenderStatement({
-      id,
-      callee: this.callExpressionNameMap[CallExpressionName.expression],
-      argumentList: [
-        arrowFunctionExpression([], express),
-      ],
-      test,
-    });
+  //   this.pushRenderStatement({
+  //     id,
+  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
+  //     argumentList: [
+  //       arrowFunctionExpression([], express),
+  //     ],
+  //     test,
+  //   });
     
-    this.pushMounteStatement({
-      argumentList: [target, anchor],
-      callee: memberExpression(id, identifier('mount')),
-      test,
-    });
+  //   this.pushMounteStatement({
+  //     argumentList: [target, anchor],
+  //     callee: memberExpression(id, identifier('mount')),
+  //     test,
+  //   });
 
-    if (refList.length) {
-      this.pushUpdateStatement({
-        refList,
-        callee: memberExpression(id, identifier('update')),
-        test,
-        id,
-        express,
-        target,
-        anchor
-      });
-    }
+  //   if (reactiveList.length) {
+  //     this.pushUpdateStatement({
+  //       reactiveList,
+  //       callee: memberExpression(id, identifier('update')),
+  //       test,
+  //       id,
+  //       express,
+  //       target,
+  //       anchor
+  //     });
+  //   }
 
-    this.pushDestroyStatement({
-      callee: memberExpression(id, identifier('destroy')),
-      test,
-    });
+  //   this.pushDestroyStatement({
+  //     callee: memberExpression(id, identifier('destroy')),
+  //     test,
+  //   });
 
-    return id;
-  }
+  //   return id;
+  // }
 
   // callee(id)
   // callee()
@@ -293,18 +275,18 @@ export default class Render {
     anchor?: Identifier,
     id: Identifier;
     callee: Expression;
-    refList: Identifier[];
+    reactiveList: Identifier[];
     argumentList?: Expression[];
     test?: Expression;
     express: Expression;
   }) {
-    const { callee, refList, argumentList, test, express, id, target, anchor } = options;
+    const { callee, reactiveList, argumentList, test, express, id, target, anchor } = options;
     let statementNode = blockStatement(
       [
         expressionStatement(
           callExpression(
             callee,
-            argumentList || [refIdentifier],
+            argumentList || [reactiveIdentifier],
           ),
         )
       ]
@@ -325,7 +307,7 @@ export default class Render {
                     '=',
                     id,
                     callExpression(
-                      this.callExpressionNameMap[CallExpressionName.expression],
+                      this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
                       [
                         arrowFunctionExpression([], express),
                       ],
@@ -366,17 +348,17 @@ export default class Render {
     const ifStatementNode = ifStatement(
       callExpression(
         memberExpression(
-          arrayExpression(refList),
+          arrayExpression(reactiveList),
           identifier('includes'),
         ),
-        [refIdentifier]
+        [reactiveIdentifier]
       ),
       
       statementNode,
     );
 
     this.updateStatement.push(
-      refList.length ? ifStatementNode : statementNode,
+      reactiveList.length ? ifStatementNode : statementNode,
     );
   }
 
@@ -390,28 +372,13 @@ export default class Render {
     test?: Expression;
   }) {
     const { id, callee, argumentList, kind = 'const', test } = options;
-    let init: Expression = callExpression(
-      callee,
-      argumentList,
-    );
-
-    if (test) {
-      init = logicalExpression(
-        '&&',
-        test,
-        init,
-      )
-    }
-
+    const express = callExpression(callee, argumentList);
+  
+    const init = test ? logicalExpression('&&', test, express) : express;
     this.renderStatement.push(
       variableDeclaration(
         test ? 'let' : kind,
-        [
-          variableDeclarator(
-            id,
-            init,
-          )
-        ]
+        [variableDeclarator(id, init)]
       )
     );
   }
@@ -420,30 +387,15 @@ export default class Render {
   // callee(target, anchor)
   public pushMounteStatement(options: {
     callee: Expression;
-    target?: Identifier, // 跟 argumentList 互斥
-    id?: Identifier, // 跟 argumentList 互斥
-    anchor?: Identifier, // 跟 argumentList 互斥
-    argumentList?: Expression[];
+    argumentList: Expression[];
     test?: Expression; // if (test) {expression}
   }) {
-    const { id,  target, anchor, callee, argumentList, test } = options;
-    const defaultArgumentList: Identifier[] = [];
-    if (target) {
-      defaultArgumentList.push(target);
-    }
-
-    if (id) {
-      defaultArgumentList.push(id);
-    }
-
-    if (anchor) {
-      defaultArgumentList.push(anchor);
-    }
+    const { callee, argumentList, test } = options;
 
     const expression = expressionStatement(
       callExpression(
         callee,
-        argumentList || defaultArgumentList,
+        argumentList,
       )
     );
 
@@ -452,25 +404,19 @@ export default class Render {
     );
   }
 
-    // callee(id)
+  // callee(id)
   // callee()
   public pushDestroyStatement(options: {
     callee: Expression;
-    id?: Identifier;
-    argumentList?: Expression[];
+    argumentList: Expression[];
     test?: Expression;
   }) {
-    const { id, callee, argumentList, test } = options;
-    const defaultArgumentList: Identifier[] = [];
-
-    if (id) {
-      defaultArgumentList.push(id);
-    }
+    const { callee, argumentList, test } = options;
 
     const expression = expressionStatement(
       callExpression(
         callee,
-        argumentList || defaultArgumentList,
+        argumentList,
       )
     )
 
@@ -479,36 +425,16 @@ export default class Render {
     );
   }
 
-  public generateFunctionDeclaration() {
-    return functionExpression(this.renderName, [], blockStatement([
-      ...this.renderStatement,
-      returnStatement(
-        objectExpression([
-          objectMethod(
-            'method', 
-            identifier('mount'), 
-            [
-              targetIdentifier,
-              anchorIdentifier,
-            ], 
-            blockStatement(this.mounteStatement)
-          ),
-          objectMethod(
-            'method', 
-            identifier('update'), 
-            [
-              refIdentifier,
-            ], 
-            blockStatement(this.updateStatement)
-          ),
-          objectMethod(
-            'method', 
-            identifier('destroy'), 
-            [], 
-            blockStatement(this.destroyStatement)
-          ),
-        ])
-      )
-    ]))
+  public generate() {
+    const statementPath = this.rootPath.getStatementParent();
+    statementPath?.insertBefore(this.renderStatement);
+
+    const isJSX = this.pathState.helper.getHelperNameIdentifier(HelperNameType.isJSX);
+    return objectExpression([
+      objectProperty(isJSX, booleanLiteral(true), true),
+      objectMethod('method', identifier('mount'), [identifier('target'), identifier('anchor')], blockStatement(this.mounteStatement)),
+      objectMethod('method', identifier('update'), [identifier('reactive')], blockStatement(this.updateStatement)),
+      objectMethod('method', identifier('destroy'), [], blockStatement(this.destroyStatement)),
+    ]);
   }
 }

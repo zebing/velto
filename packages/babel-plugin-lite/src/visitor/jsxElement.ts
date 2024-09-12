@@ -1,17 +1,12 @@
 import { NodePath } from '@babel/traverse';
 import { JSXElement } from '@babel/types';
-import { State } from '../types';
-import { StateName } from '../constants';
-import transformJSXRoot from '../transform/transformJSXRoot';
+import { transformJSX } from '../transform';
 import Render from '../render';
 
-export default function JSXElement(path: NodePath<JSXElement>, state: State) {
-  state.set(StateName.jsxRootPath, path.getStatementParent());
+export default function JSXElement(path: NodePath<JSXElement>) {
   const render = new Render({
-    nodePath: path,
-    state,
+    rootPath: path,
   });
-  transformJSXRoot(path, state, render);
-  
-  path.replaceWith(render.generateFunctionDeclaration());
+  transformJSX({ path, render, root: true });
+  path.replaceWith(render.generate());
 }

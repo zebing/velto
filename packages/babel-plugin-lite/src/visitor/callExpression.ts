@@ -1,12 +1,12 @@
 import { NodePath } from '@babel/traverse';
-import { memberExpression, CallExpression, ArrowFunctionExpression, FunctionDeclaration, Identifier, identifier } from '@babel/types';
-import { State } from '../types';
-import { NodePathDataKey } from '../constants';
-import transformJSXRoot from '../transform/transformJSXRoot';
+import { memberExpression, CallExpression, ArrowFunctionExpression, FunctionDeclaration, Identifier, identifier, Expression, MemberExpression } from '@babel/types';
+// import transformJSXRoot from '../transform/jsx/transformJSXRoot';
 import Render from '../render';
-import { getRefs, setArrayMapCalleeNameRef } from '../utils';
+import { getReactives, setArrayMapCalleeNameRef, isArray } from '../utils';
+import { runtimeReactiveValue } from '../transform';
 
-export default function CallExpression(path: NodePath<CallExpression>, state: State) {
+export default function CallExpression(path: NodePath<CallExpression>) {
+  runtimeReactiveValue(path);
   const callee = path.get('callee');
   const callbackPath = path.get('arguments')[0] as unknown as NodePath<ArrowFunctionExpression | FunctionDeclaration>;
 
@@ -23,11 +23,11 @@ export default function CallExpression(path: NodePath<CallExpression>, state: St
       if (isJSXBody(callbackBody)) {
         
         if (callbackParams[0].isIdentifier()) {
-          const refList = getRefs(callee);
+          const reactiveList = getReactives(callee);
           const binding = callbackParams[0].scope.getBinding(callbackParams[0].node.name);
   
-          if (refList.length && binding) {
-            setArrayMapCalleeNameRef<typeof binding.path.node, Identifier[]>(binding.path, NodePathDataKey.refList, refList)
+          if (reactiveList.length && binding) {
+            setArrayMapCalleeNameRef<typeof binding.path.node>(binding.path, reactiveList)
           }
           if (binding && binding.referenced) {
             let index = identifier('index');

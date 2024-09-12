@@ -13,16 +13,14 @@ import {
   spreadElement,
   objectExpression,
 } from '@babel/types';
-import { State } from '../types';
-import { getTagLiteral } from '../utils';
+import { getTagLiteral } from '../../utils';
 import transformChildren from './transformChildren';
 import transformJSXElement from './transformJSXElement';
 import transformJSXRoot from './transformJSXRoot';
-import Render from '../render';
+import Render from '../../render';
 
 export default function transformProps(
   path: NodePath<JSXAttribute | JSXSpreadAttribute>[],
-  state: State,
   render: Render,
 ) {
   if (!path.length) {
@@ -43,15 +41,11 @@ export default function transformProps(
       ) {
         const subRender = new Render({
           nodePath: value,
-          state,
         });
-        transformJSXRoot(value, state, subRender);
-        const renderFunctionDeclaration = render.hoist(
-          subRender.generateFunctionDeclaration()
-        );
+        transformJSXRoot(value, subRender);
         properties.push(objectProperty(
           identifier(nameLiteral),
-          renderFunctionDeclaration,
+          subRender.generateFunctionDeclaration(),
         ));
 
         // JSXExpressionContainer
@@ -65,15 +59,11 @@ export default function transformProps(
         ) {
           const subRender = new Render({
             nodePath: value,
-            state,
           });
-          transformJSXRoot(expression, state, subRender);
-          const renderFunctionDeclaration = render.hoist(
-            subRender.generateFunctionDeclaration()
-          );
+          transformJSXRoot(expression, subRender);
           properties.push(objectProperty(
             identifier(nameLiteral),
-            renderFunctionDeclaration,
+            subRender.generateFunctionDeclaration(),
           ));
 
         } else if (expression.isExpression()) {

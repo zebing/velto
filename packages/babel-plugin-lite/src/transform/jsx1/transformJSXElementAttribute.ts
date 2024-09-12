@@ -14,17 +14,14 @@ import {
   JSXIdentifier,
   JSXOpeningElement,
 } from '@babel/types';
-import { State } from '../types';
-import { getTagLiteral, getParentId, getRefs } from '../utils';
+import { getTagLiteral, getParentId, getReactives } from '../../utils';
 import transformChildren from './transformChildren';
 import transformJSXElement from './transformJSXElement';
 import transformJSXRoot from './transformJSXRoot';
-import { StateName } from '../constants';
-import Render from '../render';
+import Render from '../../render';
 
 export default function transformJSXElementAttribute(
   path: NodePath<JSXAttribute | JSXSpreadAttribute>[], 
-  state: State,
   render: Render,
 ) {
   if (!path.length) {
@@ -45,17 +42,13 @@ export default function transformJSXElementAttribute(
       ) {
         const subRender = new Render({
           nodePath: value,
-          state,
         });
-        transformJSXRoot(value, state, subRender);
-        const renderFunctionDeclaration = render.hoist(
-          subRender.generateFunctionDeclaration()
-        );
+        transformJSXRoot(value, subRender);
         render.attr({
           target,
           name: nameLiteral, 
-          value: renderFunctionDeclaration,
-          refList: [],
+          value: subRender.generateFunctionDeclaration(),
+          reactiveList: [],
         });
 
         // JSXExpressionContainer
@@ -69,27 +62,23 @@ export default function transformJSXElementAttribute(
         ) {
           const subRender = new Render({
             nodePath: value,
-            state,
           });
-          transformJSXRoot(expression, state, subRender);
-          const renderFunctionDeclaration = render.hoist(
-            subRender.generateFunctionDeclaration()
-          );
+          transformJSXRoot(expression, subRender);
           render.attr({
             target,
             name: nameLiteral, 
-            value: renderFunctionDeclaration,
-            refList: [],
+            value: subRender.generateFunctionDeclaration(),
+            reactiveList: [],
           });
 
         } else if (expression.isExpression()) {
-          const refList = getRefs(value);
+          const reactiveList = getReactives(value);
 
           render.attr({
             target,
             name: nameLiteral, 
             value: expression.node,
-            refList,
+            reactiveList,
           });
         }
         
@@ -99,7 +88,7 @@ export default function transformJSXElementAttribute(
           target,
           name: nameLiteral, 
           value: value.node,
-          refList: [],
+          reactiveList: [],
         });
       }
 
