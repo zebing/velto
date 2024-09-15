@@ -1,10 +1,11 @@
 import { NodePath } from '@babel/core';
 import { Expression, Identifier, unaryExpression, logicalExpression } from '@babel/types';
-import transformJSXRoot from './transformJSXRoot';
+import  { transformJSX } from './transformJSX';
 import Render from '../../render';
-import { getParentId, getReactives } from '../../utils';
+import { getReactives } from '../../utils';
+import { getParentId } from '../parentId';
 
-export default function transformConsequentExpression(options: {
+export function transformJSXConsequentExpression(options: {
   test: Expression;
   testRefList: Identifier[];
   consequent: NodePath<Expression>;
@@ -16,13 +17,13 @@ export default function transformConsequentExpression(options: {
 
   if (consequent.isJSXElement() || consequent.isJSXFragment()) {
     const subRender = new Render({
-      nodePath: consequent,
+      rootPath: render.rootPath,
     });
     
-    transformJSXRoot(consequent, subRender);
+    transformJSX({ path: consequent, render: subRender, root: true });
 
     render.expression({
-      express: subRender.generateFunctionDeclaration(),
+      express: subRender.generate(),
       target,
       anchor: spaceAnchor,
       reactiveList: testRefList,
@@ -36,14 +37,14 @@ export default function transformConsequentExpression(options: {
     const subAlternate = consequent.get('alternate');
     const subTestRefList = getReactives(subTest);
 
-    transformConsequentExpression({
+    transformJSXConsequentExpression({
       test: logicalExpression('&&', test, subTest.node), 
       testRefList: [...testRefList, ...subTestRefList],
       consequent: subconsequent, 
       render,
     });
 
-    transformConsequentExpression({
+    transformJSXConsequentExpression({
       test: logicalExpression('&&', test, unaryExpression('!', subTest.node)), 
       testRefList: [...testRefList, ...subTestRefList],
       consequent: subAlternate, 

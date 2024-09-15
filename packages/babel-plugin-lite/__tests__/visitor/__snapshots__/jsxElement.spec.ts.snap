@@ -1,17 +1,30 @@
-import { runtimeRef as _runtimeRef, runtimeComputed as _runtimeComputed, element as _element, insert as _insert, remove as _remove, classe as _classe, append as _append, text as _text2, event as _event, expression as _expression, isJSX as _isJSX, buildComponent as _buildComponent, attr as _attr } from "@lite/lite";
-import '@lite/lite';
-import styles from './styles.module.scss';
-export function ConditionalExpression() {
-  const state = _runtimeRef(false);
-  const state1 = _runtimeRef(false);
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compile program 1`] = `
+""use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ConditionalExpression = ConditionalExpression;
+exports.LogicalExpression = LogicalExpression;
+exports.TestComponent = TestComponent;
+exports.TestJSXFragmentComponent = TestJSXFragmentComponent;
+exports.default = JSXElement;
+var _lite = require("@lite/lite");
+var _stylesModule = _interopRequireDefault(require("./styles.module.scss"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function ConditionalExpression() {
+  const state = (0, _lite.runtimeRef)(false);
+  const state1 = (0, _lite.runtimeRef)(false);
   const click = () => {
     state.value.value = !state.value.value;
   };
   const click1 = () => {
     state1.value.value = !state1.value.value;
   };
-  const _div3 = _element("div");
-  const _text3 = _text2("true value");
+  const _div3 = (0, _lite.element)("div");
+  const _text3 = (0, _lite.text)("true value");
   const _div4 = _element("div");
   const _text4 = _text2("false value");
   const _div = _element("div");
@@ -43,7 +56,7 @@ export function ConditionalExpression() {
   let _express9;
   const _spaceAnchor10 = _text2(" ");
   let _express10;
-  const _text7 = _text2("\n      \u5D4C\u5957 ");
+  const _text7 = _text2("\\n      \\u5D4C\\u5957 ");
   const _spaceAnchor11 = _text2(" ");
   const _spaceAnchor12 = _text2(" ");
   let _express11;
@@ -54,16 +67,16 @@ export function ConditionalExpression() {
   const _div7 = _element("div");
   const _text8 = _text2("Conditional end");
   return {
-    [_isJSX]: true,
+    [_lite.isJSX]: true,
     mount(target, anchor) {
-      _insert(target, _div, anchor);
-      _classe(_div, styles.wrap);
-      _append(_div, _div2);
+      (0, _lite.insert)(target, _div, anchor);
+      (0, _lite.classe)(_div, _stylesModule.default.wrap);
+      (0, _lite.append)(_div, _div2);
       _append(_div2, _text);
       _append(_div, _button);
-      _event(_button, "onClick", click);
+      (0, _lite.event)(_button, "onClick", click);
       _append(_button, _spaceAnchor);
-      if (state.value.value) _express = _expression('consequent', _button, _spaceAnchor, state.value.value);
+      if (state.value.value) _express = (0, _lite.expression)('consequent', _button, _spaceAnchor, state.value.value);
       _append(_button, _spaceAnchor2);
       if (!state.value.value) _express2 = _expression('alternate', _button, _spaceAnchor2, !state.value.value);
       _append(_div, _button2);
@@ -81,7 +94,7 @@ export function ConditionalExpression() {
         },
         update(reactive) {},
         destroy() {
-          _remove(_div3);
+          (0, _lite.remove)(_div3);
         }
       }, _div, _spaceAnchor5, state.value.value);
       _append(_div, _spaceAnchor6);
@@ -145,7 +158,7 @@ export function ConditionalExpression() {
           },
           update(reactive) {},
           destroy() {
-            _remove(_div3);
+            (0, _lite.remove)(_div3);
           }
         }, state.value.value);
       }
@@ -206,9 +219,9 @@ export function ConditionalExpression() {
     }
   };
 }
-export function LogicalExpression() {
-  const state = _runtimeRef(true);
-  const state1 = _runtimeRef(true);
+function LogicalExpression() {
+  const state = (0, _lite.runtimeRef)(true);
+  const state1 = (0, _lite.runtimeRef)(true);
   const click = () => {
     state.value.value = !state.value.value;
   };
@@ -235,7 +248,7 @@ export function LogicalExpression() {
     [_isJSX]: true,
     mount(target, anchor) {
       _insert(target, _div8, anchor);
-      _classe(_div8, styles.wrap);
+      _classe(_div8, _stylesModule.default.wrap);
       _append(_div8, _div9);
       _append(_div9, _text9);
       _append(_div8, _button3);
@@ -298,7 +311,7 @@ export function LogicalExpression() {
     }
   };
 }
-export function TestComponent() {
+function TestComponent() {
   const _div14 = _element("div");
   const _text15 = _text2("test component");
   return {
@@ -313,8 +326,8 @@ export function TestComponent() {
     }
   };
 }
-export function TestJSXFragmentComponent() {
-  let state1 = _runtimeRef({
+function TestJSXFragmentComponent() {
+  let state1 = (0, _lite.runtimeRef)({
     name: 'name'
   });
   const _div17 = _element("div");
@@ -328,7 +341,7 @@ export function TestJSXFragmentComponent() {
   const _div16 = _element("div");
   let _express17;
   let _express18;
-  const _component = _buildComponent(TestComponent, {
+  const _component = (0, _lite.buildComponent)(TestComponent, {
     ...state1.value,
     name: "name",
     state: state1.value,
@@ -396,8 +409,8 @@ export function TestJSXFragmentComponent() {
     }
   };
 }
-export default function JSXElement() {
-  let state = _runtimeRef({
+function JSXElement() {
+  let state = (0, _lite.runtimeRef)({
     name: 'name'
   });
   const click = () => {
@@ -466,7 +479,7 @@ export default function JSXElement() {
     mount(target, anchor) {
       _insert(target, _div19, anchor);
       for (const key in state.value) {
-        _attr(_div19, key, state.value[key]);
+        (0, _lite.attr)(_div19, key, state.value[key]);
       }
       _attr(_div19, "test1", state.value);
       _attr(_div19, "test", "test1");
@@ -484,7 +497,7 @@ export default function JSXElement() {
     },
     update(reactive) {
       if ([state].includes(reactive)) for (const key in state.value) {
-        _attr(_div19, key, state.value[key]);
+        (0, _lite.attr)(_div19, key, state.value[key]);
       }
       if ([state].includes(reactive)) _attr(_div19, "test1", state.value);
       if ([state].indcludes(reactive)) {
@@ -502,4 +515,5 @@ export default function JSXElement() {
       _component4.destroy();
     }
   };
-}
+}"
+`;

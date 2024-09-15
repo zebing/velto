@@ -1,26 +1,24 @@
 import { NodePath } from '@babel/core';
 import { ConditionalExpression, unaryExpression, callExpression, arrowFunctionExpression, blockStatement } from '@babel/types';
-import transformConsequentExpression from './transformConsequentExpression';
+import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
 import Render from '../../render';
-import { getParentId, getReactives } from '../../utils';
+import { getReactives } from '../../utils';
 
-export default function transformConditionalExpression(
-  path: NodePath<ConditionalExpression>, 
-  render: Render,
-) {
+export function transformJSXConditionalExpression({ path, render }: { path: NodePath<ConditionalExpression>, 
+  render: Render }) {
   const test = path.get('test');
   const consequent = path.get('consequent');
   const alternate = path.get('alternate');
   const testRefList = getReactives(test);
 
-  transformConsequentExpression({
+  transformJSXConsequentExpression({
     test: test.node, 
     testRefList,
     consequent: consequent, 
     render,
   });
 
-  transformConsequentExpression({
+  transformJSXConsequentExpression({
     test: unaryExpression('!', test.node), 
     testRefList,
     consequent: alternate, 

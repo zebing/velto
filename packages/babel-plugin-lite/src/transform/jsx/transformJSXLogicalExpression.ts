@@ -1,17 +1,17 @@
 import { NodePath } from '@babel/core';
 import { LogicalExpression } from '@babel/types';
-import transformConsequentExpression from './transformConsequentExpression';
+import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
 import Render from '../../render';
 import { getReactives } from '../../utils';
 
-export default function transformLogicalExpression(
+export function transformJSXLogicalExpression({ path, render }: {
   path: NodePath<LogicalExpression>, 
   render: Render,
-) {
+}) {
   const left = path.get('left');
   const right = path.get('right');
 
-  transformConsequentExpression({
+  transformJSXConsequentExpression({
     test: left.node, 
     testRefList: getReactives(left),
     consequent: right, 

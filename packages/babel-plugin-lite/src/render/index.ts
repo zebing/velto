@@ -3,12 +3,14 @@ import { Identifier, identifier, blockStatement, Statement, returnStatement,
   variableDeclarator, callExpression, stringLiteral, expressionStatement, 
   importDeclaration, importSpecifier, ImportDeclaration, ImportSpecifier, 
   Expression, StringLiteral, memberExpression, MemberExpression, ObjectExpression, 
-  ifStatement, arrayExpression, arrowFunctionExpression, logicalExpression,
-  assignmentExpression, nullLiteral, objectProperty, booleanLiteral, forInStatement } from "@babel/types"
+  ifStatement, arrayExpression, ExpressionStatement, logicalExpression,
+  assignmentExpression, objectProperty, booleanLiteral, forInStatement,
+  BlockStatement, IfStatement } from "@babel/types"
 import { NodePath } from "@babel/traverse";
 import { targetIdentifier, anchorIdentifier, reactiveIdentifier, isJSX } from "../constants";
 import { HelperNameType } from "../helper";
 import { NodePathState } from "../types";
+import { access } from "fs";
 export interface RenderOption {
   rootPath: NodePath;
 }
@@ -29,22 +31,21 @@ export default class Render {
     this.renderName = identifier('render');
   }
 
-  // public space(target: Identifier) {
-  //   const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
-  //   this.pushRenderStatement({
-  //     id,
-  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
-  //     argumentList: [
-  //       stringLiteral(' '),
-  //     ],
-  //   });
-  //   this.pushMounteStatement({
-  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.append),
-  //     id,
-  //     target,
-  //   });
-  //   return id;
-  // }
+  public space(target: Identifier) {
+    const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
+    this.pushRenderStatement({
+      id,
+      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
+      argumentList: [
+        stringLiteral(' '),
+      ],
+    });
+    this.pushMounteStatement({
+      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.append),
+      argumentList: [target, id],
+    });
+    return id;
+  }
 
   public attr(options: {
     target: Identifier;
@@ -83,8 +84,6 @@ export default class Render {
         reactiveList,
         callee,
         argumentList,
-        id: identifier(name),
-        express: nullLiteral(),
       });
     }
   }
@@ -209,10 +208,8 @@ export default class Render {
     });
 
     this.pushUpdateStatement({
-      reactiveList: [],
       callee: memberExpression(id, identifier('update')),
-      id,
-      express: nullLiteral(),
+      argumentList: [reactiveIdentifier],
     });
 
     this.pushDestroyStatement({
@@ -223,143 +220,104 @@ export default class Render {
     return id;
   }
 
-  // public expression(options: {
-  //   express: Expression,
-  //   target?: Identifier,
-  //   anchor?: Identifier,
-  //   reactiveList?: Identifier[],
-  //   test?: Expression; // if (test) expression()
-  // }) {
-  //   const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
-  //   const id = this.rootPath.scope.generateUidIdentifier('express');
+  public expression(options: {
+    express: Expression,
+    target: Identifier,
+    anchor?: Identifier,
+    reactiveList?: Identifier[],
+    test?: Expression; // if (test) expression()
+  }) {
+    const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
+    const id = this.rootPath.scope.generateUidIdentifier('express');
 
-  //   this.pushRenderStatement({
-  //     id,
-  //     callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-  //     argumentList: [
-  //       arrowFunctionExpression([], express),
-  //     ],
-  //     test,
-  //   });
-    
-  //   this.pushMounteStatement({
-  //     argumentList: [target, anchor],
-  //     callee: memberExpression(id, identifier('mount')),
-  //     test,
-  //   });
+    // let express;
+    this.renderStatement.push(
+      variableDeclaration(
+        'let',
+        [variableDeclarator(id, null)]
+      )
+    );
 
-  //   if (reactiveList.length) {
-  //     this.pushUpdateStatement({
-  //       reactiveList,
-  //       callee: memberExpression(id, identifier('update')),
-  //       test,
-  //       id,
-  //       express,
-  //       target,
-  //       anchor
-  //     });
-  //   }
+    const expression = expressionStatement(
+      assignmentExpression(
+        '=',
+        id,
+        callExpression(
+          this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
+          [express, target, anchor, test ? test : booleanLiteral(true)],
+        )
+      )
+    );
 
-  //   this.pushDestroyStatement({
-  //     callee: memberExpression(id, identifier('destroy')),
-  //     test,
-  //   });
+    this.mounteStatement.push(
+      test ? ifStatement(test, expression) : expression,
+    );
 
-  //   return id;
-  // }
+    if (reactiveList.length) {
+      const updateStatement = ifStatement(
+        callExpression(
+          memberExpression(
+            arrayExpression(reactiveList),
+            identifier('indcludes'),
+          ),
+          [reactiveIdentifier],
+        ),
+        blockStatement([
+          expressionStatement(
+            callExpression(
+              memberExpression(
+                id,
+                identifier('update'),
+              ),
+              [express, test ? test : booleanLiteral(true)],
+            )
+          )
+        ]),
+      )
+      this.updateStatement.push(updateStatement);
+    }
+
+    this.pushDestroyStatement({
+      callee: memberExpression(id, identifier('destroy')),
+      test,
+      argumentList: [],
+    });
+
+    return id;
+  }
 
   // callee(id)
   // callee()
   public pushUpdateStatement(options: {
-    target?: Identifier,
-    anchor?: Identifier,
-    id: Identifier;
     callee: Expression;
-    reactiveList: Identifier[];
-    argumentList?: Expression[];
-    test?: Expression;
-    express: Expression;
+    reactiveList?: Identifier[];
+    argumentList: Expression[];
   }) {
-    const { callee, reactiveList, argumentList, test, express, id, target, anchor } = options;
-    let statementNode = blockStatement(
-      [
-        expressionStatement(
-          callExpression(
-            callee,
-            argumentList || [reactiveIdentifier],
-          ),
-        )
-      ]
+    const { callee, reactiveList, argumentList } = options;
+    // callee(...)
+    let statementNode: ExpressionStatement | IfStatement = expressionStatement(
+      callExpression(
+        callee,
+        argumentList,
+      ),
     );
 
-    if (test) {
-      statementNode = blockStatement([
-        ifStatement(
-          test, 
-          blockStatement([
-            ifStatement(
-              id,
-              statementNode,
-              blockStatement([
-                expressionStatement(
-                  // id = expression(() => express)
-                  assignmentExpression(
-                    '=',
-                    id,
-                    callExpression(
-                      this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-                      [
-                        arrowFunctionExpression([], express),
-                      ],
-                    ),
-                  ),
-                ),
-                expressionStatement(
-                  callExpression(
-                    memberExpression(id, identifier('mount')),
-                    [target!, anchor!],
-                  ),
-                )
-              ]),
-            )
-          ]),
-          blockStatement([
-            ifStatement(
-              id, 
-              expressionStatement(
-                callExpression(
-                  memberExpression(id, identifier('destroy')),
-                  [],
-                ),
-              ),
-            ),
-            expressionStatement(
-              assignmentExpression(
-                '=',
-                id,
-                nullLiteral(),
-              ),
-            ),
-          ]),
-        )
-      ]);
+    // if(reactiveList.includes(ref)) { callee(...) }
+    if (reactiveList?.length) {
+      statementNode = ifStatement(
+        callExpression(
+          memberExpression(
+            arrayExpression(reactiveList),
+            identifier('includes'),
+          ),
+          [reactiveIdentifier]
+        ),
+        
+        statementNode,
+      );
     }
 
-    const ifStatementNode = ifStatement(
-      callExpression(
-        memberExpression(
-          arrayExpression(reactiveList),
-          identifier('includes'),
-        ),
-        [reactiveIdentifier]
-      ),
-      
-      statementNode,
-    );
-
-    this.updateStatement.push(
-      reactiveList.length ? ifStatementNode : statementNode,
-    );
+    this.updateStatement.push(statementNode);
   }
 
   // callee(id)

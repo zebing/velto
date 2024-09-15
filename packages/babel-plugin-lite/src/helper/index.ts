@@ -21,16 +21,12 @@ export enum HelperNameType {
   append = 'append',
 
   // attribute
-  spreadAttr = 'spreadAttr',
   attr = 'attr',
   event = 'event',
   style = 'style',
   classe = 'classe',
 
   expression = 'expression',
-  mountExpression = 'mountExpression',
-  updateExpression = 'updateExpression',
-  destroyExpression = 'destroyExpression',
 }
 
 export class Helper {

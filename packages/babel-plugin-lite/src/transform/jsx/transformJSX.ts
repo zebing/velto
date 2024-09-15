@@ -1,17 +1,11 @@
-import { NodePath } from '@babel/traverse';
-import { JSXElement, JSXFragment, JSXExpressionContainer, JSXSpreadChild, JSXText, identifier, Expression, stringLiteral } from '@babel/types';
+import { JSXText, stringLiteral } from '@babel/types';
 import transformJSXElement from './transformJSXElement';
-// import transformExpression from './transformExpression';
-// import transformChildren from './transformChildren';
-// import transformLogicalExpression from './transformLogicalExpression';
-// import transformConditionalExpression from './transformConditionalExpression';
-// import transformJSXElementAttribute from './transformJSXElementAttribute';
-import { getTagLiteral } from '../../utils';
-import { isNativeTag } from '../../utils';
-import Render from '../../render';
+import { transformJSXExpression } from './transformJSXExpression';
+import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
+import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 import { HelperNameType } from '../../helper';
 import { TransformJSXOptions } from '../../types';
-import { getParentId, setParentId } from '../parentId';
+import { getParentId } from '../parentId';
 
 export function transformJSX({ path, render, root }: TransformJSXOptions) {
 
@@ -37,21 +31,21 @@ export function transformJSX({ path, render, root }: TransformJSXOptions) {
 
       // LogicalExpression
     } else if (expression.isLogicalExpression()) {
-      // transformLogicalExpression(expression, render);
+      transformJSXLogicalExpression({ path: expression, render });
 
       // ConditionalExpression
     } else if (expression.isConditionalExpression()) {
-      // transformConditionalExpression(expression, render);
+      transformJSXConditionalExpression({ path: expression, render });
 
 
       // ignore JSXEmptyExpression
     } else if (!expression.isJSXEmptyExpression()) {
-      // transformExpression(path, render);
+      transformJSXExpression({ path, render });
     }
     
     // JSXSpreadChild
   }  else if (path.isJSXSpreadChild()) {
-    // transformExpression(path, render);
+    transformJSXExpression({ path, render });
 
     // JSXText
   } else {
