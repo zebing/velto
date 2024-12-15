@@ -1,9 +1,9 @@
 import { callUnstableFunc } from "../utils";
-import { Ref } from "./ref";
+import { Reactive } from "./types";
 
 export interface Scheduler extends Function {
   id: number;
-  ref: Ref;
+  ref: Reactive;
   active?: boolean;
   computed?: boolean;
 }

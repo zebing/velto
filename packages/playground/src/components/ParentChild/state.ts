@@ -6,6 +6,7 @@ const state = ref<{ name: string }>({
 
 export const setName = () => {
   state.name = `new name ${Math.random().toString(16).slice(2)}`;
+  console.log('+++++++++', state)
 }
 
 export default state;

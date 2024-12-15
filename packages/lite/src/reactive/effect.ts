@@ -1,41 +1,55 @@
-import type { Ref } from "./ref";
-import { ComponentInstance, currentInstance } from "../component";
-import { enqueueScheduler, Scheduler } from "./scheduler";
+import type { Reactive } from "./types";
+import { ComponentInstance, RenderResult, callHook, LifecycleHooks, setCurrentInstance } from "../component";
 
-/**
- * WeakMap {
- *   ref1: Set[ComponentInstance, ComponentInstance]
- *   ref2: Set[ComponentInstance, ComponentInstance]
- * }
- */
-const contextMap = new WeakMap<object, Set<ComponentInstance>>();
+export type EffectType = ComponentEffect;
+export let activeEffect: EffectType | undefined;
+export let shouldTrack = false;
 
-export function track(key: Ref) {
-  let effectList = contextMap.get(key);
-
-  if (!effectList) {
-    effectList = new Set<ComponentInstance>();
-    contextMap.set(key, effectList);
-  }
-
-  if (currentInstance && !effectList.has(currentInstance)) {
-    effectList.add(currentInstance);
+class Effect {
+  public run(fn: () => void) {
+    let lastShouldTrack = shouldTrack;
+    let lastEffect = activeEffect;
+    try {
+      shouldTrack = true;
+      activeEffect = this as unknown as ComponentEffect;
+      return fn();
+    } finally {
+      activeEffect = lastEffect;
+      shouldTrack = lastShouldTrack;
+    }
   }
 }
 
-export function trigger(key: Ref) {
-  const effectList = contextMap.get(key);
+export class ComponentEffect extends Effect {
+  protected renderResult!: RenderResult;
+  constructor(public instance: ComponentInstance) {
+    super();
+    this.run(() => {
+      setCurrentInstance(instance);
+      this.renderResult = this.instance.type(this.instance.props, {});
+    });
+    callHook(LifecycleHooks.CREATED, this.instance);
+  }
 
-  effectList?.forEach((instance) => {
-    const schedule: Scheduler = () => {
-      if (!instance.updatedWithRefs.includes(key)) {
-        instance?.update?.(key);
-      }
-      
-      instance.updatedWithRefs.length = 0;
-    }
-    schedule.id = instance?.uid || 0;
-    schedule.ref = key;
-    enqueueScheduler(schedule);
-  })
+  public mount(target: Element, anchor?: Element) {
+    callHook(LifecycleHooks.BEFORE_MOUNT, this.instance);
+    this.run(() => {
+      this.renderResult.mount(target, anchor);
+    });
+    callHook(LifecycleHooks.MOUNTED, this.instance);
+  }
+
+  public update(ref: Reactive) {
+    callHook(LifecycleHooks.BEFORE_UPDATE, this.instance);
+    this.run(() => {
+      this.renderResult.update(ref);
+    });
+    callHook(LifecycleHooks.UPDATED, this.instance);
+  }
+
+  public destroy() {
+    callHook(LifecycleHooks.BEFORE_DESTROY, this.instance);
+    this.run(this.renderResult.destroy);
+    callHook(LifecycleHooks.DESTROYED, this.instance);
+  }
 }

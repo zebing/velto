@@ -5,19 +5,19 @@ import {
 import styles from './styles.module.scss';
 
 export default function LogicalExpression() {
-  const state = ref(true)
+  let state = ref(true)
   const state1 = ref(true)
   
   const click = () => {
-    state.value = !state.value;
+    state = !state;
   }
   return (
     <div class={styles.wrap}>
       <div>Logical start</div>
       <button onClick={click}>click</button>
-      {state.value && <div>Logical jsx</div>}
-      <div>Logical object: {state.value && {test: true}}</div>
-      <div>Logical number: {state.value  && state1.value && 2}</div>
+      {state && <div>Logical jsx</div>}
+      <div>Logical object: {state && {test: true}}</div>
+      <div>Logical number: {state  && state1 && 2}</div>
       <div onClick={click}>Logical end</div>
     </div>
   )

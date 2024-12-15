@@ -1,15 +1,14 @@
-import { LifecycleHooks, callHook } from "./lifecycle";
-// import { Style } from "./propsOps";
-import { callUnstableFunc, hash } from "../utils";
-import { Ref } from "../reactive";
+import { LifecycleHooks } from "./lifecycle";
+import { Reactive, ComponentEffect } from "../reactive";
 
 export * from "./lifecycle";
 export interface RenderResult {
+  [key: symbol]: boolean;
   mount: (target: Element, anchor?: Element) => void;
-  update: (ref: Ref) => void;
+  update: (ref: Reactive) => void;
   destroy: () => void;
 }
-export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => () => RenderResult;
+export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => RenderResult;
 export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {
@@ -21,11 +20,7 @@ export interface ComponentInstance {
   type: Component;
   props: Props;
   // Prevents duplicate updates for parent-child components when both components introduce the same ref.
-  updatedWithRefs: Ref[],
-  renderResult: RenderResult;
-  mount: (target: Element, anchor?: Element) => void;
-  update: (ref: Ref) => void;
-  destroy: () => void;
+  updatedWithRefs: Reactive[],
 
   // lifecycle
   isMounted: boolean;
@@ -47,29 +42,6 @@ export function buildComponent(type: Component, props: Props) {
     type,
     props,
     updatedWithRefs: [],
-    renderResult: {
-      mount: () => undefined,
-      update: () => undefined,
-      destroy: () => undefined,
-    },
-    mount: (target, anchor) => {
-      setCurrentInstance(instance);
-      callHook(LifecycleHooks.BEFORE_MOUNT, instance);
-      instance.renderResult.mount(target, anchor);
-      callHook(LifecycleHooks.MOUNTED, instance);
-    },
-    update: (ref) => {
-      setCurrentInstance(instance);
-      instance.updatedWithRefs.push(ref);
-      callHook(LifecycleHooks.BEFORE_UPDATE, instance);
-      instance.renderResult.update(ref);
-      callHook(LifecycleHooks.UPDATED, instance);
-    },
-    destroy: () => {
-      callHook(LifecycleHooks.BEFORE_DESTROY, instance);
-      instance.renderResult.destroy();
-      callHook(LifecycleHooks.DESTROYED, instance);
-    },
 
     isMounted: false,
     [LifecycleHooks.CREATED]: null,
@@ -81,17 +53,9 @@ export function buildComponent(type: Component, props: Props) {
     [LifecycleHooks.DESTROYED]: null,
   };
 
-  setCurrentInstance(instance);
-  const render = callUnstableFunc<Component, () => RenderResult>(type, [props]);
+  const componentEffect = new ComponentEffect(instance);
 
-  if (render) {
-    instance.renderResult = render();
-
-    // created hook
-    callHook(LifecycleHooks.CREATED, instance);
-  }
-
-  return instance
+  return componentEffect
 }
 
 export let currentInstance: ComponentInstance | null = null;

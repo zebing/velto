@@ -7,6 +7,7 @@ export function runtimeReactiveValue(path: NodePath<CallExpression>) {
 
   if (isReactive(parentPath)) {
     const idPath = parentPath.get('id');
+
     if (!Array.isArray(idPath) && idPath.isIdentifier()) {
       const { referencePaths = [], constantViolations = [] } = idPath.scope.getBinding(idPath.node.name) || {};
       constantViolations

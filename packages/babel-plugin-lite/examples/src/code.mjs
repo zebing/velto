@@ -1,112 +1,52 @@
-import { ref } from '@lite/lite';
-import styles from './styles.module.scss';
+import { ref } from "@lite/lite"
 
+import styles from "./styles.module.scss";
 
-export function ConditionalExpression() {
-  const state = ref(false)
-  const state1 = ref(false)
-  
-  const click = () => {
-    state.value = !state.value;
+let i = 0;
+
+export default function List() {
+  const list = ref([
+    { id: i++, name: '小张', grade: '一年级', age: 8 },
+    { id: i++, name: '小王', grade: '二年级', age: 9 },
+    { id: i++, name: '小李', grade: '一年级', age: 8 },
+  ])
+  const unshift = () => {
+    // list[0].name = 'name'
+    for(let j = 0; j < 10; j++) {
+      list.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+    }
   }
-  const click1 = () => {
-    state1.value = !state1.value;
+
+  const append = () => {
+    list.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
   }
+
+  const insert = () => {
+    list.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
+  }
+
+  const deletefrom10 = () => {
+    list.splice(10, 1);
+  }
+ 
   return (
     <div class={styles.wrap}>
-      <div>Conditional start</div>
-      <button onClick={click}>{state.value ? 'consequent' : 'alternate'}</button>
-      <button onClick={click1}>{state1.value ? 'consequent' : 'alternate'}</button>
-      {state.value ? <div>true value</div> : <div>false value</div>}
-      <div>Conditional object: {
-        state.value ? {test: true} : {test: false}
-      }</div>
-      <div>Conditional number: {state.value ? 1 : 0}</div>
-      嵌套 {state.value ? (state1.value ? 'consequent1' : 'alternate1') : 'alternate0'}
-      <div>Conditional end</div>
+      <div>List Component</div>
+      <button onClick={unshift}>unshift</button>
+      <button onClick={append}>append</button>
+      <button onClick={insert}>insert</button>
+      <button onClick={deletefrom10}>deletefrom10</button>
+      <div class={styles.list}>
+        {list.map((student) => (
+          <div class={styles.item}>
+            <div>{student.id}</div>
+            <div>{student.name}</div>
+            <div>{student.grade}</div>
+            <div>{student.age}</div>
+          </div>
+        ))}
+      </div>
     </div>
-  )
-}
-
-export function LogicalExpression() {
-  const state = ref(true)
-  const state1 = ref(true)
-  
-  const click = () => {
-    state.value = !state.value;
-  }
-  return (
-    <div class={styles.wrap}>
-      <div>Logical start</div>
-      <button onClick={click}>click</button>
-      {state.value && <div>Logical jsx</div>}
-      <div>Logical object: {state.value && {test: true}}</div>
-      <div>Logical number: {state.value  && state1.value && 2}</div>
-      <div onClick={click}>Logical end</div>
-    </div>
-  )
-}
-
-export function TestComponent() {
-  return (
-    <div>test component</div>
-  )
-}
-
-export function TestJSXFragmentComponent() {
-  let state1 = ref({name: 'name'});
-  return (
-    <>
-      <div>test</div>
-      <div>{state1}</div>
-      {state1.name}
-      <TestComponent
-        {...state1}
-        name="name" 
-        state={state1} 
-        onClick={click1}
-        jsx={<div>compoenent jsx {state1}</div>}
-      >
-        <div>component child {state1}</div>
-      </TestComponent>
-    </>
-  )
-}
-
-export default function JSXElement() {
-  let state = ref({name: 'name'});
-  const click = () => {
-    state.name = 'new name';
-  }
-
-  const click1 = () => {
-    state = {
-      name: 'test name'
-    };
-  }
-
-  return (
-    <div
-      {...state}
-      test1={state}
-      test="test1" 
-      html=<div>test</div>
-      html1={<div>test1</div>}
-      onClick={click}
-    >
-      <div child={true}>{state}</div>
-      <div>jsx text</div>
-      <TestComponent
-        {...state}
-        name="name" 
-        state={state} 
-        onClick={click1}
-        jsx={<div>compoenent jsx {state}</div>}
-      >
-        <div>component child {state}</div>
-      </TestComponent>
-      <LogicalExpression />
-      <ConditionalExpression />
-    </div>
-  )
+ 
+)
 }

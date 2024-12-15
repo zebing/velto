@@ -36,10 +36,10 @@ export default function App() {
   return (
     <div name={'name'}>
       <Test />
-      {/* <LogicalExpression />
+      <LogicalExpression />
       <ConditionalExpression />
       <List />
-      <ParentChild /> */}
+      <ParentChild />
     </div>
   )
 }

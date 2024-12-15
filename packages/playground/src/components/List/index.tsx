@@ -28,6 +28,7 @@ export default function List() {
   }
 
   const insert = () => {
+    console.log(i)
     list.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
   }
 

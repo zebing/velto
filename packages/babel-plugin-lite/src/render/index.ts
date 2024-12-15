@@ -5,12 +5,13 @@ import { Identifier, identifier, blockStatement, Statement, returnStatement,
   Expression, StringLiteral, memberExpression, MemberExpression, ObjectExpression, 
   ifStatement, arrayExpression, ExpressionStatement, logicalExpression,
   assignmentExpression, objectProperty, booleanLiteral, forInStatement,
-  BlockStatement, IfStatement } from "@babel/types"
+  BlockStatement, IfStatement,
+  arrowFunctionExpression,
+  ReturnStatement} from "@babel/types"
 import { NodePath } from "@babel/traverse";
 import { targetIdentifier, anchorIdentifier, reactiveIdentifier, isJSX } from "../constants";
 import { HelperNameType } from "../helper";
 import { NodePathState } from "../types";
-import { access } from "fs";
 export interface RenderOption {
   rootPath: NodePath;
 }
@@ -244,13 +245,19 @@ export default class Render {
         id,
         callExpression(
           this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-          [express, target, anchor, test ? test : booleanLiteral(true)],
+          [
+            arrowFunctionExpression([], express), 
+            target, 
+            anchor, 
+            arrowFunctionExpression([], test ? test : booleanLiteral(true))
+          ],
         )
       )
     );
 
     this.mounteStatement.push(
-      test ? ifStatement(test, expression) : expression,
+      expression,
+      // test ? ifStatement(test, expression) : expression,
     );
 
     if (reactiveList.length) {
@@ -258,7 +265,7 @@ export default class Render {
         callExpression(
           memberExpression(
             arrayExpression(reactiveList),
-            identifier('indcludes'),
+            identifier('includes'),
           ),
           [reactiveIdentifier],
         ),
@@ -269,7 +276,7 @@ export default class Render {
                 id,
                 identifier('update'),
               ),
-              [express, test ? test : booleanLiteral(true)],
+              [reactiveIdentifier],
             )
           )
         ]),
@@ -384,8 +391,38 @@ export default class Render {
   }
 
   public generate() {
-    const statementPath = this.rootPath.getStatementParent();
-    statementPath?.insertBefore(this.renderStatement);
+    const functionParent = this.rootPath.getFunctionParent();
+
+    if (functionParent) {
+      const bodyPath = functionParent.get('body');
+      if (!bodyPath.isBlockStatement()) {
+        functionParent.replaceWith(
+          arrowFunctionExpression(
+            // @ts-ignore
+            functionParent.node.params,
+            blockStatement([
+              returnStatement(
+                bodyPath.node as Expression,
+              )
+            ])
+          )
+        )
+      }
+      
+      const blockStatementBodyPath = bodyPath.get('body');
+
+      if (Array.isArray(blockStatementBodyPath)) {
+        const lastExpress = blockStatementBodyPath[(blockStatementBodyPath as unknown as NodePath<ReturnStatement | Expression>[]).length - 1];
+        if (lastExpress.isReturnStatement()) {
+          lastExpress?.insertBefore(this.renderStatement);
+        } else {
+          (bodyPath as unknown as NodePath<BlockStatement>).pushContainer('body', this.renderStatement);
+        }
+      }
+    } else {
+      const statementPath = this.rootPath.getStatementParent();
+      statementPath?.insertBefore(this.renderStatement);
+    }
 
     const isJSX = this.pathState.helper.getHelperNameIdentifier(HelperNameType.isJSX);
     return objectExpression([

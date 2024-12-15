@@ -14,6 +14,7 @@ export const enum LifecycleHooks {
 
 export const createHook = (lifecycle: LifecycleHooks) => (hook: () => any, instance = currentInstance) => {
   if (!instance) {
+    console.log('+++++instance', instance)
     return;
   }
 

@@ -18,7 +18,7 @@ function vitePluginLite() {
     enforce: 'pre',
 
     async transform(source, id) {
-      if (!(/\.tsx$/i.test(id))) {
+      if (!(/\.ts[x]?$/i.test(id))) {
         return null;
       }
 
