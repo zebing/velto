@@ -30,128 +30,82 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
   }
 }
 
-export function expression(expressWrap: () => any, target: Element, anchor: Element | undefined, conditionWrap: () => boolean): {
-  update: (reactive:Reactive) => void;
-  destroy: () => void;
-} {
-  let cache: RenderResult[] = [];
-  const express = expressWrap();
+export function expression(expressWrap: () => any, target: Element, anchor: Element | undefined, conditionWrap: () => boolean): RenderResult {
   const condition = conditionWrap();
-  let node: Text | undefined;
+  let template: RenderResult = expressWrap();
+
   // @ts-ignore
-  const isTemplate = isObject(express) && !!express[isJSX];
-  if (condition) {
-    if (isTemplate) {
-      const { mount } = express;
-      mount(target, anchor);
-    } else if (isArray(express) && express[0]?.[isJSX]) {
-      const renderList = express;
-      renderList.forEach((template, index) => {
-        const renderResult = cache[index] = template;
-        renderResult.mount(target, anchor);
-      });
-    } else {
-      node = text(toDisplayString(express));
-      insert(target, node, anchor);
+  if (!(isObject(express) && !!express[isJSX])) {
+    let express = template;
+    let node: Text | undefined;
+    template = {
+      mount: (target: Element, anchor?: Element) => {
+        node = text(toDisplayString(express));
+        insert(target, node, anchor);
+      },
+      update: (ref: Reactive) => {
+        express = expressWrap();
+        if (!node) {
+          node = text(toDisplayString(express));
+          insert(target, node, anchor);
+        } else {
+          node.textContent = toDisplayString(express);
+        }
+      },
+      destroy: () => {
+        remove(node!);
+        node = undefined;
+      },
     }
-
-    // if (isArray(express) && isRenderFn(express[0])) {
-    //   let cache: RenderResult[] = [];
-    //   let catchTarget: Element; 
-    //   let cahceAnchor: Element | undefined;
-
-    //   return {
-    //     mount(target: Element, anchor?: Element) {
-    //       catchTarget = target;
-    //       cahceAnchor = anchor;
-    //       const renderList = express;
-    //       renderList.forEach((render, index) => {
-    //         const renderResult = cache[index] = render();
-    //         renderResult.mount(target, anchor);
-    //       });
-    //     },
-    //     update(ref: Ref) {
-    //       const renderList = expressContainerFunction() as (() => RenderResult)[];
-    //       renderList.forEach((render, index) => {
-    //         let renderResult = cache[index]
-
-    //         if (renderResult) {
-    //           return renderResult.update(ref);
-    //         }
-    //         renderResult = cache[index] = render();
-    //         renderResult.mount(catchTarget, cahceAnchor);
-    //       });
-
-    //       for(let i = renderList.length; i < cache.length; i++) {
-    //         cache[i].destroy();
-    //       }
-    //       cache.length = renderList.length;
-    //     },
-    //     destroy() {
-    //       cache.map(render => render.destroy());
-    //       cache = [];
-    //     }
-    //   }
-    // }
-
-    
   }
   
   return {
+    mount: (target: Element, anchor?: Element) => {
+      condition && template.mount(target, anchor);
+    },
     update(reactive: Reactive) {
-      const express = expressWrap();
-      const condition = conditionWrap();
-      // @ts-ignore
-      const isTemplate = isObject(express) && !!express[isJSX];
-
-      if (isTemplate) {
-        if (condition) {
-          express.mount(target, anchor);
-        } else {
-          express.destroy()
-        }
-        
-      } else if (isArray(express) && express[0]?.[isJSX]){
-        const renderList = express;
-        renderList.forEach((render, index) => {
-          let renderResult = cache[index]
-          console.log(cache, renderList)
-
-          if (renderResult) {
-            return renderResult.update(reactive);
-          }
-          renderResult = cache[index] = render;
-          renderResult.mount(target, anchor);
-        });
-
-        for(let i = renderList.length; i < cache.length; i++) {
-          cache[i].destroy();
-        }
-        cache.length = renderList.length;
-      } else {
-        if (condition) {
-          if (!node) {
-            node = text(toDisplayString(express));
-            insert(target, node, anchor);
-          } else {
-            node.textContent = toDisplayString(express);
-          }
-        } else {
-          if(node) {
-            remove(node!);
-            node = undefined;
-          }
-        }
-      }
+      condition ? template.update(reactive) : template.destroy();
     },
     destroy() {
-      cache.map(render => render.destroy());
-      cache = [];
-      if (isTemplate) {
-        express.destroy()
-      } else {
-        remove(node!);
+      template.destroy();
+    }
+  }
+}
+
+export function renderList(data: any[] = [], renderCallback: (value: any, index: number, array: any[]) => any): RenderResult {
+  const cached: RenderResult[] = [];
+  let cacheTarget: Element;
+  let cacheAnchor: Element | undefined;
+
+  return {
+    mount: (target: Element, anchor?: Element) => {
+      cacheTarget = target;
+      cacheAnchor = anchor;
+      data.forEach((item, index) => {
+        cached[index] = renderCallback(item, index, data);
+        cached[index].mount(target, anchor);
+      });
+    },
+    update(reactive: Reactive) {
+      data.forEach((item, index) => {
+        if (cached[index]) {
+          cached[index].update(reactive);
+        } else {
+          cached[index] = renderCallback(item, index, data);
+          cached[index].mount(cacheTarget, cacheAnchor);
+        }
+      });
+
+      for (let i = data.length; i < cached.length; i++) {
+        cached[i].destroy();
       }
+      cached.length = data.length;
+    },
+    destroy() {
+      for (let i = 0; i < cached.length; i++) {
+        cached[i].destroy();
+      }
+      cached.length = 0;
     }
   }
 }

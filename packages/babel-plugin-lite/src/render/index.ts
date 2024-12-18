@@ -231,34 +231,30 @@ export default class Render {
     const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
     const id = this.rootPath.scope.generateUidIdentifier('express');
 
-    // let express;
     this.renderStatement.push(
       variableDeclaration(
-        'let',
-        [variableDeclarator(id, null)]
+        'const',
+        [
+          variableDeclarator(
+            id, 
+            callExpression(
+              this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
+              [
+                arrowFunctionExpression([], express), 
+                target, 
+                anchor, 
+                arrowFunctionExpression([], test ? test : booleanLiteral(true))
+              ],
+            )
+          )
+        ]
       )
     );
 
-    const expression = expressionStatement(
-      assignmentExpression(
-        '=',
-        id,
-        callExpression(
-          this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-          [
-            arrowFunctionExpression([], express), 
-            target, 
-            anchor, 
-            arrowFunctionExpression([], test ? test : booleanLiteral(true))
-          ],
-        )
-      )
-    );
-
-    this.mounteStatement.push(
-      expression,
-      // test ? ifStatement(test, expression) : expression,
-    );
+    this.pushMounteStatement({ 
+      argumentList: [target, anchor].filter(Boolean) as Identifier[],
+      callee: memberExpression(id,identifier('mount')),
+    });
 
     if (reactiveList.length) {
       const updateStatement = ifStatement(

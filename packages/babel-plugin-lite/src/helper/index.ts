@@ -27,6 +27,7 @@ export enum HelperNameType {
   classe = 'classe',
 
   expression = 'expression',
+  renderList = 'renderList',
 }
 
 export class Helper {
