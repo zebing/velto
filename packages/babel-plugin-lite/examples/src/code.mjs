@@ -1,53 +1,54 @@
-import {
-  onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
-  onBeforeDestroy, onDestroyed, ref,
-  RefImpl,
-} from "@lite/lite"
+import { ref } from "@lite/lite"
 
 import styles from "./styles.module.scss";
 
-export default function Test() {
-  const style = ref<string>(styles.blue)
-  const refStyle = ref<RefImpl<string>>(style)
-  const state = ref<{name: string}>({
-    name: 'name',
-  })
-  const refState = ref<{name: string}>(state)
-  console.log(style.value, state.name)
-  const name = 'name';
-  onCreated(() => {
-    console.log('+++style', style === refStyle, refState === state)
-    console.log('+++++Test onCreated')
-  })
-  onBeforeMount(() => {
-    console.log('+++++Test onBeforeMount')
-  })
-  onMounted(() => {
-    console.log('+++++Test onMounted')
-  })
-  onBeforeUpdate(() => {
-    console.log('+++++Test onBeforeUpdate')
-  })
-  onUpdated(() => {
-    console.log('+++++Test onUpdated')
-  })
-  onBeforeDestroy(() => {
-    console.log('+++++Test onBeforeDestroy')
-  })
-  onDestroyed(() => {
-    console.log('+++++Test onDestroyed')
-  })
-  const click = () => {
-    console.log('+++++++click')
-    state.name = 'new name';
-    style.value = styles.green;
+let i = 0;
+
+export default function List() {
+  const list = ref([
+    { id: i++, name: '小张', grade: '一年级', age: 8 },
+    { id: i++, name: '小王', grade: '二年级', age: 9 },
+    { id: i++, name: '小李', grade: '一年级', age: 8 },
+  ])
+  const unshift = () => {
+    // list[0].name = 'name'
+    for(let j = 0; j < 10; j++) {
+      list.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+    }
   }
+
+  const append = () => {
+    list.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
+  }
+
+  const insert = () => {
+    list.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
+  }
+
+  const deletefrom10 = () => {
+    list.splice(10, 1);
+  }
+  const render = list.map(() => <div>test</div>)
+ 
   return (
-    <div name="name" state={name} class={style.value}>
-      <div onClick={click}>change name</div>
-      <div>name: {refState.name}</div>
-      <div>{style.value}</div>
-      <div>{refStyle.value}</div>
+    <div class={styles.wrap}>
+      {render}
+      <div>List Component</div>
+      <button onClick={unshift}>unshift</button>
+      <button onClick={append}>append</button>
+      <button onClick={insert}>insert</button>
+      <button onClick={deletefrom10}>deletefrom10</button>
+      <div class={styles.list}>
+        {list.map((student) => (
+          <div class={styles.item}>
+            <div>{student.id}</div>
+            <div>{student.name}</div>
+            <div>{student.grade}</div>
+            <div>{student.age}</div>
+          </div>
+        ))}
+      </div>
     </div>
-  )
+ 
+)
 }

@@ -13,13 +13,7 @@ export function runtimeReactiveValue(path: NodePath<CallExpression>) {
       .forEach((reactivePath) => {
         if (reactivePath.isAssignmentExpression()) {
           const currentPath = reactivePath.get('left');
-          currentPath.replaceWith(
-            memberExpression(currentPath.node as Expression, identifier('value'))
-          );
-
-          // Mark the node as processed
-          currentPath.node.extra ??= {};
-          currentPath.node.extra._processed = true;
+          replaceWithValue(currentPath as NodePath<Expression>);
         }
       });
     referencePaths
@@ -33,13 +27,17 @@ export function runtimeReactiveValue(path: NodePath<CallExpression>) {
         }
 
         // Replace with new member expression
-        currentPath.replaceWith(
-          memberExpression(currentPath.node as Expression, identifier('value'))
-        );
-
-        // Mark the node as processed
-        currentPath.node.extra ??= {};
-        currentPath.node.extra._processed = true;
+        replaceWithValue(currentPath as NodePath<Expression>);
       });
   }
+}
+
+function replaceWithValue(currentPath: NodePath<Expression>) {
+  currentPath.replaceWith(
+    memberExpression(currentPath.node as Expression, identifier('value'))
+  );
+
+  // Mark the node as processed
+  currentPath.node.extra ??= {};
+  currentPath.node.extra._processed = true;
 }
