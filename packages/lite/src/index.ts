@@ -35,7 +35,7 @@ export function expression(expressWrap: () => any, target: Element, anchor: Elem
   let template: RenderResult = expressWrap();
 
   // @ts-ignore
-  if (!(isObject(express) && !!express[isJSX])) {
+  if (!(isObject(template) && !!template[isJSX])) {
     let express = template;
     let node: Text | undefined;
     template = {

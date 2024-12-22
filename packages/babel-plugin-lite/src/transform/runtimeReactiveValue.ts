@@ -1,6 +1,5 @@
 import { NodePath } from '@babel/traverse';
 import { memberExpression, CallExpression, identifier, Expression, Identifier, VariableDeclarator } from '@babel/types';
-import { isReactive } from '../utils';
 
 export function runtimeReactiveValue(path: NodePath<CallExpression>) {
   const parentPath = path.parentPath as NodePath<VariableDeclarator>;

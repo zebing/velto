@@ -13,7 +13,7 @@ export default function Test() {
     name: 'name',
   })
   const refState = ref<{name: string}>(state)
-  console.log(style.value, state.name)
+  console.log(style, state.name)
   const name: string = 'name';
   onCreated(() => {
     console.log('+++style', style === refStyle, refState === state)
@@ -40,14 +40,14 @@ export default function Test() {
   const click = () => {
     console.log('+++++++click')
     state.name = 'new name';
-    style.value = styles.green;
+    style = styles.green;
   }
   return (
-    <div name="name" state={name} class={style.value}>
+    <div name="name" state={name} class={style}>
       <div onClick={click}>change name</div>
       <div>name: {refState.name}</div>
-      <div>{style.value}</div>
-      <div>{refStyle.value}</div>
+      <div>{style}</div>
+      <div>{refStyle}</div>
     </div>
   )
 }

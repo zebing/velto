@@ -18,6 +18,8 @@ function renameAndRemoveBinding(path: NodePath<Program>, bindingName: HelperName
         }
       })
     }
+
+    binding.path.remove();
   }
 }
 

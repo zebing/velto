@@ -5,6 +5,7 @@ import styles from "./styles.module.scss";
 let i = 0;
 
 export default function List() {
+  let state = ref(true)
   const list = ref([
     { id: i++, name: '小张', grade: '一年级', age: 8 },
     { id: i++, name: '小王', grade: '二年级', age: 9 },
@@ -28,11 +29,12 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   }
-  const render = list.map(() => <div>test</div>)
+  // const render = list.map(() => <div>test</div>)
  
   return (
     <div class={styles.wrap}>
-      {render}
+      {state && <div>Logical jsx</div>}
+      {/* {render}
       <div>List Component</div>
       <button onClick={unshift}>unshift</button>
       <button onClick={append}>append</button>
@@ -47,7 +49,7 @@ export default function List() {
             <div>{student.age}</div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
  
 )
