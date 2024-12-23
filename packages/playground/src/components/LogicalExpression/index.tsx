@@ -5,7 +5,7 @@ import {
 import styles from './styles.module.scss';
 
 export default function LogicalExpression() {
-  let state = ref(true)
+  let state = ref(false)
   const state1 = ref(true)
   
   const click = () => {

@@ -21,6 +21,7 @@ export default function List() {
     for(let j = 0; j < 10; j++) {
       list.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
+    console.log('++++list', list)
   }
 
   const append = () => {

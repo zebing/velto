@@ -6,7 +6,6 @@ import { NodePathState } from '../types';
 
 export default {
   enter(path: NodePath<Program>) {
-    debugger
     path.state = {} as NodePathState;
     path.state.helper = new Helper({ rootPath: path });
     runtimeReactive(path);

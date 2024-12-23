@@ -30,14 +30,16 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
   }
 }
 
-export function expression(expressWrap: () => any, target: Element, anchor: Element | undefined, conditionWrap: () => boolean): RenderResult {
-  const condition = conditionWrap();
+export function expression(expressWrap: () => any, conditionWrap: () => boolean): RenderResult {
+  const hasCondition = !!conditionWrap;
   let template: RenderResult = expressWrap();
+  let cachedTarget: Element;
+  let cachedAnchor: Element | undefined;
 
-  // @ts-ignore
   if (!(isObject(template) && !!template[isJSX])) {
     let express = template;
     let node: Text | undefined;
+
     template = {
       mount: (target: Element, anchor?: Element) => {
         node = text(toDisplayString(express));
@@ -45,26 +47,38 @@ export function expression(expressWrap: () => any, target: Element, anchor: Elem
       },
       update: (ref: Reactive) => {
         express = expressWrap();
+        const newTextContent = toDisplayString(express);
+
         if (!node) {
-          node = text(toDisplayString(express));
-          insert(target, node, anchor);
-        } else {
-          node.textContent = toDisplayString(express);
+          node = text(newTextContent);
+          insert(cachedTarget, node, cachedAnchor);
+        } else if (node.textContent !== newTextContent) {
+          node.textContent = newTextContent;
         }
       },
       destroy: () => {
-        remove(node!);
-        node = undefined;
+        if (node) {
+          remove(node!);
+          node = undefined;
+        }
       },
     }
   }
   
   return {
     mount: (target: Element, anchor?: Element) => {
-      condition && template.mount(target, anchor);
+      cachedTarget = target;
+      cachedAnchor = anchor;
+      if (hasCondition) {
+        return conditionWrap?.() ? template.mount(target, anchor) : undefined;
+      }
+      template.mount(target, anchor);
     },
     update(reactive: Reactive) {
-      condition ? template.update(reactive) : template.destroy();
+      if (hasCondition) {
+        return conditionWrap?.() ? template.mount(cachedTarget, cachedAnchor) : template.destroy();
+      }
+      template.update(reactive);
     },
     destroy() {
       template.destroy();
@@ -78,6 +92,7 @@ export function renderList(data: any[] = [], renderCallback: (value: any, index:
   let cacheAnchor: Element | undefined;
 
   return {
+    [isJSX]: true,
     mount: (target: Element, anchor?: Element) => {
       cacheTarget = target;
       cacheAnchor = anchor;

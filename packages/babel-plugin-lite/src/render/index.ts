@@ -226,63 +226,33 @@ export default class Render {
     target: Identifier,
     anchor?: Identifier,
     reactiveList?: Identifier[],
-    test?: Expression; // if (test) expression()
+    test?: Expression;
   }) {
     const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
     const id = this.rootPath.scope.generateUidIdentifier('express');
 
-    // let express;
     this.renderStatement.push(
       variableDeclaration(
-        'let',
-        [variableDeclarator(id, null)]
+        'const',
+        [
+          variableDeclarator(
+            id, 
+            callExpression(
+              this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
+              [
+                arrowFunctionExpression([], express), 
+                test ? arrowFunctionExpression([],  test) : identifier('undefined')
+              ],
+            )
+          )
+        ]
       )
     );
 
-    const expression = expressionStatement(
-      assignmentExpression(
-        '=',
-        id,
-        callExpression(
-          this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-          [
-            arrowFunctionExpression([], express), 
-            target, 
-            anchor, 
-            arrowFunctionExpression([], test ? test : booleanLiteral(true))
-          ],
-        )
-      )
-    );
-
-    this.mounteStatement.push(
-      test ? ifStatement(test, expression) : expression,
-    );
-
-    // this.renderStatement.push(
-    //   variableDeclaration(
-    //     'const',
-    //     [
-    //       variableDeclarator(
-    //         id, 
-    //         callExpression(
-    //           this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-    //           [
-    //             arrowFunctionExpression([], express), 
-    //             target, 
-    //             anchor, 
-    //             arrowFunctionExpression([], test ? test : booleanLiteral(true))
-    //           ],
-    //         )
-    //       )
-    //     ]
-    //   )
-    // );
-
-    // this.pushMounteStatement({ 
-    //   argumentList: [target, anchor].filter(Boolean) as Identifier[],
-    //   callee: memberExpression(id,identifier('mount')),
-    // });
+    this.pushMounteStatement({ 
+      argumentList: [target, anchor].filter(Boolean) as Identifier[],
+      callee: memberExpression(id,identifier('mount')),
+    });
 
     if (reactiveList.length) {
       const updateStatement = ifStatement(

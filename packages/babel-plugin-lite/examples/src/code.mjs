@@ -33,7 +33,8 @@ export default function List() {
  
   return (
     <div class={styles.wrap}>
-      {state && <div>Logical jsx</div>}
+      {state}
+      {/* {state && <div>Logical jsx</div>} */}
       {/* {render}
       <div>List Component</div>
       <button onClick={unshift}>unshift</button>
