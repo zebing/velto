@@ -11,9 +11,10 @@ export enum HelperNameType {
   runtimeComputed = 'runtimeComputed',
 
   // component
-  buildComponent = 'buildComponent',
+  component = 'component',
 
   // element
+  createElement = 'createElement',
   element = 'element',
   text = 'text',
   insert = 'insert',
@@ -22,12 +23,14 @@ export enum HelperNameType {
 
   // attribute
   attr = 'attr',
+  spreadAttr = 'spreadAttr',
   event = 'event',
   style = 'style',
   classe = 'classe',
 
   expression = 'expression',
   renderList = 'renderList',
+  condition = 'condition',
 }
 
 export class Helper {

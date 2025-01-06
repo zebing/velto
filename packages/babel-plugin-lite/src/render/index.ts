@@ -1,17 +1,38 @@
-import { Identifier, identifier, blockStatement, Statement, returnStatement, 
-  objectExpression, objectMethod, functionExpression, variableDeclaration, 
-  variableDeclarator, callExpression, stringLiteral, expressionStatement, 
-  importDeclaration, importSpecifier, ImportDeclaration, ImportSpecifier, 
-  Expression, StringLiteral, memberExpression, MemberExpression, ObjectExpression, 
-  ifStatement, arrayExpression, ExpressionStatement, logicalExpression,
-  assignmentExpression, objectProperty, booleanLiteral, forInStatement,
-  BlockStatement, IfStatement,
+import {
+  Identifier,
+  identifier,
+  blockStatement,
+  Statement,
+  returnStatement,
+  objectExpression,
+  objectMethod,
+  variableDeclaration,
+  variableDeclarator,
+  callExpression,
+  stringLiteral,
+  expressionStatement,
+  Expression,
+  StringLiteral,
+  memberExpression,
+  MemberExpression,
+  ObjectExpression,
+  objectProperty,
+  booleanLiteral,
+  BlockStatement,
   arrowFunctionExpression,
-  ReturnStatement} from "@babel/types"
+  ReturnStatement,
+  JSXElement,
+  isCallExpression,
+  ArrowFunctionExpression,
+  isBlockStatement,
+  CallExpression,
+  JSXFragment,
+} from "@babel/types";
 import { NodePath } from "@babel/traverse";
-import { targetIdentifier, anchorIdentifier, reactiveIdentifier, isJSX } from "../constants";
+import { targetIdentifier, anchorIdentifier } from "../constants";
 import { HelperNameType } from "../helper";
 import { NodePathState } from "../types";
+
 export interface RenderOption {
   rootPath: NodePath;
 }
@@ -19,202 +40,140 @@ export interface RenderOption {
 export default class Render {
   public rootPath: NodePath;
   private pathState: NodePathState;
-  private renderName: Identifier;
+  private bodyStatement: Statement[] = [];
   private renderStatement: Statement[] = [];
-  private mounteStatement: Statement[] = [];
-  private updateStatement: Statement[] = [];
   private destroyStatement: Statement[] = [];
 
   constructor(options: RenderOption) {
     const { rootPath } = options || {};
     this.rootPath = rootPath;
     this.pathState = rootPath.state as NodePathState;
-    this.renderName = identifier('render');
   }
 
   public space(target: Identifier) {
-    const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
-    this.pushRenderStatement({
+    const id = this.rootPath.scope.generateUidIdentifier("spaceAnchor");
+    this.pushBodyStatement({
       id,
-      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
-      argumentList: [
-        stringLiteral(' '),
-      ],
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.text
+      ),
+      argumentList: [stringLiteral(" ")],
     });
-    this.pushMounteStatement({
-      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.append),
+    this.pushRenderStatement({
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.append
+      ),
       argumentList: [target, id],
     });
     return id;
   }
 
-  public attr(options: {
-    target: Identifier;
-    name: string;
-    value: Expression;
-    reactiveList: Identifier[],
-  }) {
-    const { target, name, value, reactiveList } = options;
-    let callee: Expression;
-    let argumentList: Expression[] = [];
-
-    if (name === 'style') {
-      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.style),
-      argumentList = [target, value];
-
-    } else if (name === 'class') {
-      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.classe),
-      argumentList = [target, value];
-
-    } else if (/^on[^a-z]/.test(name)) {
-      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.event),
-      argumentList = [target, stringLiteral(name), value];
-
-    } else {
-      callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.attr),
-      argumentList = [target, stringLiteral(name), value];
-    }
-
-    this.pushMounteStatement({
-      callee,
-      argumentList,
-    });
-
-    if (reactiveList.length) {
-      this.pushUpdateStatement({
-        reactiveList,
-        callee,
-        argumentList,
-      });
-    }
-  }
-
-  public spreadAttr(options: {
-    target: Identifier;
-    express: Expression;
-    reactiveList: Identifier[];
-  }) {
-    const { target, express, reactiveList } = options;
-    const callee = this.pathState.helper.getHelperNameIdentifier(HelperNameType.attr)
-    const id = identifier('key');
-    const node = forInStatement(
-      variableDeclaration('const', [
-        variableDeclarator(id)
-      ]),
-      express,
-      blockStatement([
-        expressionStatement(
-          callExpression(callee, [
-            target,
-            id,
-            memberExpression(express, id, true)
-          ])
-        ),
-      ]),
-    )
-    this.mounteStatement.push(node);
-
-    if (reactiveList.length) {
-      const ifStatementNode = ifStatement(
-        callExpression(
-          memberExpression(
-            arrayExpression(reactiveList),
-            identifier('includes'),
-          ),
-          [reactiveIdentifier]
-        ),
-        
-        node,
-      );
-  
-      this.updateStatement.push(ifStatementNode);
-    }
-  }
-
   public element(options: {
+    id: Identifier;
     tag: string;
     type: HelperNameType;
+    props: ObjectExpression;
     target: Identifier;
     anchor?: Identifier;
   }) {
     const {
       tag,
       type = HelperNameType.insert,
+      props,
       target,
       anchor,
-    } = options;
-    const id = this.rootPath.scope.generateUidIdentifier(tag);
-
-    this.pushRenderStatement({
       id,
-      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.element),
+    } = options;
+
+    this.pushBodyStatement({
+      id,
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.createElement
+      ),
       argumentList: [stringLiteral(tag)],
     });
-    
-    this.pushMounteStatement({ 
-      argumentList: [target, id, anchor].filter(Boolean) as Identifier[],
-      callee: this.pathState.helper.getHelperNameIdentifier(type),
+
+    const elementId = this.rootPath.scope.generateUidIdentifier("_element");
+
+    this.pushBodyStatement({
+      id: elementId,
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.element
+      ),
+      argumentList: [
+        arrowFunctionExpression(
+          [],
+          objectExpression([
+            objectProperty(identifier("el"), id),
+            objectProperty(identifier("props"), props),
+            objectProperty(identifier("type"), stringLiteral(type)),
+          ])
+        ),
+      ],
     });
-    
-    if (type === 'insert') {
-      this.pushDestroyStatement({
-        callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.remove),
-        argumentList: [id],
-      });
-    }
+
+    this.pushRenderStatement({
+      argumentList: [target, anchor].filter(Boolean) as Identifier[],
+      callee: memberExpression(elementId, identifier("render")),
+    });
+
+    this.pushDestroyStatement({
+      callee: memberExpression(elementId, identifier("destroy")),
+      argumentList: [],
+    });
 
     return id;
   }
 
   public text(options: {
-    str: StringLiteral,
-    type: HelperNameType.insert | HelperNameType.append,
-    target: Identifier,
-    anchor?: Identifier,
+    str: StringLiteral;
+    type: HelperNameType.insert | HelperNameType.append;
+    target: Identifier;
+    anchor?: Identifier;
   }) {
     const { str, type, target, anchor } = options;
-    const id = this.rootPath.scope.generateUidIdentifier('text');
-    this.pushRenderStatement({
+    const id = this.rootPath.scope.generateUidIdentifier("text");
+    this.pushBodyStatement({
       id,
-      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.text),
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.text
+      ),
       argumentList: [str],
     });
-    
-    this.pushMounteStatement({ 
+
+    this.pushRenderStatement({
       argumentList: [target, id, anchor].filter(Boolean) as Identifier[],
       callee: this.pathState.helper.getHelperNameIdentifier(type),
     });
-    
-    if (type === 'insert') {
-      this.pushDestroyStatement({
-        callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.remove),
-        argumentList: [id]
-      });
-    }
-    
+
+    this.pushDestroyStatement({
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.remove
+      ),
+      argumentList: [id],
+    });
+
     return id;
   }
 
-  public component(tag: string, props: ObjectExpression) {
-    const id = this.rootPath.scope.generateUidIdentifier('component');
-    this.pushRenderStatement({
+  public component(options: { tag: string; props: ObjectExpression }) {
+    const { tag, props } = options;
+    const id = this.rootPath.scope.generateUidIdentifier("_component");
+    this.pushBodyStatement({
       id,
-      callee: this.pathState.helper.getHelperNameIdentifier(HelperNameType.buildComponent),
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.component
+      ),
       argumentList: [identifier(tag), props],
     });
 
-    this.pushMounteStatement({
-      callee: memberExpression(id, identifier('mount')),
+    this.pushRenderStatement({
+      callee: memberExpression(id, identifier("render")),
       argumentList: [targetIdentifier, anchorIdentifier],
     });
 
-    this.pushUpdateStatement({
-      callee: memberExpression(id, identifier('update')),
-      argumentList: [reactiveIdentifier],
-    });
-
     this.pushDestroyStatement({
-      callee: memberExpression(id, identifier('destroy')),
+      callee: memberExpression(id, identifier("destroy")),
       argumentList: [],
     });
 
@@ -222,65 +181,46 @@ export default class Render {
   }
 
   public expression(options: {
-    express: Expression,
-    target: Identifier,
-    anchor?: Identifier,
-    reactiveList?: Identifier[],
+    express: Expression;
+    target: Identifier;
+    anchor?: Identifier;
     test?: Expression;
   }) {
-    const { express, target = targetIdentifier, anchor = anchorIdentifier, reactiveList = [], test } = options;
-    const id = this.rootPath.scope.generateUidIdentifier('express');
-
-    this.renderStatement.push(
-      variableDeclaration(
-        'const',
-        [
-          variableDeclarator(
-            id, 
-            callExpression(
-              this.pathState.helper.getHelperNameIdentifier(HelperNameType.expression),
-              [
-                arrowFunctionExpression([], express), 
-                test ? arrowFunctionExpression([],  test) : identifier('undefined')
-              ],
-            )
-          )
-        ]
-      )
-    );
-
-    this.pushMounteStatement({ 
-      argumentList: [target, anchor].filter(Boolean) as Identifier[],
-      callee: memberExpression(id,identifier('mount')),
+    const {
+      express,
+      target = targetIdentifier,
+      anchor = anchorIdentifier,
+      test,
+    } = options;
+    const expressId = this.rootPath.scope.generateUidIdentifier("express");
+    const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
+    let id = expressId;
+    this.pushBodyStatement({
+      id: expressId,
+      callee: this.pathState.helper.getHelperNameIdentifier(
+        HelperNameType.expression
+      ),
+      argumentList: [arrowFunctionExpression([], express)],
     });
 
-    if (reactiveList.length) {
-      const updateStatement = ifStatement(
-        callExpression(
-          memberExpression(
-            arrayExpression(reactiveList),
-            identifier('includes'),
-          ),
-          [reactiveIdentifier],
+    if (test) {
+      id = conditionId;
+      this.pushBodyStatement({
+        id: conditionId,
+        callee: this.pathState.helper.getHelperNameIdentifier(
+          HelperNameType.condition
         ),
-        blockStatement([
-          expressionStatement(
-            callExpression(
-              memberExpression(
-                id,
-                identifier('update'),
-              ),
-              [reactiveIdentifier],
-            )
-          )
-        ]),
-      )
-      this.updateStatement.push(updateStatement);
+        argumentList: [expressId, arrowFunctionExpression([], test)],
+      });
     }
 
+    this.pushRenderStatement({
+      argumentList: [target, anchor].filter(Boolean) as Identifier[],
+      callee: memberExpression(id, identifier("render")),
+    });
+
     this.pushDestroyStatement({
-      callee: memberExpression(id, identifier('destroy')),
-      test,
+      callee: memberExpression(id, identifier("destroy")),
       argumentList: [],
     });
 
@@ -289,78 +229,33 @@ export default class Render {
 
   // callee(id)
   // callee()
-  public pushUpdateStatement(options: {
-    callee: Expression;
-    reactiveList?: Identifier[];
-    argumentList: Expression[];
-  }) {
-    const { callee, reactiveList, argumentList } = options;
-    // callee(...)
-    let statementNode: ExpressionStatement | IfStatement = expressionStatement(
-      callExpression(
-        callee,
-        argumentList,
-      ),
-    );
-
-    // if(reactiveList.includes(ref)) { callee(...) }
-    if (reactiveList?.length) {
-      statementNode = ifStatement(
-        callExpression(
-          memberExpression(
-            arrayExpression(reactiveList),
-            identifier('includes'),
-          ),
-          [reactiveIdentifier]
-        ),
-        
-        statementNode,
-      );
-    }
-
-    this.updateStatement.push(statementNode);
-  }
-
-  // callee(id)
-  // callee()
-  public pushRenderStatement(options: {
-    kind?: "var" | "let" | "const",
+  public pushBodyStatement(options: {
+    kind?: "var" | "let" | "const";
     callee: Expression;
     id: Identifier;
     argumentList: Expression[];
-    test?: Expression;
   }) {
-    const { id, callee, argumentList, kind = 'const', test } = options;
+    const { id, callee, argumentList, kind = "const" } = options;
     const express = callExpression(callee, argumentList);
-  
-    const init = test ? logicalExpression('&&', test, express) : express;
-    this.renderStatement.push(
-      variableDeclaration(
-        test ? 'let' : kind,
-        [variableDeclarator(id, init)]
-      )
+
+    this.bodyStatement.push(
+      variableDeclaration(kind, [variableDeclarator(id, express)])
     );
   }
 
   // callee(target, id, anchor)
   // callee(target, anchor)
-  public pushMounteStatement(options: {
+  public pushRenderStatement(options: {
     callee: Expression;
     argumentList: Expression[];
-    test?: Expression; // if (test) {expression}
   }) {
-    const { callee, argumentList, test } = options;
+    const { callee, argumentList } = options;
 
     const expression = expressionStatement(
-      callExpression(
-        callee,
-        argumentList,
-      )
+      callExpression(callee, argumentList)
     );
 
-    this.mounteStatement.push(
-      test ? ifStatement(test, expression) : expression,
-    );
+    this.renderStatement.push(expression);
   }
 
   // callee(id)
@@ -368,62 +263,128 @@ export default class Render {
   public pushDestroyStatement(options: {
     callee: Expression;
     argumentList: Expression[];
-    test?: Expression;
   }) {
-    const { callee, argumentList, test } = options;
+    const { callee, argumentList } = options;
 
     const expression = expressionStatement(
-      callExpression(
-        callee,
-        argumentList,
-      )
-    )
-
-    this.destroyStatement.push(
-      test ? ifStatement(test, expression) : expression,
+      callExpression(callee, argumentList)
     );
+
+    this.destroyStatement.push(expression);
+  }
+  private renderList(path: NodePath<JSXElement | JSXFragment>) {
+    const renderListCallback = path.getFunctionParent();
+    const bodyPath = renderListCallback?.get("body");
+    const returnStatementNode =
+      isBlockStatement(bodyPath?.node) && bodyPath.node.body[bodyPath.node.body.length - 1];
+    const callee = (renderListCallback?.parentPath?.node as CallExpression)
+      ?.callee as MemberExpression;
+    const isCallMap =
+      isCallExpression(renderListCallback?.parentPath.node) &&
+      (callee?.property as Identifier)?.name === "map";
+
+    if (
+      isCallMap &&
+      // 1. list.map(() => { return <div></div> })
+      // 2. list.map(function () { return <div></div> })
+      ((returnStatementNode as ReturnStatement)?.argument === path.node ||
+        // list.map(() => <div></div>)
+        renderListCallback?.node.body === path.node)
+    ) {
+      const { params = [], body } = renderListCallback.node;
+
+      if (params.length) {
+        const [
+          element = path.scope.generateUidIdentifier("element"),
+          index = path.scope.generateUidIdentifier("index"),
+          array = path.scope.generateUidIdentifier("array"),
+        ] = params;
+
+        (body as BlockStatement).body.unshift(
+          variableDeclaration("const", [
+            variableDeclarator(
+              element,
+              memberExpression(array as Identifier, index as Identifier, true)
+            ),
+          ])
+        );
+        
+        renderListCallback.node = {
+          ...renderListCallback.node,
+          params: [identifier("_"), index, array],
+        } as ArrowFunctionExpression;
+      }
+
+      const renderListExpression = callExpression(
+        path.state.helper.getHelperNameIdentifier(HelperNameType.renderList),
+        [callee.object, renderListCallback.node as ArrowFunctionExpression]
+      );
+      renderListCallback.parentPath.replaceWith(renderListExpression);
+    }
   }
 
   public generate() {
     const functionParent = this.rootPath.getFunctionParent();
 
     if (functionParent) {
-      const bodyPath = functionParent.get('body');
+      const bodyPath = functionParent.get("body");
       if (!bodyPath.isBlockStatement()) {
         functionParent.replaceWith(
           arrowFunctionExpression(
             // @ts-ignore
             functionParent.node.params,
-            blockStatement([
-              returnStatement(
-                bodyPath.node as Expression,
-              )
-            ])
+            blockStatement([returnStatement(bodyPath.node as Expression)])
           )
-        )
+        );
       }
-      
-      const blockStatementBodyPath = bodyPath.get('body');
+
+      const blockStatementBodyPath = bodyPath.get("body");
 
       if (Array.isArray(blockStatementBodyPath)) {
-        const lastExpress = blockStatementBodyPath[(blockStatementBodyPath as unknown as NodePath<ReturnStatement | Expression>[]).length - 1];
+        const lastExpress =
+          blockStatementBodyPath[
+            (
+              blockStatementBodyPath as unknown as NodePath<
+                ReturnStatement | Expression
+              >[]
+            ).length - 1
+          ];
         if (lastExpress.isReturnStatement()) {
-          lastExpress?.insertBefore(this.renderStatement);
+          lastExpress?.insertBefore(this.bodyStatement);
         } else {
-          (bodyPath as unknown as NodePath<BlockStatement>).pushContainer('body', this.renderStatement);
+          (bodyPath as unknown as NodePath<BlockStatement>).pushContainer(
+            "body",
+            this.bodyStatement
+          );
         }
       }
     } else {
       const statementPath = this.rootPath.getStatementParent();
-      statementPath?.insertBefore(this.renderStatement);
+      statementPath?.insertBefore(this.bodyStatement);
     }
 
-    const isJSX = this.pathState.helper.getHelperNameIdentifier(HelperNameType.isJSX);
+    const isJSX = this.pathState.helper.getHelperNameIdentifier(
+      HelperNameType.isJSX
+    );
+
+    if (this.rootPath.isJSXElement() || this.rootPath.isJSXFragment()) {
+      this.renderList(this.rootPath as NodePath<JSXElement | JSXFragment>);
+    }
+
     return objectExpression([
       objectProperty(isJSX, booleanLiteral(true), true),
-      objectMethod('method', identifier('mount'), [identifier('target'), identifier('anchor')], blockStatement(this.mounteStatement)),
-      objectMethod('method', identifier('update'), [identifier('reactive')], blockStatement(this.updateStatement)),
-      objectMethod('method', identifier('destroy'), [], blockStatement(this.destroyStatement)),
+      objectMethod(
+        "method",
+        identifier("render"),
+        [targetIdentifier, anchorIdentifier],
+        blockStatement(this.renderStatement)
+      ),
+      objectMethod(
+        "method",
+        identifier("destroy"),
+        [],
+        blockStatement(this.destroyStatement)
+      ),
     ]);
   }
 }

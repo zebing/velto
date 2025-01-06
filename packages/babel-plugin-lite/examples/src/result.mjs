@@ -1,4 +1,4 @@
-import { runtimeRef as _runtimeRef, element as _element, insert as _insert, remove as _remove, classe as _classe, runtimeComputed as _runtimeComputed, expression as _expression, isJSX as _isJSX } from "@lite/lite";
+import { runtimeRef as _runtimeRef, element as _element, insert as _insert, remove as _remove, classe as _classe, text as _text, append as _append, runtimeComputed as _runtimeComputed, expression as _expression, isJSX as _isJSX } from "@lite/lite";
 import "@lite/lite";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -52,13 +52,15 @@ export default function List() {
   };
   // const render = list.map(() => <div>test</div>)
   const _div = _element("div");
-  let _express;
+  const _spaceAnchor = _text(" ");
+  const _express = _expression(() => state.value, () => test);
   return {
     [_isJSX]: true,
     mount(target, anchor) {
       _insert(target, _div, anchor);
       _classe(_div, styles.wrap);
-      _express = _expression(() => state.value, _div, anchor, undefined);
+      _append(_div, _spaceAnchor);
+      _express.mount(_div, _spaceAnchor);
     },
     update(reactive) {
       if ([state].includes(reactive)) {
@@ -67,7 +69,7 @@ export default function List() {
     },
     destroy() {
       _remove(_div);
-      _express.destroy();
+      if (test) _express.destroy();
     }
   };
 }

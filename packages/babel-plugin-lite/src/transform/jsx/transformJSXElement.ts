@@ -1,7 +1,6 @@
 import { JSXElement, objectProperty, identifier } from '@babel/types';
 import { getTagLiteral, isNativeTag } from '../../utils';
 import { transformJSXChildren } from './transformJSXChildren';
-import transformJSXElementAttribute from './transformJSXElementAttribute';
 import { transformJSX } from './transformJSX';
 import { transformJSXComponentProps } from './transformJSXComponentProps';
 import { anchorIdentifier, targetIdentifier } from '../../constants';
@@ -19,15 +18,20 @@ export default function transformJSXElement({ path, render, root = false }: Tran
   // native tag
   if (isNativeTag(tag)) {
     const parentId = getParentId(path);
-    const id = render.element({ 
+    const id = render.rootPath.scope.generateUidIdentifier(tag);
+    setParentId(path, id);
+    const props = transformJSXComponentProps({ path: attributesPath, render });
+
+    render.element({ 
+      id,
+      props,
       tag, 
       type: root ? HelperNameType.insert : HelperNameType.append, 
       target: root ? targetIdentifier : parentId,  
       anchor: root ? anchorIdentifier : undefined, 
     });
 
-    setParentId(path, id);
-    transformJSXElementAttribute({ path: attributesPath, render });
+    
     transformJSXChildren({ path: childrenPath, render });
     return;
   }
@@ -47,5 +51,7 @@ export default function transformJSXElement({ path, render, root = false }: Tran
       )
     );
   }
-  render.component(tag, props);
+  render.component({
+    tag, props
+  });
 }
