@@ -4,8 +4,7 @@ import { Reactive, ComponentEffect } from "../reactive";
 export * from "./lifecycle";
 export interface RenderResult {
   [key: symbol]: boolean;
-  mount: (target: Element, anchor?: Element) => void;
-  update: (ref: Reactive) => void;
+  render: (target: Element, anchor?: Element) => void;
   destroy: () => void;
 }
 export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => RenderResult;
@@ -36,7 +35,7 @@ export interface ComponentInstance {
 
 let uid = 0
 
-export function buildComponent(type: Component, props: Props) {
+export function component(type: Component, props: Props) {
   const instance: ComponentInstance = {
     uid: uid++,
     type,

@@ -1,6 +1,6 @@
 import { isFunction, isRenderFn, isArray, isString, isNativeTag, toDisplayString, isObject } from "./utils";
-import { Component, buildComponent, Props, RenderResult } from "./component";
-import { insert, remove, text } from "./nodeOps";
+import { Component, component, Props, RenderResult } from "./component";
+import { append, insert, remove, text } from "./nodeOps";
 import type { Reactive } from "./reactive";
 import { isJSX } from "./constants";
 
@@ -25,8 +25,7 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
 
   if (container) {
     container.innerHTML = '';
-    const component = buildComponent(type, init);
-    component.mount(container);
+    component(type, init).render(container);
   }
 }
 
@@ -41,21 +40,21 @@ export function expression(expressWrap: () => any, conditionWrap: () => boolean)
     let node: Text | undefined;
 
     template = {
-      mount: (target: Element, anchor?: Element) => {
+      render: (target: Element, anchor?: Element) => {
         node = text(toDisplayString(express));
         insert(target, node, anchor);
       },
-      update: (ref: Reactive) => {
-        express = expressWrap();
-        const newTextContent = toDisplayString(express);
+      // update: (ref: Reactive) => {
+      //   express = expressWrap();
+      //   const newTextContent = toDisplayString(express);
 
-        if (!node) {
-          node = text(newTextContent);
-          insert(cachedTarget, node, cachedAnchor);
-        } else if (node.textContent !== newTextContent) {
-          node.textContent = newTextContent;
-        }
-      },
+      //   if (!node) {
+      //     node = text(newTextContent);
+      //     insert(cachedTarget, node, cachedAnchor);
+      //   } else if (node.textContent !== newTextContent) {
+      //     node.textContent = newTextContent;
+      //   }
+      // },
       destroy: () => {
         if (node) {
           remove(node!);
@@ -66,20 +65,20 @@ export function expression(expressWrap: () => any, conditionWrap: () => boolean)
   }
   
   return {
-    mount: (target: Element, anchor?: Element) => {
+    render: (target: Element, anchor?: Element) => {
       cachedTarget = target;
       cachedAnchor = anchor;
       if (hasCondition) {
-        return conditionWrap?.() ? template.mount(target, anchor) : undefined;
+        return conditionWrap?.() ? template.render(target, anchor) : undefined;
       }
-      template.mount(target, anchor);
+      template.render(target, anchor);
     },
-    update(reactive: Reactive) {
-      if (hasCondition) {
-        return conditionWrap?.() ? template.mount(cachedTarget, cachedAnchor) : template.destroy();
-      }
-      template.update(reactive);
-    },
+    // update(reactive: Reactive) {
+    //   if (hasCondition) {
+    //     return conditionWrap?.() ? template.render(cachedTarget, cachedAnchor) : template.destroy();
+    //   }
+    //   template.update(reactive);
+    // },
     destroy() {
       template.destroy();
     }
@@ -93,34 +92,55 @@ export function renderList(data: any[] = [], renderCallback: (value: any, index:
 
   return {
     [isJSX]: true,
-    mount: (target: Element, anchor?: Element) => {
+    render: (target: Element, anchor?: Element) => {
       cacheTarget = target;
       cacheAnchor = anchor;
       data.forEach((item, index) => {
         cached[index] = renderCallback(item, index, data);
-        cached[index].mount(target, anchor);
+        cached[index].render(target, anchor);
       });
     },
-    update(reactive: Reactive) {
-      data.forEach((item, index) => {
-        if (cached[index]) {
-          cached[index].update(reactive);
-        } else {
-          cached[index] = renderCallback(item, index, data);
-          cached[index].mount(cacheTarget, cacheAnchor);
-        }
-      });
+    // update(reactive: Reactive) {
+    //   data.forEach((item, index) => {
+    //     if (cached[index]) {
+    //       cached[index].update(reactive);
+    //     } else {
+    //       cached[index] = renderCallback(item, index, data);
+    //       cached[index].render(cacheTarget, cacheAnchor);
+    //     }
+    //   });
 
-      for (let i = data.length; i < cached.length; i++) {
-        cached[i].destroy();
-      }
-      cached.length = data.length;
-    },
+    //   for (let i = data.length; i < cached.length; i++) {
+    //     cached[i].destroy();
+    //   }
+    //   cached.length = data.length;
+    // },
     destroy() {
       for (let i = 0; i < cached.length; i++) {
         cached[i].destroy();
       }
       cached.length = 0;
+    }
+  }
+}
+
+export function element(options: {
+  el: Element;
+  props: Record<string, unknown>;
+  type: "insert" | "append";
+}) {
+  const { el, props, type } = options;
+  return {
+    [isJSX]: true,
+    render: (target: Element, anchor?: Element) => {
+      if (type === 'insert') {
+        insert(target, el, anchor);
+      } else {
+        append(target, el);
+      }
+    },
+    destroy() {
+      remove(el);
     }
   }
 }

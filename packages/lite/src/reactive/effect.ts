@@ -31,19 +31,19 @@ export class ComponentEffect extends Effect {
     callHook(LifecycleHooks.CREATED, this.instance);
   }
 
-  public mount(target: Element, anchor?: Element) {
+  public render(target: Element, anchor?: Element) {
     callHook(LifecycleHooks.BEFORE_MOUNT, this.instance);
     this.run(() => {
-      this.renderResult.mount(target, anchor);
+      this.renderResult.render(target, anchor);
     });
     callHook(LifecycleHooks.MOUNTED, this.instance);
   }
 
   public update(ref: Reactive) {
     callHook(LifecycleHooks.BEFORE_UPDATE, this.instance);
-    this.run(() => {
-      this.renderResult.update(ref);
-    });
+    // this.run(() => {
+    //   this.renderResult.render(ref);
+    // });
     callHook(LifecycleHooks.UPDATED, this.instance);
   }
 

@@ -17,7 +17,7 @@ export const remove = (child: Element | Text) => {
   }
 }
 
-export const element = (tag: string, isSVG?: boolean, is?: string): Element => {
+export const createElement = (tag: string, isSVG?: boolean, is?: string): Element => {
   const el = isSVG
     ? doc.createElementNS(svgNS, tag)
     : doc.createElement(tag, is ? { is } : undefined)
