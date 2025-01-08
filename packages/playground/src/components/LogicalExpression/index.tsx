@@ -9,15 +9,15 @@ export default function LogicalExpression() {
   const state1 = ref(true)
   
   const click = () => {
-    state = !state;
+    state.value = !state.value;
   }
   return (
     <div class={styles.wrap}>
       <div>Logical start</div>
       <button onClick={click}>click</button>
-      {state && <div>Logical jsx</div>}
-      <div>Logical object: {state && {test: true}}</div>
-      <div>Logical number: {state  && state1 && 2}</div>
+      {state.value && <div>Logical jsx</div>}
+      <div>Logical object: {state.value && {test: true}}</div>
+      <div>Logical number: {state.value  && state1.value && 2}</div>
       <div onClick={click}>Logical end</div>
     </div>
   )

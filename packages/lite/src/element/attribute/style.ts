@@ -1,4 +1,4 @@
-import { isString, isArray, camelize, capitalize, hyphenate } from "../utils";
+import { isString, isArray, camelize, capitalize, hyphenate } from "../../utils";
 export type Style = string | Record<string, string | string[]> | null
 
 export default function style(el: Element, value: Style) {

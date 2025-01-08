@@ -101,13 +101,11 @@ export default class Render {
         HelperNameType.element
       ),
       argumentList: [
+        id,
+        this.pathState.helper.getHelperNameIdentifier(type),
         arrowFunctionExpression(
           [],
-          objectExpression([
-            objectProperty(identifier("el"), id),
-            objectProperty(identifier("props"), props),
-            objectProperty(identifier("type"), stringLiteral(type)),
-          ])
+          props,
         ),
       ],
     });
@@ -275,6 +273,7 @@ export default class Render {
   private renderList(path: NodePath<JSXElement | JSXFragment>) {
     const renderListCallback = path.getFunctionParent();
     const bodyPath = renderListCallback?.get("body");
+    const paramsPath = renderListCallback?.get("params");
     const returnStatementNode =
       isBlockStatement(bodyPath?.node) && bodyPath.node.body[bodyPath.node.body.length - 1];
     const callee = (renderListCallback?.parentPath?.node as CallExpression)
@@ -299,25 +298,28 @@ export default class Render {
           index = path.scope.generateUidIdentifier("index"),
           array = path.scope.generateUidIdentifier("array"),
         ] = params;
-
-        (body as BlockStatement).body.unshift(
-          variableDeclaration("const", [
-            variableDeclarator(
-              element,
-              memberExpression(array as Identifier, index as Identifier, true)
-            ),
-          ])
-        );
+        const referencePaths = paramsPath?.[0]?.scope?.bindings[(element as Identifier).name]?.referencePaths || [];
+        referencePaths.forEach((path) => {
+          path.replaceWith(
+            memberExpression(callee.object, index as Identifier, true),
+          );
+        });
         
         renderListCallback.node = {
           ...renderListCallback.node,
-          params: [identifier("_"), index, array],
+          params: [element, index, array],
         } as ArrowFunctionExpression;
       }
 
       const renderListExpression = callExpression(
         path.state.helper.getHelperNameIdentifier(HelperNameType.renderList),
-        [callee.object, renderListCallback.node as ArrowFunctionExpression]
+        [
+          arrowFunctionExpression(
+            [],
+            callee.object, 
+          ),
+          renderListCallback.node as ArrowFunctionExpression
+        ]
       );
       renderListCallback.parentPath.replaceWith(renderListExpression);
     }

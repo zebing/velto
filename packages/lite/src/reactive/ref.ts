@@ -24,7 +24,7 @@ function ProxyArray<T = any>(value: T, reactive: Reactive) {
 
   return value;
 }
-export class RuntimeRef<T = any> {
+export class Ref<T = any> {
   public __isRef = true;
   private _value: T;
   public dep = createDep();
@@ -34,7 +34,7 @@ export class RuntimeRef<T = any> {
   }
 
   get value() {
-    trackEffect(activeEffect, this.dep);
+    trackEffect(activeEffect, this);
     return this._value;
   }
 
@@ -44,13 +44,6 @@ export class RuntimeRef<T = any> {
   }
 }
 
-export function runtimeRef<T extends RuntimeRef<T>>(value: T): RuntimeRef<T> {
-  if ((value as RuntimeRef)?.__isRef) {
-    return value;
-  }
-  return new RuntimeRef(value)
-}
-
-export function ref<T = any>(value: T): T {
-  return value;
+export function ref<T>(value: T): Ref<T> {
+  return new Ref(value)
 }

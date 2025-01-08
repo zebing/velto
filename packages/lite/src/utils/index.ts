@@ -19,6 +19,7 @@ export const camelize = (str: string): string => str.replace(/-(\w)/g, (_, c) =>
 export const capitalize = (str: string) => (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<string>;
 export const hyphenate = (str: string) => str.replace(/\B([A-Z])/g, '-$1').toLowerCase();
 export const hash = () => Math.random().toString(16).slice(2);
+export const isEvent = (key: string) => /^on[^a-z]/.test(key);
 export function callUnstableFunc<F extends Function, R = null>(
   fn: F,
   args?: unknown[],
@@ -29,4 +30,14 @@ export function callUnstableFunc<F extends Function, R = null>(
     console.log(err);
   }
   return null;
+}
+
+export function normalizeContainer(
+  container: Element | string | null
+): Element | null {
+  if (isString(container)) {
+    return document.querySelector(container as string);
+  }
+
+  return container as Element;
 }

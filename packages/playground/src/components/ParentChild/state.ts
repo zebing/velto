@@ -1,11 +1,11 @@
 import { ref } from "@lite/lite";
 
 const state = ref<{ name: string }>({
-  name: 'name',
+  name: 'name1',
 });
 
 export const setName = () => {
-  state.name = `new name ${Math.random().toString(16).slice(2)}`;
+  state.value.name = `new name ${Math.random().toString(16).slice(2)}`;
   console.log('+++++++++', state)
 }
 

@@ -3,6 +3,8 @@ import { Expression, Identifier, unaryExpression, logicalExpression, isNullLiter
 import  { transformJSX } from './transformJSX';
 import Render from '../../render';
 import { getParentId } from '../parentId';
+import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
+import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
 
 export function transformJSXConsequentExpression(options: {
   test: Expression;
@@ -25,26 +27,26 @@ export function transformJSXConsequentExpression(options: {
       anchor: spaceAnchor,
       test,
     });
+
     // ConditionalExpression
     // expression ? <div></div> : null
   } else if (consequent.isConditionalExpression()) {
-    const subTest = consequent.get('test');
-    const subconsequent = consequent.get('consequent');
-    const subAlternate = consequent.get('alternate');
-
-    transformJSXConsequentExpression({
-      test: logicalExpression('&&', test, subTest.node), 
-      consequent: subconsequent, 
+    transformJSXConditionalExpression({ 
+      path: consequent,
       render,
+      test,
     });
 
-    transformJSXConsequentExpression({
-      test: logicalExpression('&&', test, unaryExpression('!', subTest.node)), 
-      consequent: subAlternate, 
+    // LogicalExpression
+    // expression && <div></div>
+  } else if (consequent.isLogicalExpression()) {
+    transformJSXLogicalExpression({ 
+      path: consequent,
       render,
+      test,
     });
 
-  } else if(
+  } else if (
     !isNullLiteral(consequent.node) && 
     !(isIdentifier(consequent.node) && consequent.node.name === 'undefined')
   ) {
@@ -52,7 +54,7 @@ export function transformJSXConsequentExpression(options: {
       express: consequent.node,
       target,
       anchor: spaceAnchor,
-      test: test,
+      test,
     });
   }
 }

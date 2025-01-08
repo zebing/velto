@@ -17,24 +17,22 @@ export default function List() {
     { id: i++, name: '小李', grade: '一年级', age: 8 },
   ])
   const unshift = () => {
-    // list[0].name = 'name'
-    for(let j = 0; j < 10; j++) {
-      list.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+    // list.value[0].name = 'name'
+    for(let j = 0; j < 50; j++) {
+      list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
-    console.log('++++list', list)
   }
 
   const append = () => {
-    list.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
+    list.value.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
   }
 
   const insert = () => {
-    console.log(i)
-    list.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
+    list.value.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
   }
 
   const deletefrom10 = () => {
-    list.splice(10, 1);
+    list.value = [];
   }
  
   return (
@@ -45,7 +43,7 @@ export default function List() {
       <button onClick={insert}>insert</button>
       <button onClick={deletefrom10}>deletefrom10</button>
       <div class={styles.list}>
-        {list.map((student) => (
+        {list.value.map((student) => (
           <div class={styles.item}>
             <div>{student.id}</div>
             <div>{student.name}</div>

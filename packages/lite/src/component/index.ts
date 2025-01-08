@@ -1,13 +1,10 @@
 import { LifecycleHooks } from "./lifecycle";
 import { Reactive, ComponentEffect } from "../reactive";
+import type { Template, UpdateHook } from "../types";
 
 export * from "./lifecycle";
-export interface RenderResult {
-  [key: symbol]: boolean;
-  render: (target: Element, anchor?: Element) => void;
-  destroy: () => void;
-}
-export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => RenderResult;
+
+export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => Template;
 export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {
@@ -18,8 +15,7 @@ export interface ComponentInstance {
   uid: number;
   type: Component;
   props: Props;
-  // Prevents duplicate updates for parent-child components when both components introduce the same ref.
-  updatedWithRefs: Reactive[],
+  updateMap: Map<Reactive, Map<UpdateHook, UpdateHook>>;
 
   // lifecycle
   isMounted: boolean;
@@ -40,7 +36,7 @@ export function component(type: Component, props: Props) {
     uid: uid++,
     type,
     props,
-    updatedWithRefs: [],
+    updateMap: new Map(),
 
     isMounted: false,
     [LifecycleHooks.CREATED]: null,

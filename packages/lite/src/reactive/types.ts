@@ -1,3 +1,3 @@
-import type { RuntimeRef } from './ref';
+import { Ref } from "./ref";
 
-export type Reactive = RuntimeRef;
+export type Reactive = Ref;
