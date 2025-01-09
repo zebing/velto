@@ -67,7 +67,6 @@ function ConditionalExpression() {
   const _div7 = _element("div");
   const _text8 = _text2("Conditional end");
   return {
-    [_lite.isJSX]: true,
     mount(target, anchor) {
       (0, _lite.insert)(target, _div, anchor);
       (0, _lite.classe)(_div, _stylesModule.default.wrap);

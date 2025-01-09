@@ -1,11 +1,11 @@
 import { NodePath } from '@babel/core';
 import { LogicalExpression, Expression, binaryExpression } from '@babel/types';
 import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
-import Render from '../../render';
+import Template from '../../template';
 
-export function transformJSXLogicalExpression({ path, render, test }: {
+export function transformJSXLogicalExpression({ path, template, test }: {
   path: NodePath<LogicalExpression>;
-  render: Render;
+  template: Template;
   test?: Expression;
 }) {
   const left = path.get('left');
@@ -14,6 +14,6 @@ export function transformJSXLogicalExpression({ path, render, test }: {
   transformJSXConsequentExpression({
     test: test ? binaryExpression('&', test, left.node) : left.node, 
     consequent: right, 
-    render,
+    template,
   });
 }

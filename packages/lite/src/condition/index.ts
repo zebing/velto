@@ -1,18 +1,27 @@
 import type { Template } from "../types";
-import { setActiveUpdate, deleteUpdate } from "../reactive";
 
 export function condition(template: Template, getCondition: () => boolean): Template {
-  let update;
+  let cacheTarget: Element;
+  let cacheAnchor: Element | undefined;
+  let condition = getCondition();
+
   return {
-    render: (target: Element, anchor?: Element) => {
-      update = () => {
-        getCondition() ? template.render(target, anchor) : template.destroy();
+    mount: (target: Element, anchor?: Element) => {
+      cacheTarget = target;
+      cacheAnchor = anchor;
+      condition && template.mount(target, anchor);
+    },
+    update(reactive) {
+      const newCondition = getCondition();
+      if (newCondition !== condition) {
+        newCondition ? template.mount(cacheTarget, cacheAnchor) : template.destroy();
+      } else {
+        newCondition ? template.update(reactive) : template.destroy();
       }
-      setActiveUpdate(update);
+      condition = newCondition;
     },
     destroy: () => {
       template.destroy();
-      deleteUpdate(update!);
     },
   }
 }

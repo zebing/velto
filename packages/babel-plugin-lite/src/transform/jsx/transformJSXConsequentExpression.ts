@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import { Expression, Identifier, unaryExpression, logicalExpression, isNullLiteral, is, isIdentifier } from '@babel/types';
 import  { transformJSX } from './transformJSX';
-import Render from '../../render';
+import Template from '../../template';
 import { getParentId } from '../parentId';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
@@ -9,19 +9,19 @@ import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
 export function transformJSXConsequentExpression(options: {
   test: Expression;
   consequent: NodePath<Expression>;
-  render: Render;
+  template: Template;
 }) {
-  const { test, consequent, render } = options;
+  const { test, consequent, template } = options;
   const target = getParentId(consequent);
-  const spaceAnchor = render.space(target as Identifier);
+  const spaceAnchor = template.space(target as Identifier);
 
   if (consequent.isJSXElement() || consequent.isJSXFragment()) {
-    const subRender = new Render({
-      rootPath: render.rootPath,
+    const subRender = new Template({
+      rootPath: template.rootPath,
     });
     
-    transformJSX({ path: consequent, render: subRender, root: true });
-    render.expression({
+    transformJSX({ path: consequent, template: subRender, root: true });
+    template.expression({
       express: subRender.generate(),
       target,
       anchor: spaceAnchor,
@@ -33,7 +33,7 @@ export function transformJSXConsequentExpression(options: {
   } else if (consequent.isConditionalExpression()) {
     transformJSXConditionalExpression({ 
       path: consequent,
-      render,
+      template,
       test,
     });
 
@@ -42,7 +42,7 @@ export function transformJSXConsequentExpression(options: {
   } else if (consequent.isLogicalExpression()) {
     transformJSXLogicalExpression({ 
       path: consequent,
-      render,
+      template,
       test,
     });
 
@@ -50,7 +50,7 @@ export function transformJSXConsequentExpression(options: {
     !isNullLiteral(consequent.node) && 
     !(isIdentifier(consequent.node) && consequent.node.name === 'undefined')
   ) {
-    render.expression({
+    template.expression({
       express: consequent.node,
       target,
       anchor: spaceAnchor,

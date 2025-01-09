@@ -9,9 +9,9 @@ import { transformJSX } from './transformJSX';
 import { TransformJSXChildrenOptions } from '../../types';
 
 export function transformJSXChildren(
-  { path, render }: TransformJSXChildrenOptions<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>
+  { path, template }: TransformJSXChildrenOptions<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>
 ){
   path.forEach((children) => {
-    transformJSX({ path: children, render });
+    transformJSX({ path: children, template });
   });
 }

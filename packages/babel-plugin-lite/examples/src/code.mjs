@@ -29,8 +29,15 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   }
-  // const render = list.map(() => <div>test</div>)
- 
+  const render = list.map(({ id }) => (
+    <div class={styles.item}>
+      <div>{id}</div>
+      {/* <div>{student.id}</div>
+      <div>{student.name}</div>
+      <div>{student.grade}</div>
+      <div>{student.age}</div> */}
+    </div>
+  ))
   return (
     <div class={styles.wrap}>
       {test && state}

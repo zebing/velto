@@ -4,12 +4,12 @@ import { transformJSXChildren } from './transformJSXChildren';
 import { transformJSX } from './transformJSX';
 import { transformJSXComponentProps } from './transformJSXComponentProps';
 import { anchorIdentifier, targetIdentifier } from '../../constants';
-import Render from '../../render';
-import { HelperNameType } from '../../helper';
+import Template from '../../template';
+import { RuntimeHelper } from '../../helper';
 import { TransformJSXOptions } from '../../types';
 import { setParentId, getParentId } from '../parentId';
 
-export default function transformJSXElement({ path, render, root = false }: TransformJSXOptions<JSXElement>) {
+export default function transformJSXElement({ path, template, root = false }: TransformJSXOptions<JSXElement>) {
   const openingElementPath = path.get('openingElement');
   const attributesPath = openingElementPath.get('attributes');
   const childrenPath = path.get('children');
@@ -18,31 +18,31 @@ export default function transformJSXElement({ path, render, root = false }: Tran
   // native tag
   if (isNativeTag(tag)) {
     const parentId = getParentId(path);
-    const id = render.rootPath.scope.generateUidIdentifier(tag);
+    const id = template.rootPath.scope.generateUidIdentifier(tag);
     setParentId(path, id);
-    const props = transformJSXComponentProps({ path: attributesPath, render });
+    const props = transformJSXComponentProps({ path: attributesPath, template });
 
-    render.element({ 
+    template.element({ 
       id,
       props,
       tag, 
-      type: root ? HelperNameType.insert : HelperNameType.append, 
+      type: root ? RuntimeHelper.insert : RuntimeHelper.append, 
       target: root ? targetIdentifier : parentId,  
       anchor: root ? anchorIdentifier : undefined, 
     });
 
     
-    transformJSXChildren({ path: childrenPath, render });
+    transformJSXChildren({ path: childrenPath, template });
     return;
   }
 
-  const props = transformJSXComponentProps({ path: attributesPath, render });
+  const props = transformJSXComponentProps({ path: attributesPath, template });
   
   if (childrenPath.length) {
-    const subRender = new Render({
-      rootPath: render.rootPath,
+    const subRender = new Template({
+      rootPath: template.rootPath,
     });
-    childrenPath.forEach(path => transformJSX({ path, render: subRender, root: true }));
+    childrenPath.forEach(path => transformJSX({ path, template: subRender, root: true }));
     
     props.properties.push(
       objectProperty(
@@ -51,7 +51,7 @@ export default function transformJSXElement({ path, render, root = false }: Tran
       )
     );
   }
-  render.component({
+  template.component({
     tag, props
   });
 }

@@ -1,13 +1,13 @@
 import { NodePath,  } from '@babel/traverse';
 import { JSXFragment } from '@babel/types';
-import Render from '../render';
+import Template from '../template';
 import { transformJSX } from '../transform';
 
 export default function JSXFragment(path: NodePath<JSXFragment>) {
-  const render = new Render({
+  const template = new Template({
     rootPath: path,
   });
-  transformJSX({ path, render, root: true });
+  transformJSX({ path, template, root: true });
   
-  path.replaceWith(render.generate());
+  path.replaceWith(template.generate());
 }

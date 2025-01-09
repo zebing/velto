@@ -1,11 +1,11 @@
 import { NodePath } from '@babel/core';
 import { ConditionalExpression, unaryExpression, Expression, logicalExpression, binaryExpression } from '@babel/types';
 import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
-import Render from '../../render';
+import Template from '../../template';
 
-export function transformJSXConditionalExpression({ path, render, test }: {
+export function transformJSXConditionalExpression({ path, template, test }: {
   path: NodePath<ConditionalExpression>;
-  render: Render;
+  template: Template;
   test?: Expression;
 }) {
   const subTest = path.get('test');
@@ -15,12 +15,12 @@ export function transformJSXConditionalExpression({ path, render, test }: {
   transformJSXConsequentExpression({
     test: test ? binaryExpression('&', test, subTest.node) : subTest.node, 
     consequent, 
-    render,
+    template,
   });
 
   transformJSXConsequentExpression({
     test: test ? binaryExpression('&', test, unaryExpression('!', subTest.node)) : unaryExpression('!', subTest.node), 
     consequent: alternate, 
-    render,
+    template,
   });
 }

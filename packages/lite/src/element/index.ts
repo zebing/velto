@@ -1,10 +1,8 @@
 import { isEvent } from "../utils";
 import { append, insert, remove } from "../dom";
-import { isJSX } from "../constants";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";
 import type { Template } from "../types";
-import { setActiveUpdate, deleteUpdate } from "../reactive";
 
 export const setAttribute = (
   el: Element,
@@ -28,22 +26,37 @@ export function element(
   addChildren: typeof append | typeof insert,
   getProps: () => Record<string, unknown>,
 ): Template {
-  let update;
+  let props = getProps();
+  const update = (
+    newProps: Record<string, unknown>,
+    oldProps?: Record<string, unknown>,
+  ) => {
+    for(let attr in newProps) {
+      const needUpdate = !oldProps || newProps[attr] !== oldProps?.[attr];
+      if (needUpdate) {
+        setAttribute(el, attr, newProps[attr]);
+      }
+    }
+  }
+
   return {
-    [isJSX]: true,
-    render: (target: Element, anchor?: Element) => {
+    mount: (target: Element, anchor?: Element) => {
       addChildren(target, el, anchor);
-      update = () => {
-        const props = getProps();
-        for(let attr in props) {
-          setAttribute(el, attr, props[attr]);
+      for(let attr in props) {
+        setAttribute(el, attr, props[attr]);
+      }
+    },
+
+    update(reactive) {
+      const newProps = getProps();
+      for(let attr in newProps) {
+        if (newProps[attr] !== props?.[attr]) {
+          setAttribute(el, attr, newProps[attr]);
         }
       }
-
-      setActiveUpdate(update);
+      props = newProps;
     },
     destroy() {
-      deleteUpdate(update!);
       remove(el);
     }
   }

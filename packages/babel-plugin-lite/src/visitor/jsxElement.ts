@@ -1,12 +1,12 @@
 import { NodePath } from "@babel/traverse";
 import { JSXElement } from "@babel/types";
 import { transformJSX } from "../transform";
-import Render from "../render";
+import Template from "../template";
 
 export default function JSXElement(path: NodePath<JSXElement>) {
-  const render = new Render({
+  const template = new Template({
     rootPath: path,
   });
-  transformJSX({ path, render, root: true });
-  path.replaceWith(render.generate());
+  transformJSX({ path, template, root: true });
+  path.replaceWith(template.generate());
 }

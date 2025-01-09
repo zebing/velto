@@ -16,6 +16,6 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
 
   if (container) {
     container.innerHTML = '';
-    component(type, init).render(container);
+    component(type, init).mount(container);
   }
 }

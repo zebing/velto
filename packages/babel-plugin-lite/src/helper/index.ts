@@ -1,14 +1,10 @@
 import { Program, Identifier, importDeclaration, identifier, stringLiteral, importSpecifier } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 
-export enum HelperNameType {
-  isJSX = 'isJSX', // Symbol('jsx')
-
+export enum RuntimeHelper {
   source = '@lite/lite',
   ref = 'ref',
-  runtimeRef = 'runtimeRef',
   computed = 'computed',
-  runtimeComputed = 'runtimeComputed',
 
   // component
   component = 'component',
@@ -21,13 +17,6 @@ export enum HelperNameType {
   remove = 'remove',
   append = 'append',
 
-  // attribute
-  attr = 'attr',
-  spreadAttr = 'spreadAttr',
-  event = 'event',
-  style = 'style',
-  classe = 'classe',
-
   expression = 'expression',
   renderList = 'renderList',
   condition = 'condition',
@@ -35,8 +24,8 @@ export enum HelperNameType {
 
 export class Helper {
   private rootPath: NodePath<Program>;
-  private helperNameIdentifierMap = new Map<HelperNameType, Identifier>();
-  public helperImportDeclaration = importDeclaration([], stringLiteral(HelperNameType.source));
+  private helperNameIdentifierMap = new Map<RuntimeHelper, Identifier>();
+  public helperImportDeclaration = importDeclaration([], stringLiteral(RuntimeHelper.source));
 
   constructor(options: { rootPath: NodePath<Program> }) {
     const { rootPath } = options;
@@ -47,7 +36,7 @@ export class Helper {
     return !!this.helperImportDeclaration.specifiers.length;
   }
 
- public getHelperNameIdentifier(name: HelperNameType) {
+ public getHelperNameIdentifier(name: RuntimeHelper) {
     let value = this.helperNameIdentifierMap.get(name);
 
     if (!value) {

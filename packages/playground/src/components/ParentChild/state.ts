@@ -5,7 +5,9 @@ const state = ref<{ name: string }>({
 });
 
 export const setName = () => {
-  state.value.name = `new name ${Math.random().toString(16).slice(2)}`;
+  state.value = {
+    name: `new name ${Math.random().toString(16).slice(2)}`
+  };
   console.log('+++++++++', state)
 }
 

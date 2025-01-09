@@ -1,6 +1,7 @@
+import { Reactive } from "./reactive";
 export interface Template {
-  [key: symbol]: boolean;
-  render: (target: Element, anchor?: Element) => void;
+  mount: (target: Element, anchor?: Element) => void;
+  update: (reactive: Reactive) => void;
   destroy: () => void;
 }
 

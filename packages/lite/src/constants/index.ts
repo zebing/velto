@@ -22,5 +22,3 @@ export const SVG_TAGS =
   'mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,' +
   'polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,' +
   'text,textPath,title,tspan,unknown,use,view';
-
-export const isJSX = Symbol('jsx');

@@ -16,10 +16,10 @@ import {
 import { getTagLiteral } from '../../utils';
 import transformJSXElement from './transformJSXElement';
 import { transformJSX } from './transformJSX';
-import Render from '../../render';
+import Template from '../../template';
 import { TransformJSXChildrenOptions } from '../../types';
 
-export function transformJSXComponentProps({ path, render }: TransformJSXChildrenOptions) {
+export function transformJSXComponentProps({ path, template }: TransformJSXChildrenOptions) {
   const properties: (ObjectProperty | SpreadElement)[] = [];
 
   path.forEach((attribute) => {
@@ -32,10 +32,10 @@ export function transformJSXComponentProps({ path, render }: TransformJSXChildre
         value.isJSXElement() // JSXElement <div child=<div></div>></div>
         || value.isJSXFragment() // JSXFragment <div child=<></>></div>
       ) {
-        const subRender = new Render({
-          rootPath: render.rootPath,
+        const subRender = new Template({
+          rootPath: template.rootPath,
         });
-        transformJSX({ path: value, render: subRender, root: true });
+        transformJSX({ path: value, template: subRender, root: true });
         properties.push(objectProperty(
           identifier(nameLiteral),
           subRender.generate(),
@@ -50,10 +50,10 @@ export function transformJSXComponentProps({ path, render }: TransformJSXChildre
           expression.isJSXElement() // JSXElement <div child={<div></div>}></div>
           || expression.isJSXFragment() // JSXFragment <div child={<></>}></div>
         ) {
-          const subRender = new Render({
-            rootPath: render.rootPath,
+          const subRender = new Template({
+            rootPath: template.rootPath,
           });
-          transformJSX({ path: expression, render: subRender, root: true });
+          transformJSX({ path: expression, template: subRender, root: true });
           properties.push(objectProperty(
             identifier(nameLiteral),
             subRender.generate(),

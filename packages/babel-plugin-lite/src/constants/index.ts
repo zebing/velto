@@ -28,5 +28,6 @@ export const SVG_TAGS =
 export const targetIdentifier = identifier('target');
 export const anchorIdentifier = identifier('anchor');
 export const reactiveIdentifier = identifier('reactive');
-
-export const isJSX = Symbol('jsx');
+export const mountIdentifier = identifier('mount');
+export const updateIdentifier = identifier('update');
+export const destroyIdentifier = identifier("destroy")

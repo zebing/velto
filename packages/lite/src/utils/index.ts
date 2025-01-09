@@ -20,6 +20,12 @@ export const capitalize = (str: string) => (str.charAt(0).toUpperCase() + str.sl
 export const hyphenate = (str: string) => str.replace(/\B([A-Z])/g, '-$1').toLowerCase();
 export const hash = () => Math.random().toString(16).slice(2);
 export const isEvent = (key: string) => /^on[^a-z]/.test(key);
+export const isTemplate = (data: any) => {
+  return isObject(data) && 
+    isFunction(data.mount) && 
+    isFunction(data.update) &&
+    isFunction(data.destroy);
+}
 export function callUnstableFunc<F extends Function, R = null>(
   fn: F,
   args?: unknown[],

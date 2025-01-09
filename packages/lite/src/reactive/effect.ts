@@ -5,37 +5,7 @@ import type { Template } from "../types";
 export type EffectType = ComponentEffect;
 export let activeEffect: EffectType | undefined;
 export let shouldTrackEffect = false;
-export let shouldTrackUpdate = false;
-export let activeUpdate: (() => void) | undefined;
 
-export function pauseTrackUpdate() {
-  shouldTrackUpdate = false
-}
-
-export function enableTrackUpdate() {
-  shouldTrackUpdate = true
-}
-
-export function setActiveUpdate(update?: () => void): unknown {
-  let lastUpdate = activeUpdate;
- 
-  try {
-    activeUpdate = update;
-    return update?.();
-  } finally {
-    activeUpdate = lastUpdate;
-  }
-}
-
-export function deleteUpdate(update: () => void): void {
-  if (activeEffect) {
-    activeEffect.instance.updateMap.forEach((map, reactive) => {
-      if (map.has(update)) {
-        map.delete(update);
-      }
-    })
-  }
-}
 
 class Effect {
   public run(fn: () => void) {
@@ -63,19 +33,19 @@ export class ComponentEffect extends Effect {
     callHook(LifecycleHooks.CREATED, this.instance);
   }
 
-  public render(target: Element, anchor?: Element) {
+  public mount(target: Element, anchor?: Element) {
     callHook(LifecycleHooks.BEFORE_MOUNT, this.instance);
     this.run(() => {
-      this.template.render(target, anchor);
+      this.template.mount(target, anchor);
     });
     this.instance.isMounted = true;
     callHook(LifecycleHooks.MOUNTED, this.instance);
   }
 
-  public update(ref: Reactive) {
+  public update(reactive: Reactive) {
     callHook(LifecycleHooks.BEFORE_UPDATE, this.instance);
     this.run(() => {
-      this.instance.updateMap.get(ref)?.forEach(fn => fn());
+      this.template.update(reactive);
     });
     callHook(LifecycleHooks.UPDATED, this.instance);
   }
