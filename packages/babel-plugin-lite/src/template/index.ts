@@ -26,6 +26,13 @@ import {
   JSXFragment,
   variableDeclaration,
    variableDeclarator,
+   isReturnStatement,
+   isMemberExpression,
+   Node,
+   isArrowFunctionExpression,
+   isFunctionExpression,
+   isJSXElement,
+   isJSXFragment,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import {
@@ -116,8 +123,8 @@ export default class Template {
         ),
         [
           id,
+          props,
           this.pathState.helper.getHelperNameIdentifier(type),
-          arrowFunctionExpression([], props),
         ],
       ),
     );
@@ -132,7 +139,7 @@ export default class Template {
     this.updateStatement.push(
       getExpressionStatement(
         memberExpression(elementId, updateIdentifier),
-        [reactiveIdentifier],
+        [props],
       )
     );
 
@@ -220,7 +227,7 @@ export default class Template {
     anchor?: Identifier;
     test?: Expression;
   }) {
-    const {
+    let {
       express,
       target = targetIdentifier,
       anchor = anchorIdentifier,
@@ -228,15 +235,33 @@ export default class Template {
     } = options;
     const expressId = this.rootPath.scope.generateUidIdentifier("express");
     const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
+    let renderListId;
     let id = expressId;
+    const renderListExpression = this.renderList(express);
 
+    if (renderListExpression) {
+    renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
+
+      this.bodyStatement.push(
+        variableDeclaration(
+          'const', 
+          [
+            variableDeclarator(
+              renderListId, 
+              renderListExpression
+            ),
+          ]
+        )
+      );
+    }
+    
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
         this.pathState.helper.getHelperNameIdentifier(
           RuntimeHelper.expression
         ),
-        [arrowFunctionExpression([], express)],
+        [renderListId || express],
       ),
     );
 
@@ -248,8 +273,21 @@ export default class Template {
           this.pathState.helper.getHelperNameIdentifier(
             RuntimeHelper.condition
           ),
-          [expressId, arrowFunctionExpression([], test)],
+          [expressId, test],
         ),
+      );
+      this.updateStatement.push(
+        getExpressionStatement(
+          memberExpression(id, updateIdentifier),
+          renderListId ? [test] : [test, express],
+        )
+      );
+    } else {
+      this.updateStatement.push(
+        getExpressionStatement(
+          memberExpression(id, updateIdentifier),
+          renderListId ? [] : [express],
+        )
       );
     }
 
@@ -257,13 +295,6 @@ export default class Template {
       getExpressionStatement(
         memberExpression(id, mountIdentifier),
         [target, anchor].filter(Boolean) as Identifier[]
-      )
-    );
-
-    this.updateStatement.push(
-      getExpressionStatement(
-        memberExpression(id, updateIdentifier),
-        [reactiveIdentifier],
       )
     );
 
@@ -277,66 +308,43 @@ export default class Template {
     return id;
   }
 
-  private renderList(path: NodePath<JSXElement | JSXFragment>) {
-    const renderListCallback = path.getFunctionParent();
-    const bodyPath = renderListCallback?.get("body");
-    const paramsPath = renderListCallback?.get("params");
-    const returnStatementNode =
-      isBlockStatement(bodyPath?.node) &&
-      bodyPath.node.body[bodyPath.node.body.length - 1];
-    const callee = (renderListCallback?.parentPath?.node as CallExpression)
-      ?.callee as MemberExpression;
-    const isCallMap =
-      isCallExpression(renderListCallback?.parentPath.node) &&
-      (callee?.property as Identifier)?.name === "map";
+  private renderList(express: Node) {
+    if (isCallExpression(express)) {
+      const callee = express.callee;
+      const [argument] = express.arguments;
 
-    if (
-      isCallMap &&
-      // 1. list.map(() => { return <div></div> })
-      // 2. list.map(function () { return <div></div> })
-      ((returnStatementNode as ReturnStatement)?.argument === path.node ||
-        // list.map(() => <div></div>)
-        renderListCallback?.node.body === path.node)
-    ) {
-      const { params = [], body } = renderListCallback.node;
+      if (
+        (isMemberExpression(callee) && 
+        (callee.property as Identifier)?.name === "map") && 
+        (isArrowFunctionExpression(argument) || isFunctionExpression(argument))
+      ) {
+        const body = argument.body || {};
+        let isJSX = false;
+        if (isBlockStatement(body)) {
+          const blockStatementBody = body.body;
+          const returnStatement = blockStatementBody.find(arg => isReturnStatement(arg));
+  
+          if (returnStatement) {
+            const returnStatementArgument = (returnStatement as ReturnStatement).argument;
+  
+            if (isJSXElement(returnStatementArgument) || isJSXFragment(returnStatementArgument)) {
+              isJSX = true;
+            }
+          }
+        } else if (isJSXElement(body) || isJSXFragment(body)){
+          isJSX = true;
+        }
 
-      if (params.length) {
-        const [
-          element = path.scope.generateUidIdentifier("element"),
-          index = path.scope.generateUidIdentifier("index"),
-          array = path.scope.generateUidIdentifier("array"),
-        ] = params;
-        // const referencePaths =
-        //   paramsPath?.[0]?.scope?.bindings[(element as Identifier).name]
-        //     ?.referencePaths || [];
-        // referencePaths.forEach((path) => {
-        //   path.replaceWith(
-        //     memberExpression(callee.object, index as Identifier, true)
-        //   );
-        // }); 
-        (body as BlockStatement).body.unshift(
-          variableDeclaration("const", [
-            variableDeclarator(
-              element,
-              memberExpression(array as Identifier, index as Identifier, true)
-            ),
-          ])
-        );
-
-        renderListCallback.node = {
-          ...renderListCallback.node,
-          params: [identifier("_"), index, array],
-        } as ArrowFunctionExpression;
+        if (isJSX) {
+          return callExpression(
+            this.rootPath.state.helper.getHelperNameIdentifier(RuntimeHelper.renderList),
+            [
+              callee.object,
+              argument,
+            ]
+          );
+        }
       }
-
-      const renderListExpression = callExpression(
-        path.state.helper.getHelperNameIdentifier(RuntimeHelper.renderList),
-        [
-          arrowFunctionExpression([], callee.object),
-          renderListCallback.node as ArrowFunctionExpression,
-        ]
-      );
-      renderListCallback.parentPath.replaceWith(renderListExpression);
     }
   }
 
@@ -380,9 +388,9 @@ export default class Template {
       statementPath?.insertBefore(this.bodyStatement);
     }
 
-    if (this.rootPath.isJSXElement() || this.rootPath.isJSXFragment()) {
-      this.renderList(this.rootPath as NodePath<JSXElement | JSXFragment>);
-    }
+    // if (this.rootPath.isJSXElement() || this.rootPath.isJSXFragment()) {
+    //   this.renderList(this.rootPath as NodePath<JSXElement | JSXFragment>);
+    // }
 
     return objectExpression([
       objectMethod(

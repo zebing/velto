@@ -7,6 +7,7 @@ export default function JSXElement(path: NodePath<JSXElement>) {
   const template = new Template({
     rootPath: path,
   });
+  debugger
   transformJSX({ path, template, root: true });
   path.replaceWith(template.generate());
 }

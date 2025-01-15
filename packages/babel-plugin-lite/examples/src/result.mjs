@@ -1,4 +1,4 @@
-import { createElement as _createElement, element as _element2, insert as _insert, append as _append, expression as _expression, isTemplate as _isTemplate, renderList as _renderList, text as _text, condition as _condition4 } from "@lite/lite";
+import { createElement as _createElement, element as _element2, insert as _insert, append as _append, renderList as _renderList, expression as _expression } from "@lite/lite";
 import { ref } from "@lite/lite";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -50,57 +50,62 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   };
-  const render = _renderList(() => list, (_, _index, _array) => {
-    const {
-      id
-    } = _array[_index];
-    const _div3 = _createElement("div");
-    const _element4 = _element2(_div3, _insert, () => ({
+  const _div = _createElement("div");
+  const _element = _element2(_div, {
+    class: styles.wrap
+  }, _insert);
+  const _div2 = _createElement("div");
+  const _element3 = _element2(_div2, {
+    class: styles.list
+  }, _append);
+  const _renderList2 = _renderList(list.value, student => {
+    const _div5 = _createElement("div");
+    const _element6 = _element2(_div5, {
       class: styles.item
-    }));
-    const _div4 = _createElement("div");
-    const _element5 = _element2(_div4, _append, () => ({}));
-    const _express2 = _expression(() => id);
+    }, _insert);
+    const _div6 = _createElement("div");
+    const _element7 = _element2(_div6, {}, _append);
+    const _express3 = _expression(student.id);
     return {
-      [_isTemplate]: true,
       mount(target, anchor) {
-        _element4.mount(target, anchor);
-        _element5.mount(_div3);
-        _express2.mount(_div4, anchor);
+        _element6.mount(target, anchor);
+        _element7.mount(_div5);
+        _express3.mount(_div6, anchor);
       },
       update(reactive) {
-        _element4.update(reactive);
-        _element5.update(reactive);
-        _express2.update(reactive);
+        _element6.update({
+          class: styles.item
+        });
+        _element7.update({});
+        _express3.update(student.id);
       },
       destroy() {
-        _element4.destroy();
-        _element5.destroy();
-        _express2.destroy();
+        _element6.destroy();
+        _element7.destroy();
+        _express3.destroy();
       }
     };
   });
-  const _div5 = _createElement("div");
-  const _element6 = _element2(_div5, _insert, () => ({
-    class: styles.wrap
-  }));
-  const _spaceAnchor = _text(" ");
-  const _express3 = _expression(() => state);
-  const _condition3 = _condition4(_express3, () => test);
+  const _express = _expression(_renderList2);
   return {
-    [_isTemplate]: true,
     mount(target, anchor) {
-      _element6.mount(target, anchor);
-      _append(_div5, _spaceAnchor);
-      _condition3.mount(_div5, _spaceAnchor);
+      _element.mount(target, anchor);
+      _element3.mount(_div);
+      _express.mount(_div2, anchor);
     },
     update(reactive) {
-      _element6.update(reactive);
-      _condition3.update(reactive);
+      _element.update({
+        class: styles.wrap
+      });
+      _element3.update({
+        class: styles.list
+      });
+      _express.update();
     },
     destroy() {
-      _element6.destroy();
-      _condition3.destroy();
+      _element.destroy();
+      _element3.destroy();
+      _express.destroy();
     }
   };
 }
