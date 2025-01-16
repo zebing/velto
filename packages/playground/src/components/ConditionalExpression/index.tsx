@@ -20,6 +20,7 @@ export default function ConditionalExpression() {
       <button onClick={click}>{state.value ? 'consequent' : 'alternate'}</button>
       <button onClick={click1}>{state1.value ? 'consequent' : 'alternate'}</button>
       {state.value ? <div>true value</div> : <div>false value</div>}
+      {state1.value ? <div>true value</div> : <div>false value</div>}
       <div>Conditional object: {
         state.value ? {test: true} : {test: false}
       }</div>
