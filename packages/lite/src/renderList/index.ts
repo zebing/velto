@@ -1,7 +1,9 @@
-import type { Template } from "../types";
+import type { RenderListTemplate, BaseTemplate } from "../types";
 
-export function renderList(getData: () => any[], renderCallback: (value: any, index: number, array: any[]) => any): Template {
-  const cached: Template[] = [];
+export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => any): RenderListTemplate {
+  const cached: BaseTemplate[] = [];
+  let cacheTarget: Element;
+  let cacheAnchor: Element | undefined;
   const destroy = (len = 0) => {
     for (let i = len; i < cached.length; i++) {
       cached[i].destroy();
@@ -11,20 +13,26 @@ export function renderList(getData: () => any[], renderCallback: (value: any, in
 
   return {
     mount: (target: Element, anchor?: Element) => {
-      const data = getData() || [];
-      data?.forEach((item, index, data) => {
+      cacheTarget = target;
+      cacheAnchor = anchor;
+      list.forEach((item, index, data) => {
+        cached[index] = renderCallback(item, index, data);
+        cached[index].mount(target, anchor);
+      });
+    },
+    update() {
+      list.forEach((item, index, data) => {
         if (!cached[index]) {
           cached[index] = renderCallback(item, index, data);
-          cached[index].mount(target, anchor);
+          cached[index].mount(cacheTarget, cacheAnchor);
+        } else {
+          cached[index].update();
         }
       });
 
-      if (cached.length > data.length) {
-        destroy(data.length);
+      if (cached.length > list.length) {
+        destroy(list.length);
       }
-    },
-    update(reactive) {
-        
     },
     destroy() {
       destroy();

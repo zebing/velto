@@ -2,7 +2,7 @@ import { isEvent } from "../utils";
 import { append, insert, remove } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";
-import type { Template } from "../types";
+import type { ElementTemplate } from "../types";
 
 export const setAttribute = (
   el: Element,
@@ -23,21 +23,9 @@ export const setAttribute = (
 
 export function element(
   el: Element,
+  props: Record<string, unknown>,
   addChildren: typeof append | typeof insert,
-  getProps: () => Record<string, unknown>,
-): Template {
-  let props = getProps();
-  const update = (
-    newProps: Record<string, unknown>,
-    oldProps?: Record<string, unknown>,
-  ) => {
-    for(let attr in newProps) {
-      const needUpdate = !oldProps || newProps[attr] !== oldProps?.[attr];
-      if (needUpdate) {
-        setAttribute(el, attr, newProps[attr]);
-      }
-    }
-  }
+): ElementTemplate {
 
   return {
     mount: (target: Element, anchor?: Element) => {
@@ -47,8 +35,7 @@ export function element(
       }
     },
 
-    update(reactive) {
-      const newProps = getProps();
+    update(newProps: Record<string, unknown>) {
       for(let attr in newProps) {
         if (newProps[attr] !== props?.[attr]) {
           setAttribute(el, attr, newProps[attr]);

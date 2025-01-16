@@ -1,10 +1,10 @@
 import { LifecycleHooks } from "./lifecycle";
-import { Reactive, ComponentEffect } from "../reactive";
-import type { Template, UpdateHook } from "../types";
+import { ComponentEffect } from "../reactive";
+import type { BaseTemplate } from "../types";
 
 export * from "./lifecycle";
 
-export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => Template;
+export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => BaseTemplate;
 export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {
@@ -15,7 +15,6 @@ export interface ComponentInstance {
   uid: number;
   type: Component;
   props: Props;
-  updateMap: Map<Reactive, Map<UpdateHook, UpdateHook>>;
 
   // lifecycle
   isMounted: boolean;
@@ -36,7 +35,6 @@ export function component(type: Component, props: Props) {
     uid: uid++,
     type,
     props,
-    updateMap: new Map(),
 
     isMounted: false,
     [LifecycleHooks.CREATED]: null,
@@ -48,9 +46,7 @@ export function component(type: Component, props: Props) {
     [LifecycleHooks.DESTROYED]: null,
   };
 
-  const componentEffect = new ComponentEffect(instance);
-
-  return componentEffect
+  return new ComponentEffect(instance);
 }
 
 export let currentInstance: ComponentInstance | null = null;

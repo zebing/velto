@@ -1,15 +1,14 @@
 
 import { toDisplayString, isTemplate } from "../utils";
 import { insert, remove, text } from "../dom";
-import type { Template } from "../types";
+import type { ExpressTemplate } from "../types";
 
-export function expression(getExpress: () => any): Template {
-  let template: Template = getExpress();
+export function expression(express: any): ExpressTemplate {
+  let template = express;
 
   if (!(isTemplate(template))) {
     let cacheTarget: Element;
     let cacheAnchor: Element | undefined;
-    let express = template;
     let node: Text | undefined;
     const update = (express: any) => {
       const content = toDisplayString(express);
@@ -27,8 +26,7 @@ export function expression(getExpress: () => any): Template {
         cacheAnchor = anchor;
         update(express);
       },
-      update(reactive) {
-        const newExpress = getExpress();
+      update(newExpress: any) {
         if (express !== newExpress) {
           update(newExpress);
         }

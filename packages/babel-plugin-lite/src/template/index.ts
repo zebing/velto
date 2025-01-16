@@ -388,10 +388,6 @@ export default class Template {
       statementPath?.insertBefore(this.bodyStatement);
     }
 
-    // if (this.rootPath.isJSXElement() || this.rootPath.isJSXFragment()) {
-    //   this.renderList(this.rootPath as NodePath<JSXElement | JSXFragment>);
-    // }
-
     return objectExpression([
       objectMethod(
         "method",

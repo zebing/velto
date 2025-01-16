@@ -1,6 +1,6 @@
 import type { Reactive } from "./types";
 import { ComponentInstance, callHook, LifecycleHooks, setCurrentInstance } from "../component";
-import type { Template } from "../types";
+import type { BaseTemplate } from "../types";
 
 export type EffectType = ComponentEffect;
 export let activeEffect: EffectType | undefined;
@@ -23,7 +23,7 @@ class Effect {
 }
 
 export class ComponentEffect extends Effect {
-  protected template!: Template;
+  protected template!: BaseTemplate;
   constructor(public instance: ComponentInstance) {
     super();
     this.run(() => {
@@ -45,7 +45,7 @@ export class ComponentEffect extends Effect {
   public update(reactive: Reactive) {
     callHook(LifecycleHooks.BEFORE_UPDATE, this.instance);
     this.run(() => {
-      this.template.update(reactive);
+      this.template.update();
     });
     callHook(LifecycleHooks.UPDATED, this.instance);
   }

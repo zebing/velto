@@ -1,24 +1,22 @@
-import type { Template } from "../types";
+import type { ConditionTemplate, ExpressTemplate } from "../types";
 
-export function condition(template: Template, getCondition: () => boolean): Template {
+export function condition(template: ExpressTemplate, initCondition: boolean): ConditionTemplate {
   let cacheTarget: Element;
   let cacheAnchor: Element | undefined;
-  let condition = getCondition();
 
   return {
     mount: (target: Element, anchor?: Element) => {
       cacheTarget = target;
       cacheAnchor = anchor;
-      condition && template.mount(target, anchor);
+      initCondition && template.mount(target, anchor);
     },
-    update(reactive) {
-      const newCondition = getCondition();
-      if (newCondition !== condition) {
+    update(newCondition: boolean, newExpress: any) {
+      if (newCondition !== initCondition) {
         newCondition ? template.mount(cacheTarget, cacheAnchor) : template.destroy();
       } else {
-        newCondition ? template.update(reactive) : template.destroy();
+        newCondition ? template.update(newExpress) : template.destroy();
       }
-      condition = newCondition;
+      initCondition = newCondition;
     },
     destroy: () => {
       template.destroy();
