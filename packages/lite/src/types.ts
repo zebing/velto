@@ -3,7 +3,7 @@ interface Template {
   destroy: () => void;
 }
 
-export interface BaseTemplate extends Template {
+export interface CompileTemplate extends Template {
   update: () => void;
 }
 
@@ -22,3 +22,6 @@ export interface ElementTemplate extends Template {
 export interface RenderListTemplate extends Template {
   update: (newList: unknown[]) => void;
 }
+
+export type Render<T = CompileTemplate> = (() => T) & {__isRender: boolean;};
+

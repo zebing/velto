@@ -21,5 +21,5 @@ export function condition(template: ExpressTemplate, initCondition: boolean): Co
     destroy: () => {
       template.destroy();
     },
-  }
+  };
 }

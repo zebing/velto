@@ -8,5 +8,5 @@ export default function JSXElement(path: NodePath<JSXElement>) {
     rootPath: path,
   });
   transformJSX({ path, template, root: true });
-  path.replaceWith(template.generate());
+  template.replace();
 }

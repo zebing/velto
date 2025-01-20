@@ -5,6 +5,8 @@ export enum RuntimeHelper {
   source = '@lite/lite',
   ref = 'ref',
   computed = 'computed',
+  markRender = 'markRender',
+
 
   // component
   component = 'component',

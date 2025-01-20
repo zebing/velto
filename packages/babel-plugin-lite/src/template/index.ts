@@ -25,16 +25,16 @@ import {
   CallExpression,
   JSXFragment,
   variableDeclaration,
-   variableDeclarator,
-   isReturnStatement,
-   isMemberExpression,
-   Node,
-   isArrowFunctionExpression,
-   isFunctionExpression,
-   isJSXElement,
-   isJSXFragment,
-} from "@babel/types";
-import { NodePath } from "@babel/traverse";
+  variableDeclarator,
+  isReturnStatement,
+  isMemberExpression,
+  Node,
+  isArrowFunctionExpression,
+  isFunctionExpression,
+  isJSXElement,
+  isJSXFragment,
+} from '@babel/types';
+import { NodePath } from '@babel/traverse';
 import {
   targetIdentifier,
   anchorIdentifier,
@@ -42,10 +42,10 @@ import {
   updateIdentifier,
   destroyIdentifier,
   reactiveIdentifier,
-} from "../constants";
-import { RuntimeHelper } from "../helper";
-import { NodePathState } from "../types";
-import { getExpressionStatement, getVariableDeclaration } from "../utils";
+} from '../constants';
+import { RuntimeHelper } from '../helper';
+import { NodePathState } from '../types';
+import { getExpressionStatement, getVariableDeclaration } from '../utils';
 
 export interface RenderOption {
   rootPath: NodePath;
@@ -66,15 +66,13 @@ export default class Template {
   }
 
   public space(target: Identifier) {
-    const id = this.rootPath.scope.generateUidIdentifier("spaceAnchor");
+    const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.text
-        ),
-        [stringLiteral(" ")],
-      ),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.text),
+        [stringLiteral(' ')]
+      )
     );
 
     this.mountStatement.push(
@@ -109,24 +107,18 @@ export default class Template {
         this.pathState.helper.getHelperNameIdentifier(
           RuntimeHelper.createElement
         ),
-        [stringLiteral(tag)],
-      ),
+        [stringLiteral(tag)]
+      )
     );
 
-    const elementId = this.rootPath.scope.generateUidIdentifier("_element");
+    const elementId = this.rootPath.scope.generateUidIdentifier('_element');
 
     this.bodyStatement.push(
       getVariableDeclaration(
         elementId,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.element
-        ),
-        [
-          id,
-          props,
-          this.pathState.helper.getHelperNameIdentifier(type),
-        ],
-      ),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.element),
+        [id, props, this.pathState.helper.getHelperNameIdentifier(type)]
+      )
     );
 
     this.mountStatement.push(
@@ -137,17 +129,13 @@ export default class Template {
     );
 
     this.updateStatement.push(
-      getExpressionStatement(
-        memberExpression(elementId, updateIdentifier),
-        [props],
-      )
+      getExpressionStatement(memberExpression(elementId, updateIdentifier), [
+        props,
+      ])
     );
 
     this.destroyStatement.push(
-      getExpressionStatement(
-        memberExpression(elementId, destroyIdentifier),
-        [],
-      )
+      getExpressionStatement(memberExpression(elementId, destroyIdentifier), [])
     );
 
     return id;
@@ -160,16 +148,14 @@ export default class Template {
     anchor?: Identifier;
   }) {
     const { str, type, target, anchor } = options;
-    const id = this.rootPath.scope.generateUidIdentifier("text");
+    const id = this.rootPath.scope.generateUidIdentifier('text');
 
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.text
-        ),
-        [str],
-      ),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.text),
+        [str]
+      )
     );
 
     this.mountStatement.push(
@@ -181,10 +167,8 @@ export default class Template {
 
     this.destroyStatement.push(
       getExpressionStatement(
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.remove
-        ),
-        [id],
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.remove),
+        [id]
       )
     );
 
@@ -193,15 +177,13 @@ export default class Template {
 
   public component(options: { tag: string; props: ObjectExpression }) {
     const { tag, props } = options;
-    const id = this.rootPath.scope.generateUidIdentifier("_component");
+    const id = this.rootPath.scope.generateUidIdentifier('_component');
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.component
-        ),
-        [identifier(tag), props],
-      ),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.component),
+        [identifier(tag), props]
+      )
     );
 
     this.mountStatement.push(
@@ -212,10 +194,7 @@ export default class Template {
     );
 
     this.destroyStatement.push(
-      getExpressionStatement(
-        memberExpression(id, destroyIdentifier),
-        [],
-      )
+      getExpressionStatement(memberExpression(id, destroyIdentifier), [])
     );
 
     return id;
@@ -233,36 +212,28 @@ export default class Template {
       anchor = anchorIdentifier,
       test,
     } = options;
-    const expressId = this.rootPath.scope.generateUidIdentifier("express");
-    const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
+    const expressId = this.rootPath.scope.generateUidIdentifier('express');
+    const conditionId = this.rootPath.scope.generateUidIdentifier('condition');
     let renderListId;
     let id = expressId;
     const renderListExpression = this.renderList(express);
 
     if (renderListExpression) {
-    renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
+      renderListId = this.rootPath.scope.generateUidIdentifier('renderList');
 
       this.bodyStatement.push(
-        variableDeclaration(
-          'const', 
-          [
-            variableDeclarator(
-              renderListId, 
-              renderListExpression
-            ),
-          ]
-        )
+        variableDeclaration('const', [
+          variableDeclarator(renderListId, renderListExpression),
+        ])
       );
     }
-    
+
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.expression
-        ),
-        [renderListId || express],
-      ),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.expression),
+        [renderListId || express]
+      )
     );
 
     if (test) {
@@ -273,20 +244,21 @@ export default class Template {
           this.pathState.helper.getHelperNameIdentifier(
             RuntimeHelper.condition
           ),
-          [expressId, test],
-        ),
+          [expressId, test]
+        )
       );
       this.updateStatement.push(
         getExpressionStatement(
           memberExpression(id, updateIdentifier),
-          renderListId ? [test] : [test, express],
+          renderListId ? [test, ((express as CallExpression).callee as MemberExpression).object] : [test, express]
         )
       );
+      
     } else {
       this.updateStatement.push(
         getExpressionStatement(
           memberExpression(id, updateIdentifier),
-          renderListId ? [] : [express],
+          renderListId ? [((express as CallExpression).callee as MemberExpression).object] : [express]
         )
       );
     }
@@ -299,10 +271,7 @@ export default class Template {
     );
 
     this.destroyStatement.push(
-      getExpressionStatement(
-        memberExpression(id, destroyIdentifier),
-        [],
-      )
+      getExpressionStatement(memberExpression(id, destroyIdentifier), [])
     );
 
     return id;
@@ -314,99 +283,92 @@ export default class Template {
       const [argument] = express.arguments;
 
       if (
-        (isMemberExpression(callee) && 
-        (callee.property as Identifier)?.name === "map") && 
+        isMemberExpression(callee) &&
+        (callee.property as Identifier)?.name === 'map' &&
         (isArrowFunctionExpression(argument) || isFunctionExpression(argument))
       ) {
         const body = argument.body || {};
-        let isJSX = false;
+        let isJSX = isJSXElement(body) || isJSXFragment(body);
+
         if (isBlockStatement(body)) {
-          const blockStatementBody = body.body;
-          const returnStatement = blockStatementBody.find(arg => isReturnStatement(arg));
-  
-          if (returnStatement) {
-            const returnStatementArgument = (returnStatement as ReturnStatement).argument;
-  
-            if (isJSXElement(returnStatementArgument) || isJSXFragment(returnStatementArgument)) {
-              isJSX = true;
-            }
-          }
-        } else if (isJSXElement(body) || isJSXFragment(body)){
-          isJSX = true;
+          const returnStatement = body.body.find((node) =>
+            isReturnStatement(node)
+          );
+          const returnArgument =(returnStatement as ReturnStatement)?.argument;
+          isJSX = isJSXElement(returnArgument) || isJSXFragment(returnArgument);
         }
 
         if (isJSX) {
+          const [
+            element = this.rootPath.scope.generateUidIdentifier('element'),
+            index = this.rootPath.scope.generateUidIdentifier('index'),
+            array = this.rootPath.scope.generateUidIdentifier('array'),
+          ] = argument.params;
+          // @ts-ignore
+          argument.__renderListUpdateExpression = variableDeclaration('const', [
+            variableDeclarator(
+              element,
+              memberExpression(callee.object as Expression, index as Expression, true)
+            ),
+          ]);
+          argument.params = [element, index, array];
           return callExpression(
-            this.rootPath.state.helper.getHelperNameIdentifier(RuntimeHelper.renderList),
-            [
-              callee.object,
-              argument,
-            ]
+            this.rootPath.state.helper.getHelperNameIdentifier(
+              RuntimeHelper.renderList
+            ),
+            [callee.object, argument]
           );
         }
       }
     }
   }
 
-  public generate() {
-    const functionParent = this.rootPath.getFunctionParent();
-
-    if (functionParent) {
-      const bodyPath = functionParent.get("body");
-      if (!bodyPath.isBlockStatement()) {
-        functionParent.replaceWith(
-          arrowFunctionExpression(
-            // @ts-ignore
-            functionParent.node.params,
-            blockStatement([returnStatement(bodyPath.node as Expression)])
-          )
-        );
-      }
-
-      const blockStatementBodyPath = bodyPath.get("body");
-
-      if (Array.isArray(blockStatementBodyPath)) {
-        const lastExpress =
-          blockStatementBodyPath[
-            (
-              blockStatementBodyPath as unknown as NodePath<
-                ReturnStatement | Expression
-              >[]
-            ).length - 1
-          ];
-        if (lastExpress.isReturnStatement()) {
-          lastExpress?.insertBefore(this.bodyStatement);
-        } else {
-          (bodyPath as unknown as NodePath<BlockStatement>).pushContainer(
-            "body",
-            this.bodyStatement
-          );
-        }
-      }
-    } else {
-      const statementPath = this.rootPath.getStatementParent();
-      statementPath?.insertBefore(this.bodyStatement);
-    }
-
+  private getTemplateExpression() {
     return objectExpression([
       objectMethod(
-        "method",
+        'method',
         mountIdentifier,
         [targetIdentifier, anchorIdentifier],
         blockStatement(this.mountStatement)
       ),
       objectMethod(
-        "method",
+        'method',
         updateIdentifier,
         [reactiveIdentifier],
         blockStatement(this.updateStatement)
       ),
       objectMethod(
-        "method",
+        'method',
         destroyIdentifier,
         [],
         blockStatement(this.destroyStatement)
       ),
     ]);
+  }
+
+  public generate() {
+    return callExpression(
+      this.rootPath.state.helper.getHelperNameIdentifier(
+        RuntimeHelper.markRender,
+      ),
+      [
+        arrowFunctionExpression([], blockStatement([
+          ...this.bodyStatement,
+          returnStatement(this.getTemplateExpression()),
+        ]))
+      ]
+    );
+  }
+
+  public replace() {
+    const functionParent = this.rootPath.getFunctionParent();
+    const renderListUpdateExpression =
+      // @ts-ignore
+      functionParent?.node?.__renderListUpdateExpression;
+    if (renderListUpdateExpression) {
+      this.updateStatement.unshift(renderListUpdateExpression);
+    }
+
+    this.rootPath.replaceWith(this.generate());
   }
 }

@@ -1,7 +1,8 @@
-import type { RenderListTemplate, BaseTemplate } from "../types";
+import type { Render, RenderListTemplate, CompileTemplate } from "../types";
+import { markRender } from "../utils";
 
-export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => any): RenderListTemplate {
-  const cached: BaseTemplate[] = [];
+export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render<CompileTemplate>): Render<RenderListTemplate> {
+  const cached: CompileTemplate[] = [];
   let cacheTarget: Element;
   let cacheAnchor: Element | undefined;
   const destroy = (len = 0) => {
@@ -11,31 +12,33 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
     cached.length = len;
   }
 
-  return {
+  return markRender(() => ({
     mount: (target: Element, anchor?: Element) => {
       cacheTarget = target;
       cacheAnchor = anchor;
       list.forEach((item, index, data) => {
-        cached[index] = renderCallback(item, index, data);
+        const render = renderCallback(item, index, data);
+        cached[index] = render();
         cached[index].mount(target, anchor);
       });
     },
-    update() {
-      list.forEach((item, index, data) => {
+    update(newList: unknown[]) {
+      newList.forEach((item, index, data) => {
         if (!cached[index]) {
-          cached[index] = renderCallback(item, index, data);
+          const render = renderCallback(item, index, data);
+          cached[index] = render();
           cached[index].mount(cacheTarget, cacheAnchor);
         } else {
           cached[index].update();
         }
       });
 
-      if (cached.length > list.length) {
-        destroy(list.length);
+      if (cached.length > newList.length) {
+        destroy(newList.length);
       }
     },
     destroy() {
       destroy();
     }
-  }
+  }));
 }

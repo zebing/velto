@@ -1,5 +1,6 @@
 import { stringCurrying } from "./stringCurrying";
 import { HTML_TAGS, SVG_TAGS } from "../constants";
+import { Render } from "../types";
 
 export * from './toDisplayString';
 
@@ -20,12 +21,6 @@ export const capitalize = (str: string) => (str.charAt(0).toUpperCase() + str.sl
 export const hyphenate = (str: string) => str.replace(/\B([A-Z])/g, '-$1').toLowerCase();
 export const hash = () => Math.random().toString(16).slice(2);
 export const isEvent = (key: string) => /^on[^a-z]/.test(key);
-export const isTemplate = (data: any) => {
-  return isObject(data) && 
-    isFunction(data.mount) && 
-    isFunction(data.update) &&
-    isFunction(data.destroy);
-}
 export function callUnstableFunc<F extends Function, R = null>(
   fn: F,
   args?: unknown[],
@@ -46,4 +41,14 @@ export function normalizeContainer(
   }
 
   return container as Element;
+}
+
+export function markRender(fn: Function) {
+  // @ts-ignore
+  fn.__isRender = true;
+  return fn as Render;
+}
+
+export function isRender(express: any) {
+  return isFunction(express) && express.__isRender;
 }

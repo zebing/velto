@@ -1,10 +1,10 @@
 import { LifecycleHooks } from "./lifecycle";
 import { ComponentEffect } from "../reactive";
-import type { BaseTemplate } from "../types";
+import type { Render } from "../types";
 
 export * from "./lifecycle";
 
-export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => BaseTemplate;
+export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => Render;
 export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {

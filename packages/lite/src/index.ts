@@ -10,6 +10,7 @@ export * from './element';
 export * from './expression';
 export * from './renderList';
 export * from './condition';
+export { markRender } from './utils';
 
 export function createApp(type: Component, containerOrSelector: HTMLElement| Element | string | null, init: Props = {}) {
   const container = normalizeContainer(containerOrSelector);

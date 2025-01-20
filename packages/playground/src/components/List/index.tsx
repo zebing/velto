@@ -18,7 +18,7 @@ export default function List() {
   ])
   const unshift = () => {
     // list.value[0].name = 'name'
-    for(let j = 0; j < 10; j++) {
+    for(let j = 0; j < 50; j++) {
       list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
   }

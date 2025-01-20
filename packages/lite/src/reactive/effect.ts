@@ -1,6 +1,6 @@
 import type { Reactive } from "./types";
 import { ComponentInstance, callHook, LifecycleHooks, setCurrentInstance } from "../component";
-import type { BaseTemplate } from "../types";
+import type { CompileTemplate } from "../types";
 
 export type EffectType = ComponentEffect;
 export let activeEffect: EffectType | undefined;
@@ -23,12 +23,13 @@ class Effect {
 }
 
 export class ComponentEffect extends Effect {
-  protected template!: BaseTemplate;
+  protected template!: CompileTemplate;
   constructor(public instance: ComponentInstance) {
     super();
     this.run(() => {
       setCurrentInstance(instance);
-      this.template = this.instance.type(this.instance.props, {});
+      const render = this.instance.type(this.instance.props, {});
+      this.template = render();
     });
     callHook(LifecycleHooks.CREATED, this.instance);
   }

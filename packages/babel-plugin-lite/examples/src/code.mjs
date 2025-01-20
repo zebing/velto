@@ -32,11 +32,11 @@ export default function List() {
   return (
     <div class={styles.wrap}>
       <div class={styles.list}>
-        {list.value.map((student) => (
-          <div class={styles.item}>
-            <div>{student.id}</div>
-          </div>
-        ))}
+        {list.value.map(({id}) => (
+            <div class={styles.item}>
+              <div>{student.id}</div>
+            </div>
+          ))}
       </div>
       {/* {state && <div>Logical jsx</div>} */}
       {/* {render}
