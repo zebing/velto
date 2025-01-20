@@ -13,17 +13,11 @@ import {
   memberExpression,
   MemberExpression,
   ObjectExpression,
-  objectProperty,
-  booleanLiteral,
-  BlockStatement,
   arrowFunctionExpression,
   ReturnStatement,
-  JSXElement,
   isCallExpression,
-  ArrowFunctionExpression,
   isBlockStatement,
   CallExpression,
-  JSXFragment,
   variableDeclaration,
   variableDeclarator,
   isReturnStatement,
@@ -33,8 +27,8 @@ import {
   isFunctionExpression,
   isJSXElement,
   isJSXFragment,
-} from '@babel/types';
-import { NodePath } from '@babel/traverse';
+} from "@babel/types";
+import { NodePath } from "@babel/traverse";
 import {
   targetIdentifier,
   anchorIdentifier,
@@ -42,10 +36,11 @@ import {
   updateIdentifier,
   destroyIdentifier,
   reactiveIdentifier,
-} from '../constants';
-import { RuntimeHelper } from '../helper';
-import { NodePathState } from '../types';
-import { getExpressionStatement, getVariableDeclaration } from '../utils';
+} from "../constants";
+import { RuntimeHelper } from "../helper";
+import { NodePathState } from "../types";
+import { getExpressionStatement, getVariableDeclaration } from "../utils";
+import { getExpressionUpdateStatement, getRenderList } from "./util";
 
 export interface RenderOption {
   rootPath: NodePath;
@@ -66,12 +61,12 @@ export default class Template {
   }
 
   public space(target: Identifier) {
-    const id = this.rootPath.scope.generateUidIdentifier('spaceAnchor');
+    const id = this.rootPath.scope.generateUidIdentifier("spaceAnchor");
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
         this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.text),
-        [stringLiteral(' ')]
+        [stringLiteral(" ")]
       )
     );
 
@@ -111,7 +106,7 @@ export default class Template {
       )
     );
 
-    const elementId = this.rootPath.scope.generateUidIdentifier('_element');
+    const elementId = this.rootPath.scope.generateUidIdentifier("_element");
 
     this.bodyStatement.push(
       getVariableDeclaration(
@@ -148,7 +143,7 @@ export default class Template {
     anchor?: Identifier;
   }) {
     const { str, type, target, anchor } = options;
-    const id = this.rootPath.scope.generateUidIdentifier('text');
+    const id = this.rootPath.scope.generateUidIdentifier("text");
 
     this.bodyStatement.push(
       getVariableDeclaration(
@@ -177,7 +172,7 @@ export default class Template {
 
   public component(options: { tag: string; props: ObjectExpression }) {
     const { tag, props } = options;
-    const id = this.rootPath.scope.generateUidIdentifier('_component');
+    const id = this.rootPath.scope.generateUidIdentifier("_component");
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -206,28 +201,22 @@ export default class Template {
     anchor?: Identifier;
     test?: Expression;
   }) {
-    let {
-      express,
-      target = targetIdentifier,
-      anchor = anchorIdentifier,
-      test,
-    } = options;
-    const expressId = this.rootPath.scope.generateUidIdentifier('express');
-    const conditionId = this.rootPath.scope.generateUidIdentifier('condition');
-    let renderListId;
+    const { express, target = targetIdentifier, anchor = anchorIdentifier, test } = options;
+    const expressId = this.rootPath.scope.generateUidIdentifier("express");
+    const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
+    let renderListId: Identifier | undefined;
     let id = expressId;
-    const renderListExpression = this.renderList(express);
-
+  
+    const renderListExpression = getRenderList(express, this.rootPath);
     if (renderListExpression) {
-      renderListId = this.rootPath.scope.generateUidIdentifier('renderList');
-
+      renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
       this.bodyStatement.push(
-        variableDeclaration('const', [
+        variableDeclaration("const", [
           variableDeclarator(renderListId, renderListExpression),
         ])
       );
     }
-
+  
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -235,110 +224,55 @@ export default class Template {
         [renderListId || express]
       )
     );
-
+  
     if (test) {
       id = conditionId;
       this.bodyStatement.push(
         getVariableDeclaration(
           id,
-          this.pathState.helper.getHelperNameIdentifier(
-            RuntimeHelper.condition
-          ),
+          this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.condition),
           [expressId, test]
         )
       );
       this.updateStatement.push(
-        getExpressionStatement(
-          memberExpression(id, updateIdentifier),
-          renderListId ? [test, ((express as CallExpression).callee as MemberExpression).object] : [test, express]
-        )
+        getExpressionUpdateStatement(id, test, express, renderListId)
       );
-      
     } else {
       this.updateStatement.push(
-        getExpressionStatement(
-          memberExpression(id, updateIdentifier),
-          renderListId ? [((express as CallExpression).callee as MemberExpression).object] : [express]
-        )
+        getExpressionUpdateStatement(id, undefined, express, renderListId)
       );
     }
-
+  
     this.mountStatement.push(
       getExpressionStatement(
         memberExpression(id, mountIdentifier),
         [target, anchor].filter(Boolean) as Identifier[]
       )
     );
-
+  
     this.destroyStatement.push(
       getExpressionStatement(memberExpression(id, destroyIdentifier), [])
     );
-
+  
     return id;
-  }
-
-  private renderList(express: Node) {
-    if (isCallExpression(express)) {
-      const callee = express.callee;
-      const [argument] = express.arguments;
-
-      if (
-        isMemberExpression(callee) &&
-        (callee.property as Identifier)?.name === 'map' &&
-        (isArrowFunctionExpression(argument) || isFunctionExpression(argument))
-      ) {
-        const body = argument.body || {};
-        let isJSX = isJSXElement(body) || isJSXFragment(body);
-
-        if (isBlockStatement(body)) {
-          const returnStatement = body.body.find((node) =>
-            isReturnStatement(node)
-          );
-          const returnArgument =(returnStatement as ReturnStatement)?.argument;
-          isJSX = isJSXElement(returnArgument) || isJSXFragment(returnArgument);
-        }
-
-        if (isJSX) {
-          const [
-            element = this.rootPath.scope.generateUidIdentifier('element'),
-            index = this.rootPath.scope.generateUidIdentifier('index'),
-            array = this.rootPath.scope.generateUidIdentifier('array'),
-          ] = argument.params;
-          // @ts-ignore
-          argument.__renderListUpdateExpression = variableDeclaration('const', [
-            variableDeclarator(
-              element,
-              memberExpression(callee.object as Expression, index as Expression, true)
-            ),
-          ]);
-          argument.params = [element, index, array];
-          return callExpression(
-            this.rootPath.state.helper.getHelperNameIdentifier(
-              RuntimeHelper.renderList
-            ),
-            [callee.object, argument]
-          );
-        }
-      }
-    }
   }
 
   private getTemplateExpression() {
     return objectExpression([
       objectMethod(
-        'method',
+        "method",
         mountIdentifier,
         [targetIdentifier, anchorIdentifier],
         blockStatement(this.mountStatement)
       ),
       objectMethod(
-        'method',
+        "method",
         updateIdentifier,
         [reactiveIdentifier],
         blockStatement(this.updateStatement)
       ),
       objectMethod(
-        'method',
+        "method",
         destroyIdentifier,
         [],
         blockStatement(this.destroyStatement)
@@ -349,13 +283,16 @@ export default class Template {
   public generate() {
     return callExpression(
       this.rootPath.state.helper.getHelperNameIdentifier(
-        RuntimeHelper.markRender,
+        RuntimeHelper.markRender
       ),
       [
-        arrowFunctionExpression([], blockStatement([
-          ...this.bodyStatement,
-          returnStatement(this.getTemplateExpression()),
-        ]))
+        arrowFunctionExpression(
+          [],
+          blockStatement([
+            ...this.bodyStatement,
+            returnStatement(this.getTemplateExpression()),
+          ])
+        ),
       ]
     );
   }

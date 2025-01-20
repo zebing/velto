@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/core';
-import { Expression, Identifier, unaryExpression, logicalExpression, isNullLiteral, is, isIdentifier } from '@babel/types';
+import { Expression, Identifier, isNullLiteral, isIdentifier } from '@babel/types';
 import  { transformJSX } from './transformJSX';
 import Template from '../../template';
 import { getParentId } from '../parentId';

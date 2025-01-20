@@ -4,7 +4,7 @@ import type { Render } from "../types";
 
 export * from "./lifecycle";
 
-export type Component = (init: Record<string, unknown>, ctx: Record<string, unknown>) => Render;
+export type Component = (init: Record<string, unknown>) => Render;
 export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {

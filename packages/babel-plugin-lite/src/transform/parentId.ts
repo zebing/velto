@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/core';
-import { JSXEmptyExpression, Expression, SpreadElement, JSXText, JSXSpreadChild, Identifier, ExpressionStatement, BlockStatement, Statement, JSXAttribute, JSXSpreadAttribute, JSXExpressionContainer } from '@babel/types';
+import { Identifier } from '@babel/types';
 import { targetIdentifier } from '../constants';
 import { NodePathData } from '../types';
 

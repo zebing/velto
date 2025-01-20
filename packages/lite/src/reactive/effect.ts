@@ -28,7 +28,7 @@ export class ComponentEffect extends Effect {
     super();
     this.run(() => {
       setCurrentInstance(instance);
-      const render = this.instance.type(this.instance.props, {});
+      const render = this.instance.type(this.instance.props);
       this.template = render();
     });
     callHook(LifecycleHooks.CREATED, this.instance);

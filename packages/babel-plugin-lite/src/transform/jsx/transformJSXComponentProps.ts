@@ -1,20 +1,13 @@
-import { NodePath } from '@babel/traverse';
 import {
-  nullLiteral,
-  JSXAttribute,
   JSXSpreadAttribute,
   objectProperty,
   ObjectProperty,
   identifier,
-  JSXExpressionContainer,
-  StringLiteral,
   Expression,
   SpreadElement,
   spreadElement,
   objectExpression,
 } from '@babel/types';
-import { getTagLiteral } from '../../utils';
-import transformJSXElement from './transformJSXElement';
 import { transformJSX } from './transformJSX';
 import Template from '../../template';
 import { TransformJSXChildrenOptions } from '../../types';

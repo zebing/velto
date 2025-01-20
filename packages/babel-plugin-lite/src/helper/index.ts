@@ -1,28 +1,8 @@
 import { Program, Identifier, importDeclaration, identifier, stringLiteral, importSpecifier } from "@babel/types";
 import { NodePath } from "@babel/traverse";
+import { RuntimeHelper } from './constants';
 
-export enum RuntimeHelper {
-  source = '@lite/lite',
-  ref = 'ref',
-  computed = 'computed',
-  markRender = 'markRender',
-
-
-  // component
-  component = 'component',
-
-  // element
-  createElement = 'createElement',
-  element = 'element',
-  text = 'text',
-  insert = 'insert',
-  remove = 'remove',
-  append = 'append',
-
-  expression = 'expression',
-  renderList = 'renderList',
-  condition = 'condition',
-}
+export * from './constants';
 
 export class Helper {
   private rootPath: NodePath<Program>;

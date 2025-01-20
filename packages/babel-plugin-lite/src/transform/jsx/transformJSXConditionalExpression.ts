@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/core';
-import { ConditionalExpression, unaryExpression, Expression, logicalExpression, binaryExpression } from '@babel/types';
+import { ConditionalExpression, unaryExpression, Expression, binaryExpression } from '@babel/types';
 import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
 import Template from '../../template';
 
