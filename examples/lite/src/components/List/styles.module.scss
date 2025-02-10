@@ -1,0 +1,14 @@
+.wrap {
+  padding: 6px;
+  border: 1px solid blue; 
+
+  .list {
+    display: flex;
+    flex-direction: column;
+
+    .item {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+}
