@@ -16,6 +16,7 @@ export default function transformJSXElement({
   root = false,
 }: TransformJSXOptions<JSXElement>) {
   const openingElementPath = path.get("openingElement");
+  // @ts-ignore
   const attributesPath = openingElementPath.get("attributes");
   const childrenPath = path.get("children");
   const tag = getTagLiteral(openingElementPath);
@@ -42,6 +43,7 @@ function handleNativeTag({
   const id = template.rootPath.scope.generateUidIdentifier(tag);
   setParentId(path, id);
   const props = transformJSXComponentProps({
+    // @ts-ignore
     path: path.get("openingElement").get("attributes"),
     template,
   });

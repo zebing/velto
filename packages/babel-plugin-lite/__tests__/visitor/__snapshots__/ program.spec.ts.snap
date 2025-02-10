@@ -3,7 +3,7 @@
 exports[`compile program 1`] = `
 ""use strict";
 
-var _lite = require("@lite/lite");
+var _lite = require("@lite/runtime");
 // transform
 const stateRef = (0, _lite.runtimeRef)({});
 const stateComputed = (0, _lite.runtimeComputed)(() => true);

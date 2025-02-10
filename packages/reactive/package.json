@@ -1,0 +1,18 @@
+{
+  "name": "@lite/reactive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsc --watch --declaration",
+    "build": "pnpm clean && tsc --build --declaration",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

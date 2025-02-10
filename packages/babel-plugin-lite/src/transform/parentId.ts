@@ -3,7 +3,7 @@ import { Identifier } from '@babel/types';
 import { targetIdentifier } from '../constants';
 import { NodePathData } from '../types';
 
-export function getParentId(path?: NodePath) {
+export function getParentId(path?: NodePath<any>) {
   let parent: NodePath | undefined | null = path?.parentPath;
   while (parent) {
     const data = parent.data as unknown as NodePathData | undefined;
@@ -16,7 +16,7 @@ export function getParentId(path?: NodePath) {
   return targetIdentifier;
 }
 
-export function setParentId(path: NodePath, id: Identifier = targetIdentifier) {
+export function setParentId(path: NodePath<any>, id: Identifier = targetIdentifier) {
   path.data ??= {};
   path.data.parentId = id;
 }

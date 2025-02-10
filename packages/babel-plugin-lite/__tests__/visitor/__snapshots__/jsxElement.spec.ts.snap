@@ -11,7 +11,7 @@ exports.LogicalExpression = LogicalExpression;
 exports.TestComponent = TestComponent;
 exports.TestJSXFragmentComponent = TestJSXFragmentComponent;
 exports.default = JSXElement;
-var _lite = require("@lite/lite");
+var _lite = require("@lite/runtime");
 var _stylesModule = _interopRequireDefault(require("./styles.module.scss"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function ConditionalExpression() {

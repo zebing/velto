@@ -1,4 +1,4 @@
-import { ref } from '@lite/lite';
+import { ref } from '@lite/runtime';
 import styles from './styles.module.scss';
 
 

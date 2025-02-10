@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "dev": "pnpm --filter @lite/reactive --filter @lite/runtime --filter @lite/babel-plugin-lite dev",
+    "clean": "pnpm -r clean",
+    "build": "pnpm -r build"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +15,7 @@
     "@babel/preset-typescript": "^7.24.7",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.30",
+    "glob": "^11.0.1",
     "jest": "^29.7.0"
   }
 }

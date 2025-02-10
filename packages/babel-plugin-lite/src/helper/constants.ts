@@ -1,5 +1,5 @@
 export enum RuntimeHelper {
-  source = '@lite/lite',
+  source = '@lite/runtime',
   ref = 'ref',
   computed = 'computed',
   watch = 'watch',

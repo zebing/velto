@@ -1,4 +1,4 @@
-import { ref, computed } from '@lite/lite';
+import { ref, computed } from '@lite/runtime';
 
 // transform
 const stateRef = ref({});

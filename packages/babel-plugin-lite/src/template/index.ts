@@ -43,11 +43,11 @@ import { getExpressionStatement, getVariableDeclaration } from "../utils";
 import { getExpressionUpdateStatement, getRenderList } from "./util";
 
 export interface RenderOption {
-  rootPath: NodePath;
+  rootPath: NodePath<any>;
 }
 
 export default class Template {
-  public rootPath: NodePath;
+  public rootPath: NodePath<any>;
   private pathState: NodePathState;
   private bodyStatement: Statement[] = [];
   private mountStatement: Statement[] = [];
@@ -60,7 +60,7 @@ export default class Template {
     this.pathState = rootPath.state as NodePathState;
   }
 
-  public space(target: Identifier) {
+  public space(target: Identifier): Identifier {
     const id = this.rootPath.scope.generateUidIdentifier("spaceAnchor");
     this.bodyStatement.push(
       getVariableDeclaration(
@@ -86,7 +86,7 @@ export default class Template {
     props: ObjectExpression;
     target: Identifier;
     anchor?: Identifier;
-  }) {
+  }): Identifier {
     const {
       tag,
       type = RuntimeHelper.insert,
@@ -141,7 +141,7 @@ export default class Template {
     type: RuntimeHelper.insert | RuntimeHelper.append;
     target: Identifier;
     anchor?: Identifier;
-  }) {
+  }): Identifier {
     const { str, type, target, anchor } = options;
     const id = this.rootPath.scope.generateUidIdentifier("text");
 
@@ -170,7 +170,7 @@ export default class Template {
     return id;
   }
 
-  public component(options: { tag: string; props: ObjectExpression }) {
+  public component(options: { tag: string; props: ObjectExpression }): Identifier {
     const { tag, props } = options;
     const id = this.rootPath.scope.generateUidIdentifier("_component");
     this.bodyStatement.push(
@@ -200,7 +200,7 @@ export default class Template {
     target: Identifier;
     anchor?: Identifier;
     test?: Expression;
-  }) {
+  }): Identifier {
     const { express, target = targetIdentifier, anchor = anchorIdentifier, test } = options;
     const expressId = this.rootPath.scope.generateUidIdentifier("express");
     const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
@@ -280,7 +280,7 @@ export default class Template {
     ]);
   }
 
-  public generate() {
+  public generate(): CallExpression {
     return callExpression(
       this.rootPath.state.helper.getHelperNameIdentifier(
         RuntimeHelper.markRender
@@ -306,6 +306,7 @@ export default class Template {
       this.updateStatement.unshift(renderListUpdateExpression);
     }
 
+    // @ts-ignore
     this.rootPath.replaceWith(this.generate());
   }
 }

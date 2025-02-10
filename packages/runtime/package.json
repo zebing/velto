@@ -1,0 +1,25 @@
+{
+  "name": "@lite/runtime",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "tsc --watch --declaration",
+    "build": "pnpm clean && tsc --build --declaration",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@lite/reactive": "workspace:*"
+  }
+}
