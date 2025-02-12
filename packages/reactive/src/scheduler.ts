@@ -4,8 +4,6 @@ import { Reactive } from "./types";
 export interface Scheduler extends Function {
   id: number;
   ref?: Reactive;
-  active?: boolean;
-  computed?: boolean;
 }
 
 let isFlushPending = false;

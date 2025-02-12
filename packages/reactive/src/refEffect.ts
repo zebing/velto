@@ -1,5 +1,5 @@
 import type { Reactive } from "./types";
-import { enqueueScheduler, Scheduler } from "./scheduler";
+import { enqueueScheduler } from "./scheduler";
 import { EffectType } from "./effect";
 import { Dep } from "./dep";
 
@@ -12,11 +12,9 @@ export function trackEffect(activeEffect: EffectType | undefined, reactive: Reac
 
 export function triggerEffect(key: Reactive, dep: Dep) {
   dep?.forEach((effect) => {
-    const schedule: Scheduler = () => {
-      effect.run(effect.update);
+    if (effect.scheduler) {
+      effect.scheduler.ref = key;
+      enqueueScheduler(effect.scheduler);
     }
-    schedule.id = effect?.uid || 0;
-    schedule.ref = key;
-    enqueueScheduler(schedule);
-  })
+  });
 }

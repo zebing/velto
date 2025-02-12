@@ -16,6 +16,8 @@ export interface ComponentInstance {
   type: Component;
   props: Props;
   template: CompileTemplate;
+  target: Element;
+  anchor?: Element;
 
   // lifecycle
   isCreated: boolean;
@@ -29,15 +31,16 @@ export interface ComponentInstance {
   [LifecycleHooks.DESTROYED]: LifecycleHook;
 }
 
-
 let uid = 0
 
-export function component(type: Component, props: Props) {
-  const instance: ComponentInstance = {
+export function getComponentInstance(type: Component, props: Props): ComponentInstance {
+  return {
     uid: uid++,
     type,
     props,
     template: undefined!,
+    target: undefined!,
+    anchor: undefined,
 
     isCreated: false,
     isMounted: false,
@@ -49,42 +52,53 @@ export function component(type: Component, props: Props) {
     [LifecycleHooks.BEFORE_DESTROY]: null,
     [LifecycleHooks.DESTROYED]: null,
   };
+}
 
-  const update = () => {
+export function component(type: Component, props: Props) {
+  let instance = getComponentInstance(type, props);
+
+  const fn = () => {
+    if (!instance.isCreated) {
+      setCurrentInstance(instance);
+      const render = instance.type(instance.props);
+      instance.template = render();
+      instance.isCreated = true;
+      callHook(LifecycleHooks.CREATED, instance);
+
+    } else if (!instance.isMounted) {
+      callHook(LifecycleHooks.BEFORE_MOUNT, instance);
+      instance.template.mount(instance.target, instance.anchor);
+      instance.isMounted = true;
+      callHook(LifecycleHooks.MOUNTED, instance);
+
+    } else if(!effect.active) {
+      callHook(LifecycleHooks.BEFORE_DESTROY, instance);
+      instance.template.destroy();
+      instance = getComponentInstance(type, props)
+      callHook(LifecycleHooks.DESTROYED, instance);
+    }
+  }
+  const scheduler = () => {
     callHook(LifecycleHooks.BEFORE_UPDATE, instance);
     instance.template.update();
     callHook(LifecycleHooks.UPDATED, instance);
   }
+  scheduler.id = instance.uid;
 
-  const effect = new Effect(update, instance.uid);
+  const effect = new Effect(fn);
+  effect.scheduler = scheduler;
 
-  effect.run(() => {
-    setCurrentInstance(instance);
-    const render = instance.type(instance.props);
-    instance.template = render();
-    callHook(LifecycleHooks.CREATED, instance);
-  });
+  effect.run();
 
   return {
     mount(target: Element, anchor?: Element) {
-      effect.run(() => {
-        callHook(LifecycleHooks.BEFORE_MOUNT, instance);
-        instance.template.mount(target, anchor);
-        instance.isMounted = true;
-        callHook(LifecycleHooks.MOUNTED, instance);
-      });
-    },
-
-    update() {
-      effect.run(update);
+      instance.target = target;
+      instance.anchor = anchor;
+      effect.run();
     },
 
     destroy() {
-      effect.run(() => {
-        callHook(LifecycleHooks.BEFORE_DESTROY, instance);
-        instance.template.destroy();
-        callHook(LifecycleHooks.DESTROYED, instance);
-      });
+      effect.destroy();
     }
   }
 }
