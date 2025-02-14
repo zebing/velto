@@ -11,6 +11,7 @@ import {
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 
+export const isEvent = (key: string) => /^on[^a-z]/.test(key);
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);
 export const isNativeTag = (name: string) => isHTMLTag(name) || isSVGTag(name);

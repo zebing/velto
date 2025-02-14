@@ -76,12 +76,14 @@ export function component(type: Component, props: Props) {
       instance.template.destroy();
       instance = getComponentInstance(type, props)
       callHook(LifecycleHooks.DESTROYED, instance);
+    } else {
+      callHook(LifecycleHooks.BEFORE_UPDATE, instance);
+      instance.template.update();
+      callHook(LifecycleHooks.UPDATED, instance);
     }
   }
   const scheduler = () => {
-    callHook(LifecycleHooks.BEFORE_UPDATE, instance);
-    instance.template.update();
-    callHook(LifecycleHooks.UPDATED, instance);
+    effect.run();
   }
   scheduler.id = instance.uid;
 

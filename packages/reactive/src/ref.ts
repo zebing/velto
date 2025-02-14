@@ -2,6 +2,7 @@ import { activeEffect } from "./effect";
 import { trackEffect, triggerEffect } from "./refEffect";
 import { createDep } from "./dep";
 import { Reactive } from "./types";
+import { ReactiveFlags } from "./constant";
 
 const arrayProxyFunctionNames = ['push', 'pop', 'shift', 'unshift', 'splice'];
 function ProxyArray<T = any>(value: T, reactive: Reactive) {
@@ -25,7 +26,7 @@ function ProxyArray<T = any>(value: T, reactive: Reactive) {
   return value;
 }
 export class Ref<T = any> {
-  public __isRef = true;
+  public [ReactiveFlags.IS_REF] = true;
   private _value: T;
   public dep = createDep();
 
@@ -39,8 +40,10 @@ export class Ref<T = any> {
   }
 
   public setValue(newVal: T) {
-    this._value = ProxyArray(newVal, this);
-    triggerEffect(this, this.dep);
+    if (newVal !== this._value) {
+      this._value = ProxyArray(newVal, this);
+      triggerEffect(this, this.dep);
+    }
   }
 }
 

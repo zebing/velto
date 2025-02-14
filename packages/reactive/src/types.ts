@@ -1,4 +1,4 @@
 import { Ref } from "./ref";
 import { Computed } from "./computed";
 
-export type Reactive = Ref | Computed;
+export type Reactive<T = any> = Ref<T> | Computed<T>;

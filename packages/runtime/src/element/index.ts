@@ -37,7 +37,7 @@ export function element(
 
     update(newProps: Record<string, unknown>) {
       for(let attr in newProps) {
-        if (newProps[attr] !== props?.[attr]) {
+        if (newProps[attr] !== props?.[attr] && !isEvent(attr)) {
           setAttribute(el, attr, newProps[attr]);
         }
       }

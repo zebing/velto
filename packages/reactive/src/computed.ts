@@ -3,6 +3,7 @@ import { Effect } from "./effect";
 import { activeEffect } from "./effect";
 import { trackEffect, triggerEffect } from "./refEffect";
 import { isFunction } from "./utils";
+import { ReactiveFlags } from "./constant";
 
 export type ComputedGetter<T> = (oldValue?: T) => T;
 export type ComputedSetter<T> = (newValue: T) => void;
@@ -14,6 +15,7 @@ export interface ComputedOptions<T> {
 export class Computed<T = any> {
   public dep = createDep();
   private __value!: T;
+  public [ReactiveFlags.IS_COMPUTED] = true;
 
   constructor(
     private getter: ComputedGetter<T>,
@@ -24,8 +26,11 @@ export class Computed<T = any> {
     });
 
     const scheduler = () => {
-      this.__value = this.getter();
-      triggerEffect(this, this.dep);
+      const value = this.getter();
+      if (value !== this.__value) {
+        this.__value = value;
+        triggerEffect(this, this.dep);
+      }
     };
     scheduler.id = 0;
     effect.scheduler = scheduler;

@@ -11,7 +11,7 @@ import {
   Expression,
   StringLiteral,
   memberExpression,
-  MemberExpression,
+  ObjectProperty,
   ObjectExpression,
   arrowFunctionExpression,
   ReturnStatement,
@@ -39,7 +39,11 @@ import {
 } from "../constants";
 import { RuntimeHelper } from "../helper";
 import { NodePathState } from "../types";
-import { getExpressionStatement, getVariableDeclaration } from "../utils";
+import {
+  getExpressionStatement,
+  getVariableDeclaration,
+  isEvent,
+} from "../utils";
 import { getExpressionUpdateStatement, getRenderList } from "./util";
 
 export interface RenderOption {
@@ -125,7 +129,12 @@ export default class Template {
 
     this.updateStatement.push(
       getExpressionStatement(memberExpression(elementId, updateIdentifier), [
-        props,
+        objectExpression(
+          props.properties.filter(
+            (property) =>
+              !isEvent(((property as ObjectProperty)?.key as Identifier)?.name)
+          )
+        ),
       ])
     );
 
@@ -170,7 +179,10 @@ export default class Template {
     return id;
   }
 
-  public component(options: { tag: string; props: ObjectExpression }): Identifier {
+  public component(options: {
+    tag: string;
+    props: ObjectExpression;
+  }): Identifier {
     const { tag, props } = options;
     const id = this.rootPath.scope.generateUidIdentifier("_component");
     this.bodyStatement.push(
@@ -201,12 +213,17 @@ export default class Template {
     anchor?: Identifier;
     test?: Expression;
   }): Identifier {
-    const { express, target = targetIdentifier, anchor = anchorIdentifier, test } = options;
+    const {
+      express,
+      target = targetIdentifier,
+      anchor = anchorIdentifier,
+      test,
+    } = options;
     const expressId = this.rootPath.scope.generateUidIdentifier("express");
     const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
     let renderListId: Identifier | undefined;
     let id = expressId;
-  
+
     const renderListExpression = getRenderList(express, this.rootPath);
     if (renderListExpression) {
       renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
@@ -216,7 +233,7 @@ export default class Template {
         ])
       );
     }
-  
+
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -224,13 +241,15 @@ export default class Template {
         [renderListId || express]
       )
     );
-  
+
     if (test) {
       id = conditionId;
       this.bodyStatement.push(
         getVariableDeclaration(
           id,
-          this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.condition),
+          this.pathState.helper.getHelperNameIdentifier(
+            RuntimeHelper.condition
+          ),
           [expressId, test]
         )
       );
@@ -242,18 +261,18 @@ export default class Template {
         getExpressionUpdateStatement(id, undefined, express, renderListId)
       );
     }
-  
+
     this.mountStatement.push(
       getExpressionStatement(
         memberExpression(id, mountIdentifier),
         [target, anchor].filter(Boolean) as Identifier[]
       )
     );
-  
+
     this.destroyStatement.push(
       getExpressionStatement(memberExpression(id, destroyIdentifier), [])
     );
-  
+
     return id;
   }
 
