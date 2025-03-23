@@ -2,10 +2,10 @@ import type { ConditionTemplate, ExpressTemplate } from "../types";
 
 export function condition(template: ExpressTemplate, initCondition: boolean): ConditionTemplate {
   let cacheTarget: Element;
-  let cacheAnchor: Element | undefined;
+  let cacheAnchor: Element | Text | undefined;
 
   return {
-    mount: (target: Element, anchor?: Element) => {
+    mount: (target: Element, anchor?: Element | Text) => {
       cacheTarget = target;
       cacheAnchor = anchor;
       initCondition && template.mount(target, anchor);

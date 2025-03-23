@@ -1,5 +1,5 @@
 interface Template {
-  mount: (target: Element, anchor?: Element) => void;
+  mount: (target: Element, anchor?: Element | Text) => void;
   destroy: () => void;
 }
 
@@ -23,7 +23,6 @@ export interface RenderListTemplate extends Template {
   update: (newList: unknown[]) => void;
 }
 
-export interface Render extends Function {
-  __isRender: boolean;
-}
+export type RenderFN = () => CompileTemplate;
 
+export interface Render extends RenderFN { __isRender: boolean; }

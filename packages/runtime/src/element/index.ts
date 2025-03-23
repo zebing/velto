@@ -28,7 +28,7 @@ export function element(
 ): ElementTemplate {
 
   return {
-    mount: (target: Element, anchor?: Element) => {
+    mount: (target: Element, anchor?: Element | Text) => {
       addChildren(target, el, anchor);
       for(let attr in props) {
         setAttribute(el, attr, props[attr]);

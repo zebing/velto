@@ -182,8 +182,15 @@ export default class Template {
   public component(options: {
     tag: string;
     props: ObjectExpression;
+    target: Identifier;
+    anchor?: Identifier;
   }): Identifier {
-    const { tag, props } = options;
+    const {
+      tag,
+      props,
+      target = targetIdentifier,
+      anchor = anchorIdentifier,
+    } = options;
     const id = this.rootPath.scope.generateUidIdentifier("_component");
     this.bodyStatement.push(
       getVariableDeclaration(
@@ -195,8 +202,8 @@ export default class Template {
 
     this.mountStatement.push(
       getExpressionStatement(memberExpression(id, mountIdentifier), [
-        targetIdentifier,
-        anchorIdentifier,
+        target,
+        anchor,
       ])
     );
 
@@ -216,7 +223,7 @@ export default class Template {
     const {
       express,
       target = targetIdentifier,
-      anchor = anchorIdentifier,
+      anchor,
       test,
     } = options;
     const expressId = this.rootPath.scope.generateUidIdentifier("express");

@@ -10,6 +10,7 @@ export * from './element';
 export * from './expression';
 export * from './renderList';
 export * from './condition';
+export * from './defineAsyncComponent';
 export { markRender } from './utils';
 
 export type * from './types';

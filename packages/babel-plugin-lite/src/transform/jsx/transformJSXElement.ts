@@ -24,7 +24,7 @@ export default function transformJSXElement({
   if (isNativeTag(tag)) {
     handleNativeTag({ path, template, tag, root });
   } else {
-    handleComponentTag({ path, template, tag, attributesPath, childrenPath });
+    handleComponentTag({ path, template, tag, root, attributesPath, childrenPath });
   }
 }
 
@@ -64,15 +64,18 @@ function handleComponentTag({
   path,
   template,
   tag,
+  root,
   attributesPath,
   childrenPath,
 }: {
   path: NodePath<JSXElement>;
   template: Template;
   tag: string;
+  root: boolean;
   attributesPath: NodePath<JSXAttribute | JSXSpreadAttribute>[];
   childrenPath: NodePath<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>[];
 }) {
+  const parentId = getParentId(path);
   const props = transformJSXComponentProps({ path: attributesPath, template });
 
   if (childrenPath.length) {
@@ -91,5 +94,7 @@ function handleComponentTag({
   template.component({
     tag,
     props,
+    target: root ? targetIdentifier : parentId,
+    anchor: root ? anchorIdentifier : undefined,
   });
 }

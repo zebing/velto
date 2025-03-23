@@ -2,7 +2,10 @@ export const svgNS = 'http://www.w3.org/2000/svg'
 
 const doc = (typeof document !== 'undefined' ? document : null) as Document
 
-export const append = (parent: Element, child: Element | Text) => {
+export const append = (parent: Element, child: Element | Text, anchor?: any) => {
+  if (anchor) {
+    return insert(parent, child, anchor);
+  }
   parent.appendChild(child);
 }
 

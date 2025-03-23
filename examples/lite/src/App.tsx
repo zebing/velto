@@ -7,6 +7,7 @@ import LogicalExpression from "./components/LogicalExpression";
 import ConditionalExpression from "./components/ConditionalExpression";
 import List from "./components/List";
 import ParentChild from "./components/ParentChild";
+import AsyncComponent from "./components/AsyncComponent";
 
 
 
@@ -35,7 +36,9 @@ export default function App() {
   })
   return (
     <div name={'name'}>
-      <Test />
+      {true ? <Test /> : null}
+      <div>test</div>
+      <AsyncComponent />
       <LogicalExpression />
       <ConditionalExpression />
       <List />

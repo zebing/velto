@@ -24,6 +24,12 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.12.7)
 
+  examples/async-component:
+    dependencies:
+      vite:
+        specifier: ^5.2.8
+        version: 5.4.14(@types/node@20.12.7)(sass@1.83.4)
+
   examples/babel-plugin-lite:
     dependencies:
       '@babel/core':
