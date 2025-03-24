@@ -1,5 +1,5 @@
 import { isEvent } from "../utils";
-import { append, insert, remove } from "../dom";
+import { append, insert, remove, createElement } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";
 import type { ElementTemplate } from "../types";
@@ -22,14 +22,14 @@ export const setAttribute = (
 }
 
 export function element(
-  el: Element,
+  tag: string,
   props: Record<string, unknown>,
-  addChildren: typeof append | typeof insert,
 ): ElementTemplate {
-
+  const el = createElement(tag);
   return {
+    el,
     mount: (target: Element, anchor?: Element | Text) => {
-      addChildren(target, el, anchor);
+      append(target, el, anchor);
       for(let attr in props) {
         setAttribute(el, attr, props[attr]);
       }

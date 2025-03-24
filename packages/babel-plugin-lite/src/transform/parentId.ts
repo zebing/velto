@@ -1,5 +1,5 @@
 import { NodePath } from '@babel/core';
-import { Identifier } from '@babel/types';
+import { Identifier, MemberExpression } from '@babel/types';
 import { targetIdentifier } from '../constants';
 import { NodePathData } from '../types';
 
@@ -16,7 +16,7 @@ export function getParentId(path?: NodePath<any>) {
   return targetIdentifier;
 }
 
-export function setParentId(path: NodePath<any>, id: Identifier = targetIdentifier) {
+export function setParentId(path: NodePath<any>, id: Identifier | MemberExpression = targetIdentifier) {
   path.data ??= {};
   path.data.parentId = id;
 }

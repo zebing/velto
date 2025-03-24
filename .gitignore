@@ -1,3 +1,4 @@
 node_modules
 dist
 pnpm-global
+.DS_Store

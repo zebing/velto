@@ -13,7 +13,6 @@ export function transformJSXConsequentExpression(options: {
 }) {
   const { test, consequent, template } = options;
   const target = getParentId(consequent);
-  const spaceAnchor = template.space(target as Identifier);
 
   if (consequent.isJSXElement() || consequent.isJSXFragment()) {
     const subRender = new Template({
@@ -24,7 +23,6 @@ export function transformJSXConsequentExpression(options: {
     template.expression({
       express: subRender.generate(),
       target,
-      anchor: spaceAnchor,
       test,
     });
 
@@ -53,7 +51,6 @@ export function transformJSXConsequentExpression(options: {
     template.expression({
       express: consequent.node,
       target,
-      anchor: spaceAnchor,
       test,
     });
   }

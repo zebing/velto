@@ -1,4 +1,4 @@
-import { JSXElement, objectProperty, identifier, JSXAttribute, JSXSpreadAttribute, JSXExpressionContainer, JSXFragment, JSXSpreadChild, JSXText } from "@babel/types";
+import { JSXElement, objectProperty, identifier, JSXAttribute, JSXSpreadAttribute, JSXExpressionContainer, JSXFragment, JSXSpreadChild, JSXText, memberExpression } from "@babel/types";
 import { getTagLiteral, isNativeTag } from "../../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSX } from "./transformJSX";
@@ -40,8 +40,11 @@ function handleNativeTag({
   root: boolean;
 }) {
   const parentId = getParentId(path);
-  const id = template.rootPath.scope.generateUidIdentifier(tag);
-  setParentId(path, id);
+  const elementId = template.rootPath.scope.generateUidIdentifier("_element");
+  setParentId(path, memberExpression(
+    elementId,
+    identifier('el'),
+  ));
   const props = transformJSXComponentProps({
     // @ts-ignore
     path: path.get("openingElement").get("attributes"),
@@ -49,10 +52,9 @@ function handleNativeTag({
   });
 
   template.element({
-    id,
+    elementId,
     props,
     tag,
-    type: root ? RuntimeHelper.insert : RuntimeHelper.append,
     target: root ? targetIdentifier : parentId,
     anchor: root ? anchorIdentifier : undefined,
   });

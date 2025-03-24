@@ -1,4 +1,5 @@
 import type { ConditionTemplate, ExpressTemplate } from "../types";
+import { text, append } from "../dom";
 
 export function condition(template: ExpressTemplate, initCondition: boolean): ConditionTemplate {
   let cacheTarget: Element;
@@ -7,8 +8,9 @@ export function condition(template: ExpressTemplate, initCondition: boolean): Co
   return {
     mount: (target: Element, anchor?: Element | Text) => {
       cacheTarget = target;
-      cacheAnchor = anchor;
-      initCondition && template.mount(target, anchor);
+      cacheAnchor = text(" ");
+      append(target, cacheAnchor);
+      initCondition && template.mount(target, cacheAnchor);
     },
     update(newCondition: boolean, newExpress: any) {
       if (newCondition !== initCondition) {

@@ -64,59 +64,26 @@ export default class Template {
     this.pathState = rootPath.state as NodePathState;
   }
 
-  public space(target: Identifier): Identifier {
-    const id = this.rootPath.scope.generateUidIdentifier("spaceAnchor");
-    this.bodyStatement.push(
-      getVariableDeclaration(
-        id,
-        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.text),
-        [stringLiteral(" ")]
-      )
-    );
-
-    this.mountStatement.push(
-      getExpressionStatement(
-        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.append),
-        [target, id]
-      )
-    );
-    return id;
-  }
-
   public element(options: {
-    id: Identifier;
+    elementId: Identifier;
     tag: string;
-    type: RuntimeHelper;
     props: ObjectExpression;
     target: Identifier;
     anchor?: Identifier;
-  }): Identifier {
+  }) {
     const {
       tag,
-      type = RuntimeHelper.insert,
+      elementId,
       props,
       target,
       anchor,
-      id,
     } = options;
-
-    this.bodyStatement.push(
-      getVariableDeclaration(
-        id,
-        this.pathState.helper.getHelperNameIdentifier(
-          RuntimeHelper.createElement
-        ),
-        [stringLiteral(tag)]
-      )
-    );
-
-    const elementId = this.rootPath.scope.generateUidIdentifier("_element");
 
     this.bodyStatement.push(
       getVariableDeclaration(
         elementId,
         this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.element),
-        [id, props, this.pathState.helper.getHelperNameIdentifier(type)]
+        [stringLiteral(tag), props]
       )
     );
 
@@ -141,8 +108,6 @@ export default class Template {
     this.destroyStatement.push(
       getExpressionStatement(memberExpression(elementId, destroyIdentifier), [])
     );
-
-    return id;
   }
 
   public text(options: {
@@ -189,7 +154,7 @@ export default class Template {
       tag,
       props,
       target = targetIdentifier,
-      anchor = anchorIdentifier,
+      anchor,
     } = options;
     const id = this.rootPath.scope.generateUidIdentifier("_component");
     this.bodyStatement.push(
@@ -204,7 +169,7 @@ export default class Template {
       getExpressionStatement(memberExpression(id, mountIdentifier), [
         target,
         anchor,
-      ])
+      ].filter(Boolean) as Identifier[])
     );
 
     this.destroyStatement.push(

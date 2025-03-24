@@ -3,24 +3,24 @@ import { isFunction, markRender } from "../utils";
 import { CompileTemplate } from "../types";
 import { text, append } from "../dom";
 
-export type AsyncComponentResolveResult<T = Component> = T | { default: T }; // es modules
+export type AsyncComponentResolveResult<T = Component> = T | { default: T };
 
 export type AsyncComponentLoader<T = any> = () => Promise<
   AsyncComponentResolveResult<T>
 >;
 
+export interface ErrorComponentProps {
+  props: Record<string, unknown>,
+  err: Error,
+  retry: () => void,
+  retries: number,
+}
+
 export interface AsyncComponentOptions<T = any> {
   loader: AsyncComponentLoader<T>;
-  loadingComponent?: Component;
-  errorComponent?: Component<{
-    props: Record<string, unknown>,
-    err: Error,
-    retry: () => void,
-    retries: number,
-  }>;
-  delay?: number;
+  loadingComponent?: Component<Record<string, unknown>>;
+  errorComponent?: Component<ErrorComponentProps>;
   timeout?: number;
-  suspensible?: boolean;
 }
 
 export function defineAsyncComponent(source: AsyncComponentLoader<Component> | AsyncComponentOptions<Component>): Component {
@@ -40,54 +40,62 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
   let props: Record<string, unknown> = {};
   let cacheTarget: Element;
   const cacheAnchor = text(" ");
-  
-  const retry = () => {
+
+  const renderComponent = <T extends Record<string, unknown>>(currentComponent?: Component<T>, props: T = {} as T) => {
+    componentTemplate?.destroy();
+
+    if (currentComponent) {
+      const componentRender = currentComponent(props);
+      componentTemplate = componentRender?.();
+      componentTemplate?.mount(cacheTarget, cacheAnchor);
+    }
+  }
+
+  const retry = async () => {
     retries++;
-    return load();
+    renderComponent(loadingComponent, props);
+    await load();
   };
 
   const load = async (): Promise<any> => {
-    let loadingPromise = loader();
+    let loadingPromise = new Promise((resolve, reject) => {
+      loader().then(resolve).catch(reject);
+
+      if (timeout) {
+        setTimeout(() => {
+          const err = new Error(
+            `Async component timed out after ${timeout}ms.`,
+          );
+          reject(err);
+        }, timeout);
+      }
+    });
+
     return  loadingPromise.then((compModule: any) => {
         if (isFunction(compModule?.default) && (compModule?.__esModule || compModule?.[Symbol.toStringTag] === "Module")) {
           compModule = compModule.default;
         }
         return compModule;
-      }).then((comp) => {
-        componentTemplate?.destroy();
-  
-        const render = comp(props);
-        componentTemplate = render();
-        if (cacheTarget) {
-          componentTemplate?.mount(cacheTarget, cacheAnchor);
-        }
+      }).then((comp: Component) => {
+        renderComponent(comp, props);
       }).catch((err) => {
-        err = err instanceof Error ? err : new Error(String(err));
-        componentTemplate?.destroy();
-        const render = errorComponent?.({
+        renderComponent(errorComponent, {
           props,
-          err,
+          err: err instanceof Error ? err : new Error(String(err)),
           retry,
           retries,
         });
-        componentTemplate = render?.();
-        if (cacheTarget) {
-          componentTemplate?.mount(cacheTarget, cacheAnchor);
-        }
       });
   };
 
-  return (init: Record<string, unknown>) => markRender(() => {
+  return (init: Record<string, unknown>) => {
     props = init;
-    
-    const componentRender = loadingComponent?.(props);
-    componentTemplate = componentRender?.();
 
-    return {
+    return markRender(() => ({
       mount: (target: Element, anchor?: Element | Text) => {
         cacheTarget = target;
         append(target, cacheAnchor);
-        componentTemplate?.mount(target, cacheAnchor);
+        renderComponent(loadingComponent, props),
         load();
       },
       update() {
@@ -96,6 +104,6 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
       destroy() {
         componentTemplate?.destroy();
       }
-    }
-  });
+    }))
+  };
 }

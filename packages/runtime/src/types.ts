@@ -16,6 +16,7 @@ export interface ExpressTemplate extends Template {
 }
 
 export interface ElementTemplate extends Template {
+  el: Element;
   update: (newProps: Record<string, unknown>) => void;
 }
 
