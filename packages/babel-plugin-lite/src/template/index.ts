@@ -289,13 +289,13 @@ export default class Template {
   }
 
   public replace() {
-    const functionParent = this.rootPath.getFunctionParent();
-    const renderListUpdateExpression =
-      // @ts-ignore
-      functionParent?.node?.__renderListUpdateExpression;
-    if (renderListUpdateExpression) {
-      this.updateStatement.unshift(renderListUpdateExpression);
-    }
+    // const functionParent = this.rootPath.getFunctionParent();
+    // const renderListUpdateExpression =
+    //   // @ts-ignore
+    //   functionParent?.node?.__renderListUpdateExpression;
+    // if (renderListUpdateExpression) {
+    //   this.updateStatement.unshift(renderListUpdateExpression);
+    // }
 
     // @ts-ignore
     this.rootPath.replaceWith(this.generate());

@@ -52,16 +52,16 @@ export function getRenderList(express: Node, rootPath: NodePath) {
         array = rootPath.scope.generateUidIdentifier("array"),
       ] = argument.params;
       // @ts-ignore
-      argument.__renderListUpdateExpression = variableDeclaration("const", [
-        variableDeclarator(
-          element,
-          memberExpression(
-            callee.object as Expression,
-            index as Expression,
-            true
-          )
-        ),
-      ]);
+      // argument.__renderListUpdateExpression = variableDeclaration("const", [
+      //   variableDeclarator(
+      //     element,
+      //     memberExpression(
+      //       callee.object as Expression,
+      //       index as Expression,
+      //       true
+      //     )
+      //   ),
+      // ]);
       argument.params = [element, index, array];
       return callExpression(
         rootPath.state.helper.getHelperNameIdentifier(
