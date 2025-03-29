@@ -27,10 +27,8 @@ export class Computed<T = any> {
 
     const scheduler = () => {
       const value = this.getter();
-      if (value !== this.__value) {
-        this.__value = value;
-        triggerEffect(this, this.dep);
-      }
+      this.__value = value;
+      triggerEffect(this, this.dep);
     };
     scheduler.id = 0;
     effect.scheduler = scheduler;

@@ -112,11 +112,10 @@ export default class Template {
 
   public text(options: {
     str: StringLiteral;
-    type: RuntimeHelper.insert | RuntimeHelper.append;
     target: Identifier;
     anchor?: Identifier;
   }): Identifier {
-    const { str, type, target, anchor } = options;
+    const { str, target, anchor } = options;
     const id = this.rootPath.scope.generateUidIdentifier("text");
 
     this.bodyStatement.push(
@@ -129,7 +128,7 @@ export default class Template {
 
     this.mountStatement.push(
       getExpressionStatement(
-        this.pathState.helper.getHelperNameIdentifier(type),
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.append),
         [target, id, anchor].filter(Boolean) as Identifier[]
       )
     );
@@ -289,14 +288,6 @@ export default class Template {
   }
 
   public replace() {
-    // const functionParent = this.rootPath.getFunctionParent();
-    // const renderListUpdateExpression =
-    //   // @ts-ignore
-    //   functionParent?.node?.__renderListUpdateExpression;
-    // if (renderListUpdateExpression) {
-    //   this.updateStatement.unshift(renderListUpdateExpression);
-    // }
-
     // @ts-ignore
     this.rootPath.replaceWith(this.generate());
   }

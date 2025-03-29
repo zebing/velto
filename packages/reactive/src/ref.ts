@@ -40,10 +40,8 @@ export class Ref<T = any> {
   }
 
   public setValue(newVal: T) {
-    if (newVal !== this._value) {
-      this._value = ProxyArray(newVal, this);
-      triggerEffect(this, this.dep);
-    }
+    this._value = ProxyArray(newVal, this);
+    triggerEffect(this, this.dep);
   }
 }
 
