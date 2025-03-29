@@ -1,4 +1,4 @@
-import { createElement as _createElement, element as _element2, insert as _insert, append as _append, renderList as _renderList, expression as _expression, markRender as _markRender } from "@lite/runtime";
+import { element as _element2, text as _text2, append as _append, remove as _remove, renderList as _renderList, expression as _expression, markRender as _markRender } from "@lite/runtime";
 import { ref } from "@lite/runtime";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -51,43 +51,38 @@ export default function List() {
     list.splice(10, 1);
   };
   return _markRender(() => {
-    const _div = _createElement("div");
-    const _element = _element2(_div, {
+    const _element = _element2("div", {
       class: styles.wrap
-    }, _insert);
-    const _div2 = _createElement("div");
-    const _element3 = _element2(_div2, {
+    });
+    const _element3 = _element2("div", {});
+    const _text = _text2("text");
+    const _element4 = _element2("div", {
       class: styles.list
-    }, _append);
+    });
     const _renderList2 = _renderList(list.value, ({
       id
     }, _index, _array) => _markRender(() => {
-      const _div3 = _createElement("div");
-      const _element4 = _element2(_div3, {
+      const _element5 = _element2("div", {
         class: styles.item
-      }, _insert);
-      const _div4 = _createElement("div");
-      const _element5 = _element2(_div4, {}, _append);
+      });
+      const _element6 = _element2("div", {});
       const _express2 = _expression(student.id);
       return {
         mount(target, anchor) {
-          _element4.mount(target, anchor);
-          _element5.mount(_div3);
-          _express2.mount(_div4, anchor);
+          _element5.mount(target, anchor);
+          _element6.mount(_element5.el);
+          _express2.mount(_element6.el);
         },
         update(reactive) {
-          const {
-            id
-          } = list.value[_index];
-          _element4.update({
+          _element5.update({
             class: styles.item
           });
-          _element5.update({});
+          _element6.update({});
           _express2.update(student.id);
         },
         destroy() {
-          _element4.destroy();
           _element5.destroy();
+          _element6.destroy();
           _express2.destroy();
         }
       };
@@ -96,14 +91,17 @@ export default function List() {
     return {
       mount(target, anchor) {
         _element.mount(target, anchor);
-        _element3.mount(_div);
-        _express.mount(_div2, anchor);
+        _element3.mount(_element.el);
+        _append(_element3.el, _text);
+        _element4.mount(_element.el);
+        _express.mount(_element4.el);
       },
       update(reactive) {
         _element.update({
           class: styles.wrap
         });
-        _element3.update({
+        _element3.update({});
+        _element4.update({
           class: styles.list
         });
         _express.update(list.value);
@@ -111,6 +109,8 @@ export default function List() {
       destroy() {
         _element.destroy();
         _element3.destroy();
+        _remove(_text);
+        _element4.destroy();
         _express.destroy();
       }
     };

@@ -18,12 +18,16 @@ export default function List() {
   ])
   const unshift = () => {
     // list.value[0].name = 'name'
-    for(let j = 0; j < 50; j++) {
+    for(let j = 0; j < 2; j++) {
       list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
+    // list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
   }
 
   const append = () => {
+    for(let j = 0; j < 2; j++) {
+      // list.value.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
+    }
     list.value.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
   }
 
@@ -32,7 +36,15 @@ export default function List() {
   }
 
   const deletefrom10 = () => {
-    list.setValue([]);
+    list.value.splice(3, 1)
+    console.log(list.value)
+    list.setValue(list.value)
+    // list.setValue([]);
+  }
+
+  const update = () => {
+    list.value[2].name = '小李' + Math.random()
+    list.setValue(list.value)
   }
  
   return (
@@ -42,6 +54,7 @@ export default function List() {
       <button onClick={append}>append</button>
       <button onClick={insert}>insert</button>
       <button onClick={deletefrom10}>deletefrom10</button>
+      <button onClick={update}>update</button>
       <div class={styles.list}>
         {list.value.map((student) => (
           <div class={styles.item}>

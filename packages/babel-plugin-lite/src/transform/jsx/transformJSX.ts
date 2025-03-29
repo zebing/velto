@@ -3,7 +3,6 @@ import transformJSXElement from './transformJSXElement';
 import { transformJSXExpression } from './transformJSXExpression';
 import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
-import { RuntimeHelper } from '../../helper';
 import { TransformJSXOptions } from '../../types';
 import { getParentId } from '../parentId';
 
@@ -56,7 +55,6 @@ export function transformJSX({ path, template, root }: TransformJSXOptions) {
       template.text({
         target: parentId,
         str: stringLiteral(str),
-        type: root ? RuntimeHelper.insert : RuntimeHelper.append,
       });
     }
   }

@@ -31,6 +31,7 @@ export default function List() {
   }
   return (
     <div class={styles.wrap}>
+      <div>text</div>
       <div class={styles.list}>
         {list.value.map(({id}) => (
             <div class={styles.item}>
