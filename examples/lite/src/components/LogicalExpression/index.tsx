@@ -4,7 +4,7 @@ import {
 } from "@lite/runtime"
 import styles from './styles.module.scss';
 
-export default function LogicalExpression() {
+export default function LogicalExpression(props: Record<string, unknown>) {
   let state = ref(false)
   const state1 = ref(true)
   
@@ -18,6 +18,7 @@ export default function LogicalExpression() {
       {state.value && <div>Logical jsx</div>}
       <div>Logical object: {state.value && {test: true}}</div>
       <div>Logical number: {state.value  && state1.value && 2}</div>
+      <div>{state.value ? props.children : null}</div>
       <div onClick={click}>Logical end</div>
     </div>
   )

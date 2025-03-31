@@ -4,8 +4,8 @@ import {
 } from "@lite/runtime"
 import styles from './styles.module.scss';
 
-export default function ConditionalExpression() {
-  let state = ref(false)
+export default function ConditionalExpression(props: Record<string, unknown>) {
+  let state = ref(true)
   let state1 = ref(false)
   
   const click = () => {
@@ -26,6 +26,7 @@ export default function ConditionalExpression() {
       }</div>
       <div>Conditional number: {state.value ? 1 : 0}</div>
       嵌套 {state.value ? (state1.value ? 'consequent1' : 'alternate1') : 'alternate0'}
+      <div>{state.value ? props.children : null}</div>
       <div>Conditional end</div>
     </div>
   )

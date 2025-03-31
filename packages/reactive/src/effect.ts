@@ -26,5 +26,6 @@ export class Effect {
   destroy() {
     this.active = false;
     this.run();
+    this.active = true;
   }
 }

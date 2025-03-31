@@ -58,14 +58,15 @@ export function component(type: Component, props: Props) {
   let instance = getComponentInstance(type, props);
 
   const fn = () => {
-    if (!instance.isCreated) {
-      setCurrentInstance(instance);
-      const render = instance.type(instance.props);
-      instance.template = render();
-      instance.isCreated = true;
-      callHook(LifecycleHooks.CREATED, instance);
+    if (!instance.isMounted) {
+      if (!instance.isCreated) {
+        setCurrentInstance(instance);
+        const render = instance.type(instance.props);
+        instance.template = render();
+        instance.isCreated = true;
+        callHook(LifecycleHooks.CREATED, instance);
+      }
 
-    } else if (!instance.isMounted) {
       callHook(LifecycleHooks.BEFORE_MOUNT, instance);
       instance.template.mount(instance.target, instance.anchor);
       instance.isMounted = true;
@@ -74,8 +75,9 @@ export function component(type: Component, props: Props) {
     } else if(!effect.active) {
       callHook(LifecycleHooks.BEFORE_DESTROY, instance);
       instance.template.destroy();
-      instance = getComponentInstance(type, props)
+      instance = getComponentInstance(type, props);
       callHook(LifecycleHooks.DESTROYED, instance);
+      
     } else {
       callHook(LifecycleHooks.BEFORE_UPDATE, instance);
       instance.template.update();
@@ -86,11 +88,7 @@ export function component(type: Component, props: Props) {
     effect.run();
   }
   scheduler.id = instance.uid;
-
-  const effect = new Effect(fn);
-  effect.scheduler = scheduler;
-
-  effect.run();
+  const effect = new Effect(fn, scheduler);
 
   return {
     mount(target: Element, anchor?: Element) {

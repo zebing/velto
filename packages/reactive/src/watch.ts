@@ -31,15 +31,13 @@ export function watch(
     getter = () => undefined;
   }
 
-  const effect = new Effect(getter);
-
   const scheduler = () => {
     const value = effect.run();
     cb?.(value, oldValue);
     oldValue = value;
   };
   scheduler.id = 0;
-  effect.scheduler = scheduler;
+  const effect = new Effect(getter, scheduler);
   oldValue = effect.run();
 
   if (cb) {

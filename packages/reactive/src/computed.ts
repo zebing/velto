@@ -21,17 +21,16 @@ export class Computed<T = any> {
     private getter: ComputedGetter<T>,
     private setter: ComputedSetter<T>
   ) {
-    const effect = new Effect(() => {
-      this.__value = this.getter();
-    });
-
     const scheduler = () => {
       const value = this.getter();
       this.__value = value;
       triggerEffect(this, this.dep);
     };
     scheduler.id = 0;
-    effect.scheduler = scheduler;
+
+    const effect = new Effect(() => {
+      this.__value = this.getter();
+    }, scheduler);
 
     effect.run();
   }
