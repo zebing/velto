@@ -94,16 +94,18 @@ export default class Template {
       )
     );
 
-    this.updateStatement.push(
-      getExpressionStatement(memberExpression(elementId, updateIdentifier), [
-        objectExpression(
-          props.properties.filter(
-            (property) =>
-              !isEvent(((property as ObjectProperty)?.key as Identifier)?.name)
-          )
-        ),
-      ])
+    const properties = props.properties.filter(
+      (property) =>
+        !isEvent(((property as ObjectProperty)?.key as Identifier)?.name)
     );
+
+    if (properties.length) {
+      this.updateStatement.push(
+        getExpressionStatement(memberExpression(elementId, updateIdentifier), [
+          objectExpression(properties),
+        ])
+      );
+    }
 
     this.destroyStatement.push(
       getExpressionStatement(memberExpression(elementId, destroyIdentifier), [])

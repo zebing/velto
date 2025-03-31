@@ -77,7 +77,6 @@ export default function List() {
           _element5.update({
             class: styles.item
           });
-          _element6.update({});
           _express2.update(student.id);
         },
         destroy() {
@@ -100,7 +99,6 @@ export default function List() {
         _element.update({
           class: styles.wrap
         });
-        _element3.update({});
         _element4.update({
           class: styles.list
         });
