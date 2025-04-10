@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm --filter @lite/reactive --filter @lite/runtime --filter @lite/babel-plugin-lite dev",
+    "dev": "pnpm -r dev",
     "clean": "pnpm -r clean",
     "release": "node scripts/release.mjs",
     "build": "pnpm -r build"

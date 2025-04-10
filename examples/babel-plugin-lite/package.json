@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node src/index.mjs"
+    "dev:babel-plugin-lite": "node src/index.mjs"
   },
   "keywords": [],
   "author": "",
