@@ -64,7 +64,7 @@ class Publisher {
     console.log('\nPublish packages...');
 
     // await this.execute(
-    //   `pnpm changeset publish --tag beta`,
+    //   `pnpm publish --tag beta`,
     //   `Publish packages failed!`,
     // );
   }

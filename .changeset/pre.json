@@ -4,7 +4,10 @@
   "initialVersions": {
     "@lite/babel-plugin-lite": "1.0.0",
     "@lite/reactive": "1.0.0",
-    "@lite/runtime": "1.0.0"
+    "@lite/runtime": "1.0.0",
+    "@lite/shared": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "slow-walls-shave"
+  ]
 }

@@ -1,9 +1,9 @@
 {
   "name": "@lite/shared",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.0",
   "description": "",
-  "main": "dist/index.js", 
-  "module": "dist/index.mjs",   
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "tsup --watch",
