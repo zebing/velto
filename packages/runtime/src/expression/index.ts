@@ -1,5 +1,5 @@
 
-import { toDisplayString, isRender } from "../utils";
+import { isRender, toDisplayString } from "../utils";
 import { insert, remove, text } from "../dom";
 import type { ExpressTemplate } from "../types";
 

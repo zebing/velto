@@ -1,13 +1,14 @@
 import { transformAsync, BabelFileResult } from '@babel/core';
 import lite from '@lite/babel-plugin-lite';
+import { defineConfig } from 'vite'
 
-export default {
+export default defineConfig({
   mode: 'development',
   build: {
     minify: false,
   },
   plugins: [vitePluginLite()],
-}
+})
 
 function vitePluginLite() {
 

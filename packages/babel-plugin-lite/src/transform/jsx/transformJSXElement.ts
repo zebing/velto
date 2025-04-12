@@ -1,5 +1,6 @@
 import { JSXElement, objectProperty, identifier, JSXAttribute, JSXSpreadAttribute, JSXExpressionContainer, JSXFragment, JSXSpreadChild, JSXText, memberExpression } from "@babel/types";
-import { getTagLiteral, isNativeTag } from "../../utils";
+import { isNativeTag } from "@lite/shared";
+import { getTagLiteral } from "../../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSX } from "./transformJSX";
 import { transformJSXComponentProps } from "./transformJSXComponentProps";

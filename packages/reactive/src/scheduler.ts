@@ -1,4 +1,4 @@
-import { callUnstableFunc } from "./utils";
+import { callUnstableFunc } from "@lite/shared";
 import { Reactive } from "./types";
 
 export interface Scheduler extends Function {

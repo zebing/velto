@@ -1,5 +1,4 @@
-import { isArray } from "../utils";
-import { callUnstableFunc } from '../utils';
+import { isArray, callUnstableFunc } from "@lite/shared";
 import type { ComponentInstance } from "./";
 import { currentInstance } from "./";
 

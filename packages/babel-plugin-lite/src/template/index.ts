@@ -42,9 +42,9 @@ import { NodePathState } from "../types";
 import {
   getExpressionStatement,
   getVariableDeclaration,
-  isEvent,
 } from "../utils";
 import { getExpressionUpdateStatement, getRenderList } from "./util";
+import { isEvent } from "@lite/shared";
 
 export interface RenderOption {
   rootPath: NodePath<any>;

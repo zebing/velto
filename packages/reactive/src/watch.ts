@@ -1,6 +1,7 @@
 import { Reactive } from "./types";
-import { isReactive, isFunction } from "./utils";
+import { isReactive } from "./utils";
 import { Effect } from "./effect";
+import { isFunction } from "@lite/shared";
 
 export type WatchSource<T = any> = Reactive<T>;
 export type WatchSourceFn<T = any> = () => T;

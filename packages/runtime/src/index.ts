@@ -5,15 +5,12 @@ export * from '@lite/reactive';
 export * from './dom';
 export * from './element/attribute';
 export * from './component';
-export * from './constants';
 export * from './element';
 export * from './expression';
 export * from './renderList';
 export * from './condition';
 export * from './defineAsyncComponent';
 export { markRender } from './utils';
-
-export type * from './types';
 
 export function createApp(type: Component, containerOrSelector: HTMLElement| Element | string | null, init: Props = {}) {
   const container = normalizeContainer(containerOrSelector);
@@ -23,3 +20,5 @@ export function createApp(type: Component, containerOrSelector: HTMLElement| Ele
     component(type, init).mount(container);
   }
 }
+
+export type * from './types';

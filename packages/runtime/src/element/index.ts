@@ -1,4 +1,4 @@
-import { isEvent } from "../utils";
+import { isEvent } from "@lite/shared";
 import { append, insert, remove, createElement } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";

@@ -2,7 +2,7 @@ import { createDep } from "./dep";
 import { Effect } from "./effect";
 import { activeEffect } from "./effect";
 import { trackEffect, triggerEffect } from "./refEffect";
-import { isFunction } from "./utils";
+import { isFunction } from "@lite/shared";
 import { ReactiveFlags } from "./constant";
 
 export type ComputedGetter<T> = (oldValue?: T) => T;

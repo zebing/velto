@@ -6,7 +6,7 @@ import {
   isPlainObject,
   isSet,
   isString
-} from './'
+} from '@lite/shared';
 
 /**
  * For converting {{ interpolation }} values to displayed strings.

@@ -1,5 +1,5 @@
 {
-  "name": "@lite/reactive",
+  "name": "@lite/shared",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js", 
@@ -12,9 +12,6 @@
   "devDependencies": {
     "tsup": "^8.4.0",
     "typescript": "^5.4.2"
-  },
-  "dependencies": {
-    "@lite/shared": "workspace:*"
   },
   "keywords": [],
   "author": "",

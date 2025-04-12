@@ -1,5 +1,6 @@
 import { Component } from "../component";
-import { isFunction, markRender } from "../utils";
+import { isFunction } from "@lite/shared";
+import { markRender } from "../utils";
 import { CompileTemplate } from "../types";
 import { text, append } from "../dom";
 

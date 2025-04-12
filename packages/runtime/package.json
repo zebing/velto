@@ -2,24 +2,22 @@
   "name": "@lite/runtime",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/index.js", 
+  "module": "dist/index.mjs",   
   "types": "dist/index.d.ts",
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
   "scripts": {
-    "dev": "tsc --watch --declaration",
-    "build": "pnpm clean && tsc --build --declaration",
-    "clean": "rm -rf dist"
+    "dev": "tsup --watch",
+    "build": "tsup"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "tsup": "^8.4.0",
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@lite/reactive": "workspace:*"
+    "@lite/reactive": "workspace:*",
+    "@lite/shared": "workspace:*"
   }
 }
