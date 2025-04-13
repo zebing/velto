@@ -1,4 +1,4 @@
-import { isFunction, isString } from "@lite/shared";
+import { isFunction, isString } from "@velto/shared";
 import { Render } from "../types";
 
 export * from './toDisplayString';

@@ -6,7 +6,7 @@ import fs from 'fs';
 const { prompt } = enquirer;
 const pwd = process.cwd();
 const REGISTRY = 'https://registry.npmjs.org/';
-const getVersionPath = `${pwd}/packages/babel-plugin-lite/package.json`;
+const getVersionPath = `${pwd}/packages/babel-plugin-velto/package.json`;
 
 class Publisher {
   async execute(command, errorMsg, options = {}) {

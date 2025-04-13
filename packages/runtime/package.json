@@ -1,5 +1,5 @@
 {
-  "name": "@lite/runtime",
+  "name": "@velto/runtime",
   "version": "1.0.0-beta.0",
   "description": "",
   "main": "dist/index.js",
@@ -14,10 +14,10 @@
   "license": "ISC",
   "devDependencies": {
     "tsup": "^8.4.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@lite/reactive": "workspace:*",
-    "@lite/shared": "workspace:*"
+    "@velto/reactive": "workspace:*",
+    "@velto/shared": "workspace:*"
   }
 }

@@ -2,10 +2,10 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@lite/babel-plugin-lite": "1.0.0",
-    "@lite/reactive": "1.0.0",
-    "@lite/runtime": "1.0.0",
-    "@lite/shared": "1.0.0"
+    "@velto/babel-plugin-velto": "1.0.0",
+    "@velto/reactive": "1.0.0",
+    "@velto/runtime": "1.0.0",
+    "@velto/shared": "1.0.0"
   },
   "changesets": [
     "slow-walls-shave"

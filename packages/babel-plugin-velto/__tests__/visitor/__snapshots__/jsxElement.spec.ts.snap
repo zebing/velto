@@ -1,0 +1,518 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compile program 1`] = `
+""use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ConditionalExpression = ConditionalExpression;
+exports.LogicalExpression = LogicalExpression;
+exports.TestComponent = TestComponent;
+exports.TestJSXFragmentComponent = TestJSXFragmentComponent;
+exports.default = JSXElement;
+var _lite = require("@velto/runtime");
+var _stylesModule = _interopRequireDefault(require("./styles.module.scss"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function ConditionalExpression() {
+  const state = (0, _lite.runtimeRef)(false);
+  const state1 = (0, _lite.runtimeRef)(false);
+  const click = () => {
+    state.value.value = !state.value.value;
+  };
+  const click1 = () => {
+    state1.value.value = !state1.value.value;
+  };
+  const _div3 = (0, _lite.element)("div");
+  const _text3 = (0, _lite.text)("true value");
+  const _div4 = _element("div");
+  const _text4 = _text2("false value");
+  const _div = _element("div");
+  const _div2 = _element("div");
+  const _text = _text2("Conditional start");
+  const _button = _element("button");
+  const _spaceAnchor = _text2(" ");
+  let _express;
+  const _spaceAnchor2 = _text2(" ");
+  let _express2;
+  const _button2 = _element("button");
+  const _spaceAnchor3 = _text2(" ");
+  let _express3;
+  const _spaceAnchor4 = _text2(" ");
+  let _express4;
+  const _spaceAnchor5 = _text2(" ");
+  let _express5;
+  const _spaceAnchor6 = _text2(" ");
+  let _express6;
+  const _div5 = _element("div");
+  const _text5 = _text2("Conditional object: ");
+  const _spaceAnchor7 = _text2(" ");
+  let _express7;
+  const _spaceAnchor8 = _text2(" ");
+  let _express8;
+  const _div6 = _element("div");
+  const _text6 = _text2("Conditional number: ");
+  const _spaceAnchor9 = _text2(" ");
+  let _express9;
+  const _spaceAnchor10 = _text2(" ");
+  let _express10;
+  const _text7 = _text2("\\n      \\u5D4C\\u5957 ");
+  const _spaceAnchor11 = _text2(" ");
+  const _spaceAnchor12 = _text2(" ");
+  let _express11;
+  const _spaceAnchor13 = _text2(" ");
+  let _express12;
+  const _spaceAnchor14 = _text2(" ");
+  let _express13;
+  const _div7 = _element("div");
+  const _text8 = _text2("Conditional end");
+  return {
+    mount(target, anchor) {
+      (0, _lite.insert)(target, _div, anchor);
+      (0, _lite.classe)(_div, _stylesModule.default.wrap);
+      (0, _lite.append)(_div, _div2);
+      _append(_div2, _text);
+      _append(_div, _button);
+      (0, _lite.event)(_button, "onClick", click);
+      _append(_button, _spaceAnchor);
+      if (state.value.value) _express = (0, _lite.expression)('consequent', _button, _spaceAnchor, state.value.value);
+      _append(_button, _spaceAnchor2);
+      if (!state.value.value) _express2 = _expression('alternate', _button, _spaceAnchor2, !state.value.value);
+      _append(_div, _button2);
+      _event(_button2, "onClick", click1);
+      _append(_button2, _spaceAnchor3);
+      if (state1.value.value) _express3 = _expression('consequent', _button2, _spaceAnchor3, state1.value.value);
+      _append(_button2, _spaceAnchor4);
+      if (!state1.value.value) _express4 = _expression('alternate', _button2, _spaceAnchor4, !state1.value.value);
+      _append(_div, _spaceAnchor5);
+      if (state.value.value) _express5 = _expression({
+        [_isJSX]: true,
+        mount(target, anchor) {
+          _insert(target, _div3, anchor);
+          _append(_div3, _text3);
+        },
+        update(reactive) {},
+        destroy() {
+          (0, _lite.remove)(_div3);
+        }
+      }, _div, _spaceAnchor5, state.value.value);
+      _append(_div, _spaceAnchor6);
+      if (!state.value.value) _express6 = _expression({
+        [_isJSX]: true,
+        mount(target, anchor) {
+          _insert(target, _div4, anchor);
+          _append(_div4, _text4);
+        },
+        update(reactive) {},
+        destroy() {
+          _remove(_div4);
+        }
+      }, _div, _spaceAnchor6, !state.value.value);
+      _append(_div, _div5);
+      _append(_div5, _text5);
+      _append(_div5, _spaceAnchor7);
+      if (state.value.value) _express7 = _expression({
+        test: true
+      }, _div5, _spaceAnchor7, state.value.value);
+      _append(_div5, _spaceAnchor8);
+      if (!state.value.value) _express8 = _expression({
+        test: false
+      }, _div5, _spaceAnchor8, !state.value.value);
+      _append(_div, _div6);
+      _append(_div6, _text6);
+      _append(_div6, _spaceAnchor9);
+      if (state.value.value) _express9 = _expression(1, _div6, _spaceAnchor9, state.value.value);
+      _append(_div6, _spaceAnchor10);
+      if (!state.value.value) _express10 = _expression(0, _div6, _spaceAnchor10, !state.value.value);
+      _append(_div, _text7);
+      _append(_div, _spaceAnchor11);
+      _append(_div, _spaceAnchor12);
+      if (state.value.value && state1.value.value) _express11 = _expression('consequent1', _div, _spaceAnchor12, state.value.value && state1.value.value);
+      _append(_div, _spaceAnchor13);
+      if (state.value.value && !state1.value.value) _express12 = _expression('alternate1', _div, _spaceAnchor13, state.value.value && !state1.value.value);
+      _append(_div, _spaceAnchor14);
+      if (!state.value.value) _express13 = _expression('alternate0', _div, _spaceAnchor14, !state.value.value);
+      _append(_div, _div7);
+      _append(_div7, _text8);
+    },
+    update(reactive) {
+      if ([state].indcludes(reactive)) {
+        _express.update('consequent', state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express2.update('alternate', !state.value.value);
+      }
+      if ([state1].indcludes(reactive)) {
+        _express3.update('consequent', state1.value.value);
+      }
+      if ([state1].indcludes(reactive)) {
+        _express4.update('alternate', !state1.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express5.update({
+          [_isJSX]: true,
+          mount(target, anchor) {
+            _insert(target, _div3, anchor);
+            _append(_div3, _text3);
+          },
+          update(reactive) {},
+          destroy() {
+            (0, _lite.remove)(_div3);
+          }
+        }, state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express6.update({
+          [_isJSX]: true,
+          mount(target, anchor) {
+            _insert(target, _div4, anchor);
+            _append(_div4, _text4);
+          },
+          update(reactive) {},
+          destroy() {
+            _remove(_div4);
+          }
+        }, !state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express7.update({
+          test: true
+        }, state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express8.update({
+          test: false
+        }, !state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express9.update(1, state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express10.update(0, !state.value.value);
+      }
+      if ([state, state1].indcludes(reactive)) {
+        _express11.update('consequent1', state.value.value && state1.value.value);
+      }
+      if ([state, state1].indcludes(reactive)) {
+        _express12.update('alternate1', state.value.value && !state1.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express13.update('alternate0', !state.value.value);
+      }
+    },
+    destroy() {
+      _remove(_div);
+      if (state.value.value) _express.destroy();
+      if (!state.value.value) _express2.destroy();
+      if (state1.value.value) _express3.destroy();
+      if (!state1.value.value) _express4.destroy();
+      if (state.value.value) _express5.destroy();
+      if (!state.value.value) _express6.destroy();
+      if (state.value.value) _express7.destroy();
+      if (!state.value.value) _express8.destroy();
+      if (state.value.value) _express9.destroy();
+      if (!state.value.value) _express10.destroy();
+      if (state.value.value && state1.value.value) _express11.destroy();
+      if (state.value.value && !state1.value.value) _express12.destroy();
+      if (!state.value.value) _express13.destroy();
+    }
+  };
+}
+function LogicalExpression() {
+  const state = (0, _lite.runtimeRef)(true);
+  const state1 = (0, _lite.runtimeRef)(true);
+  const click = () => {
+    state.value.value = !state.value.value;
+  };
+  const _div10 = _element("div");
+  const _text11 = _text2("Logical jsx");
+  const _div8 = _element("div");
+  const _div9 = _element("div");
+  const _text9 = _text2("Logical start");
+  const _button3 = _element("button");
+  const _text10 = _text2("click");
+  const _spaceAnchor15 = _text2(" ");
+  let _express14;
+  const _div11 = _element("div");
+  const _text12 = _text2("Logical object: ");
+  const _spaceAnchor16 = _text2(" ");
+  let _express15;
+  const _div12 = _element("div");
+  const _text13 = _text2("Logical number: ");
+  const _spaceAnchor17 = _text2(" ");
+  let _express16;
+  const _div13 = _element("div");
+  const _text14 = _text2("Logical end");
+  return {
+    [_isJSX]: true,
+    mount(target, anchor) {
+      _insert(target, _div8, anchor);
+      _classe(_div8, _stylesModule.default.wrap);
+      _append(_div8, _div9);
+      _append(_div9, _text9);
+      _append(_div8, _button3);
+      _event(_button3, "onClick", click);
+      _append(_button3, _text10);
+      _append(_div8, _spaceAnchor15);
+      if (state.value.value) _express14 = _expression({
+        [_isJSX]: true,
+        mount(target, anchor) {
+          _insert(target, _div10, anchor);
+          _append(_div10, _text11);
+        },
+        update(reactive) {},
+        destroy() {
+          _remove(_div10);
+        }
+      }, _div8, _spaceAnchor15, state.value.value);
+      _append(_div8, _div11);
+      _append(_div11, _text12);
+      _append(_div11, _spaceAnchor16);
+      if (state.value.value) _express15 = _expression({
+        test: true
+      }, _div11, _spaceAnchor16, state.value.value);
+      _append(_div8, _div12);
+      _append(_div12, _text13);
+      _append(_div12, _spaceAnchor17);
+      if (state.value.value && state1.value.value) _express16 = _expression(2, _div12, _spaceAnchor17, state.value.value && state1.value.value);
+      _append(_div8, _div13);
+      _event(_div13, "onClick", click);
+      _append(_div13, _text14);
+    },
+    update(reactive) {
+      if ([state].indcludes(reactive)) {
+        _express14.update({
+          [_isJSX]: true,
+          mount(target, anchor) {
+            _insert(target, _div10, anchor);
+            _append(_div10, _text11);
+          },
+          update(reactive) {},
+          destroy() {
+            _remove(_div10);
+          }
+        }, state.value.value);
+      }
+      if ([state].indcludes(reactive)) {
+        _express15.update({
+          test: true
+        }, state.value.value);
+      }
+      if ([state, state1].indcludes(reactive)) {
+        _express16.update(2, state.value.value && state1.value.value);
+      }
+    },
+    destroy() {
+      _remove(_div8);
+      if (state.value.value) _express14.destroy();
+      if (state.value.value) _express15.destroy();
+      if (state.value.value && state1.value.value) _express16.destroy();
+    }
+  };
+}
+function TestComponent() {
+  const _div14 = _element("div");
+  const _text15 = _text2("test component");
+  return {
+    [_isJSX]: true,
+    mount(target, anchor) {
+      _insert(target, _div14, anchor);
+      _append(_div14, _text15);
+    },
+    update(reactive) {},
+    destroy() {
+      _remove(_div14);
+    }
+  };
+}
+function TestJSXFragmentComponent() {
+  let state1 = (0, _lite.runtimeRef)({
+    name: 'name'
+  });
+  const _div17 = _element("div");
+  const _text17 = _text2("compoenent jsx ");
+  let _express19;
+  const _div18 = _element("div");
+  const _text18 = _text2("component child ");
+  let _express20;
+  const _div15 = _element("div");
+  const _text16 = _text2("test");
+  const _div16 = _element("div");
+  let _express17;
+  let _express18;
+  const _component = (0, _lite.buildComponent)(TestComponent, {
+    ...state1.value,
+    name: "name",
+    state: state1.value,
+    onClick: click1,
+    jsx: {
+      [_isJSX]: true,
+      mount(target, anchor) {
+        _insert(target, _div17, anchor);
+        _append(_div17, _text17);
+        _express19 = _expression(state1.value, _div17, anchor, true);
+      },
+      update(reactive) {
+        if ([state1].indcludes(reactive)) {
+          _express19.update(state1.value, true);
+        }
+      },
+      destroy() {
+        _remove(_div17);
+        _express19.destroy();
+      }
+    },
+    children: {
+      [_isJSX]: true,
+      mount(target, anchor) {
+        _insert(target, _div18, anchor);
+        _append(_div18, _text18);
+        _express20 = _expression(state1.value, _div18, anchor, true);
+      },
+      update(reactive) {
+        if ([state1].indcludes(reactive)) {
+          _express20.update(state1.value, true);
+        }
+      },
+      destroy() {
+        _remove(_div18);
+        _express20.destroy();
+      }
+    }
+  });
+  return {
+    [_isJSX]: true,
+    mount(target, anchor) {
+      _insert(target, _div15, anchor);
+      _append(_div15, _text16);
+      _insert(target, _div16, anchor);
+      _express17 = _expression(state1.value, _div16, anchor, true);
+      _express18 = _expression(state1.value.name, target, anchor, true);
+      _component.mount(target, anchor);
+    },
+    update(reactive) {
+      if ([state1].indcludes(reactive)) {
+        _express17.update(state1.value, true);
+      }
+      if ([state1].indcludes(reactive)) {
+        _express18.update(state1.value.name, true);
+      }
+      _component.update(reactive);
+    },
+    destroy() {
+      _remove(_div15);
+      _remove(_div16);
+      _express17.destroy();
+      _express18.destroy();
+      _component.destroy();
+    }
+  };
+}
+function JSXElement() {
+  let state = (0, _lite.runtimeRef)({
+    name: 'name'
+  });
+  const click = () => {
+    state.value.name = 'new name';
+  };
+  const click1 = () => {
+    state.value = {
+      name: 'test name'
+    };
+  };
+  const _div22 = _element("div");
+  const _text20 = _text2("compoenent jsx ");
+  let _express22;
+  const _div23 = _element("div");
+  const _text21 = _text2("component child ");
+  let _express23;
+  const _div19 = _element("div");
+  const _div20 = _element("div");
+  let _express21;
+  const _div21 = _element("div");
+  const _text19 = _text2("jsx text");
+  const _component2 = _buildComponent(TestComponent, {
+    ...state.value,
+    name: "name",
+    state: state.value,
+    onClick: click1,
+    jsx: {
+      [_isJSX]: true,
+      mount(target, anchor) {
+        _insert(target, _div22, anchor);
+        _append(_div22, _text20);
+        _express22 = _expression(state.value, _div22, anchor, true);
+      },
+      update(reactive) {
+        if ([state].indcludes(reactive)) {
+          _express22.update(state.value, true);
+        }
+      },
+      destroy() {
+        _remove(_div22);
+        _express22.destroy();
+      }
+    },
+    children: {
+      [_isJSX]: true,
+      mount(target, anchor) {
+        _insert(target, _div23, anchor);
+        _append(_div23, _text21);
+        _express23 = _expression(state.value, _div23, anchor, true);
+      },
+      update(reactive) {
+        if ([state].indcludes(reactive)) {
+          _express23.update(state.value, true);
+        }
+      },
+      destroy() {
+        _remove(_div23);
+        _express23.destroy();
+      }
+    }
+  });
+  const _component3 = _buildComponent(LogicalExpression, {});
+  const _component4 = _buildComponent(ConditionalExpression, {});
+  return {
+    [_isJSX]: true,
+    mount(target, anchor) {
+      _insert(target, _div19, anchor);
+      for (const key in state.value) {
+        (0, _lite.attr)(_div19, key, state.value[key]);
+      }
+      _attr(_div19, "test1", state.value);
+      _attr(_div19, "test", "test1");
+      _attr(_div19, "html", "<div>test</div>");
+      _attr(_div19, "html1", "<div>test1</div>");
+      _event(_div19, "onClick", click);
+      _append(_div19, _div20);
+      _attr(_div20, "child", true);
+      _express21 = _expression(state.value, _div20, anchor, true);
+      _append(_div19, _div21);
+      _append(_div21, _text19);
+      _component2.mount(target, anchor);
+      _component3.mount(target, anchor);
+      _component4.mount(target, anchor);
+    },
+    update(reactive) {
+      if ([state].includes(reactive)) for (const key in state.value) {
+        (0, _lite.attr)(_div19, key, state.value[key]);
+      }
+      if ([state].includes(reactive)) _attr(_div19, "test1", state.value);
+      if ([state].indcludes(reactive)) {
+        _express21.update(state.value, true);
+      }
+      _component2.update(reactive);
+      _component3.update(reactive);
+      _component4.update(reactive);
+    },
+    destroy() {
+      _remove(_div19);
+      _express21.destroy();
+      _component2.destroy();
+      _component3.destroy();
+      _component4.destroy();
+    }
+  };
+}"
+`;

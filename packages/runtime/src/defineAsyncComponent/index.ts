@@ -1,5 +1,5 @@
 import { Component } from "../component";
-import { isFunction } from "@lite/shared";
+import { isFunction } from "@velto/shared";
 import { markRender } from "../utils";
 import { CompileTemplate } from "../types";
 import { text, append } from "../dom";

@@ -1,4 +1,4 @@
-import { isString, isArray, camelize, capitalize, hyphenate } from "@lite/shared";
+import { isString, isArray, camelize, capitalize, hyphenate } from "@velto/shared";
 export type Style = string | Record<string, string | string[]> | null
 
 export default function style(el: Element, value: Style) {

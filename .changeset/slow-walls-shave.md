@@ -1,8 +1,8 @@
 ---
-"@lite/babel-plugin-lite": patch
-"@lite/reactive": patch
-"@lite/runtime": patch
-"@lite/shared": patch
+"@velto/babel-plugin-velto": patch
+"@velto/reactive": patch
+"@velto/runtime": patch
+"@velto/shared": patch
 ---
 
 beta

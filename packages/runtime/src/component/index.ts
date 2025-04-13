@@ -1,5 +1,5 @@
 import { LifecycleHooks, callHook } from "./lifecycle";
-import { Effect } from "@lite/reactive";
+import { Effect } from "@velto/reactive";
 import type { Render, CompileTemplate } from "../types";
 
 export * from "./lifecycle";

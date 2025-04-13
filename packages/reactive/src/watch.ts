@@ -1,7 +1,7 @@
 import { Reactive } from "./types";
 import { isReactive } from "./utils";
 import { Effect } from "./effect";
-import { isFunction } from "@lite/shared";
+import { isFunction } from "@velto/shared";
 
 export type WatchSource<T = any> = Reactive<T>;
 export type WatchSourceFn<T = any> = () => T;

@@ -1,5 +1,5 @@
 import { ReactiveFlags } from "./constant";
-import { isObject } from '@lite/shared';
+import { isObject } from '@velto/shared';
 
 export const isReactive = (val: unknown): val is Record<any, any> =>
   isObject(val) &&

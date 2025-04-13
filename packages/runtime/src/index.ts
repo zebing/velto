@@ -1,7 +1,7 @@
 import { normalizeContainer } from "./utils";
 import { Component, component, Props } from "./component";
 
-export * from '@lite/reactive';
+export * from '@velto/reactive';
 export * from './dom';
 export * from './element/attribute';
 export * from './component';

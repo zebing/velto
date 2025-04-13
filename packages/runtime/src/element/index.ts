@@ -1,4 +1,4 @@
-import { isEvent } from "@lite/shared";
+import { isEvent } from "@velto/shared";
 import { append, insert, remove, createElement } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";

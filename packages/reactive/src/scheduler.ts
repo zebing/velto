@@ -1,4 +1,4 @@
-import { callUnstableFunc } from "@lite/shared";
+import { callUnstableFunc } from "@velto/shared";
 import { Reactive } from "./types";
 
 export interface Scheduler extends Function {

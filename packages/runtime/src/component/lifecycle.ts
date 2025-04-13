@@ -1,4 +1,4 @@
-import { isArray, callUnstableFunc } from "@lite/shared";
+import { isArray, callUnstableFunc } from "@velto/shared";
 import type { ComponentInstance } from "./";
 import { currentInstance } from "./";
 

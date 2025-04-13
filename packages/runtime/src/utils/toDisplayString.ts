@@ -6,7 +6,7 @@ import {
   isPlainObject,
   isSet,
   isString
-} from '@lite/shared';
+} from '@velto/shared';
 
 /**
  * For converting {{ interpolation }} values to displayed strings.
