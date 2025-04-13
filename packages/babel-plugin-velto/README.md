@@ -1,2 +1,2 @@
 # babel-plugin-velto
-Lite compile plugin for babel.
+Velto compile plugin for babel.
