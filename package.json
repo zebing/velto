@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "clean": "pnpm -r clean",
-    "release": "node scripts/release.mjs",
-    "release:beta": "pnpm -r publish --tag beta --access public",
+    "release": "pnpm build && node scripts/release.mjs",
+    "release:beta": "pnpm build && pnpm -r publish --tag beta --access public",
     "build": "pnpm -r build"
   },
   "keywords": [],
