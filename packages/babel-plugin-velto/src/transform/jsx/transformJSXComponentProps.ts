@@ -7,6 +7,7 @@ import {
   SpreadElement,
   spreadElement,
   objectExpression,
+  booleanLiteral,
 } from '@babel/types';
 import { transformJSX } from './transformJSX';
 import Template from '../../template';
@@ -61,12 +62,18 @@ export function transformJSXComponentProps({ path, template }: TransformJSXChild
           );
         }
         
-        // StringLiteral
-      } else if (value.isStringLiteral()) {
+      } else if (!value.type) {
         properties.push(
           objectProperty(
             identifier(nameLiteral),
-            value.node,
+            booleanLiteral(true),
+          )
+        );
+      } else if (value) {
+        properties.push(
+          objectProperty(
+            identifier(nameLiteral),
+            value.node as Expression,
           )
         );
       }

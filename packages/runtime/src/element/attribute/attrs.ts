@@ -1,6 +1,6 @@
+import { isBooleanAttribute } from "@velto/shared";
+
 export const xlinkNS = 'http://www.w3.org/1999/xlink'
-export const isSpecialBooleanAttr = (value: string) => 
-  ['itemscope', 'allowfullscreen', 'formnovalidate', 'ismap', 'nomodule', 'novalidate', 'readonly'].includes(value)
 
 export default function attr(
   el: Element,
@@ -15,7 +15,7 @@ export default function attr(
       el.setAttributeNS(xlinkNS, key, value);
     }
   } else {
-    const isBoolean = isSpecialBooleanAttr(key)
+    const isBoolean = isBooleanAttribute(key)
     if (value == null || (isBoolean && !(value || value === ''))) {
       el.removeAttribute(key)
     } else {

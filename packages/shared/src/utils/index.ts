@@ -1,10 +1,11 @@
 import { stringCurrying } from './stringCurrying';
-import { HTML_TAGS, SVG_TAGS } from '../constants';
+import { HTML_TAGS, SVG_TAGS, BOOLEAN_ATTRIBUTE } from '../constants';
 
 export * from './stringCurrying';
 
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);
+export const isBooleanAttribute = stringCurrying(BOOLEAN_ATTRIBUTE, true);
 export const isNativeTag = (name: string) => isHTMLTag(name) || isSVGTag(name);
 export const isString = (val: unknown): val is string => typeof val === 'string';
 export const isFunction = (val: unknown): val is Function => typeof val === 'function';

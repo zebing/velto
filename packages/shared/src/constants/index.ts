@@ -22,3 +22,8 @@ export const SVG_TAGS =
   'mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,' +
   'polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,' +
   'text,textPath,title,tspan,unknown,use,view';
+
+export const BOOLEAN_ATTRIBUTE = 
+  'checked,disabled,readonly,required,multiple,autofocus,selected,hidden,'+
+  'controls,loop,muted,autoplay,playsinline,novalidate,formnovalidate,open,'+
+  'itemscope,default,inert,nomodule,ismap,allowfullscreen';

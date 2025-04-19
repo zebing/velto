@@ -13,6 +13,7 @@ export default function Test() {
   })
   console.log(style.value, state.value.name)
   const name: string = 'name';
+  const hasEvent = ref(false);
 
   const compuedValue = computed(() => {
     return computedRef.value + ' computed';
@@ -52,7 +53,10 @@ export default function Test() {
 
   return (
     <div name="name" state={name} class={style.value}>
-      <div onClick={click}>change name</div>
+      <button onClick={() => hasEvent.setValue(!hasEvent.value)}>
+        { hasEvent.value ? 'hasEvent' : 'noEvent'}
+      </button>
+      <div onClick={hasEvent.value ? click : undefined}>change name</div>
       <div onClick={() =>{
         computedRef.setValue('new computed' + Math.random())
         console.log('++++computedRef', compuedValue)

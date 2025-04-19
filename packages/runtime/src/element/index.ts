@@ -30,14 +30,14 @@ export function element(
     el,
     mount: (target: Element, anchor?: Element | Text) => {
       append(target, el, anchor);
-      for(let attr in props) {
+      for (let attr in props) {
         setAttribute(el, attr, props[attr]);
       }
     },
 
     update(newProps: Record<string, unknown>) {
-      for(let attr in newProps) {
-        if (newProps[attr] !== props?.[attr] && !isEvent(attr)) {
+      for (let attr in newProps) {
+        if (newProps[attr] !== props?.[attr]) {
           setAttribute(el, attr, newProps[attr]);
         }
       }

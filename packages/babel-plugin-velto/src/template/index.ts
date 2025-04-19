@@ -27,6 +27,7 @@ import {
   isFunctionExpression,
   isJSXElement,
   isJSXFragment,
+  isObjectProperty,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import {
@@ -79,6 +80,31 @@ export default class Template {
       anchor,
     } = options;
 
+    const properties = props.properties.filter(
+      (property) => {
+        if (isObjectProperty(property)) {
+          const { key = {}, value } = property;
+          if (isEvent((key as Identifier)?.name) && (isFunctionExpression(value) || isArrowFunctionExpression(value))) {
+            const eventName = this.rootPath.scope.generateUidIdentifier("handle");
+            this.bodyStatement.push(
+              variableDeclaration(
+                'const', 
+                [
+                  variableDeclarator(
+                    eventName, 
+                    value
+                  ),
+                ]
+              )
+            );
+            property.value = eventName;
+          }
+        }
+
+        return property;
+      }
+    );
+
     this.bodyStatement.push(
       getVariableDeclaration(
         elementId,
@@ -92,11 +118,6 @@ export default class Template {
         memberExpression(elementId, mountIdentifier),
         [target, anchor].filter(Boolean) as Identifier[]
       )
-    );
-
-    const properties = props.properties.filter(
-      (property) =>
-        !isEvent(((property as ObjectProperty)?.key as Identifier)?.name)
     );
 
     if (properties.length) {

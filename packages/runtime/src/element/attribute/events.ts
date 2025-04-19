@@ -1,11 +1,33 @@
+const eventListenerMap = new WeakMap<Element, Record<string, EventListener>>();
+
+
 export default function event(
   el: Element,
-  rawName: string,
+  eventName: string,
   value: EventListener,
   options?: EventListenerOptions
 ) {
-  const name = rawName.slice(2).toLocaleLowerCase();
-  addEventListener(el, name, value, options)
+  let elEventMap = eventListenerMap.get(el);
+
+  if (!elEventMap) {
+    elEventMap = {};
+    eventListenerMap.set(el, elEventMap);
+  }
+
+  const oldEventValue = elEventMap[eventName];
+
+  if (oldEventValue === value) {
+    return;
+  }
+
+  const name = eventName.slice(2).toLocaleLowerCase();
+  if (value) {
+    addEventListener(el, name, value, options);
+    elEventMap[eventName] = value;
+  } else if (oldEventValue) {
+    removeEventListener(el, name, oldEventValue, options);
+    delete elEventMap[eventName];
+  }
 }
 
 export function addEventListener(

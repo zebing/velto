@@ -30,15 +30,16 @@ export default function List() {
     list.splice(10, 1);
   }
   return (
-    <div class={styles.wrap}>
-      <div>text</div>
+    <div class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+      <button disabled>test</button>
+      {/* <div>text</div>
       <div class={styles.list}>
         {list.value.map(({id}) => (
             <div class={styles.item}>
               <div>{student.id}</div>
             </div>
           ))}
-      </div>
+      </div> */}
       {/* {state && <div>Logical jsx</div>} */}
       {/* {render}
       <div>List Component</div>
