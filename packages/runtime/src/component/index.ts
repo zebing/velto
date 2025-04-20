@@ -1,6 +1,7 @@
 import { LifecycleHooks, callHook } from "./lifecycle";
 import { Effect } from "@velto/reactive";
 import type { Render, CompileTemplate } from "../types";
+import { omit } from "@velto/shared";
 
 export * from "./lifecycle";
 
@@ -55,7 +56,13 @@ export function getComponentInstance(type: Component, props: Props): ComponentIn
 }
 
 export function component(type: Component, props: Props) {
-  let instance = getComponentInstance(type, props);
+  const componentProps = omit(props, ['ref']);
+  let instance = getComponentInstance(type, componentProps);
+
+  if (!!props.ref) {
+    // @ts-expect-error
+    props.ref?.setValue?.(instance);
+  }
 
   const fn = () => {
     if (!instance.isMounted) {
@@ -75,7 +82,7 @@ export function component(type: Component, props: Props) {
     } else if(!effect.active) {
       callHook(LifecycleHooks.BEFORE_DESTROY, instance);
       instance.template.destroy();
-      instance = getComponentInstance(type, props);
+      instance = getComponentInstance(type, instance.props);
       callHook(LifecycleHooks.DESTROYED, instance);
       
     } else {

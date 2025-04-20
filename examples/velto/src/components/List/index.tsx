@@ -22,6 +22,7 @@ export default function List() {
       list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
     // list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+    list.setValue(list.value)
   }
 
   const append = () => {
@@ -29,10 +30,12 @@ export default function List() {
       // list.value.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
     }
     list.value.push({ id: i++, name: '小丽 append', grade: '一年级', age: 8 });
+    list.setValue(list.value)
   }
 
   const insert = () => {
     list.value.splice(2, 0, { id: i++, name: '小丽 insert', grade: '一年级', age: 8 });
+    list.setValue(list.value)
   }
 
   const deletefrom10 = () => {

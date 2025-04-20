@@ -33,3 +33,8 @@ export function callUnstableFunc<F extends Function, R = null>(
   }
   return null;
 }
+export function omit<T extends Record<string, unknown>>(obj: T, keys: string[]): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !keys.includes(key))
+  ) as Partial<T>;
+}

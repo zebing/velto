@@ -10,7 +10,10 @@ export const setAttribute = (
   value: unknown,
   isSVG = false,
 ) => {
-  if (key === 'class') {
+  if (key === 'ref') {
+    // @ts-expect-error
+    value?.setValue?.(el);
+  } else if (key === 'class') {
     classe(el, value as string | null, isSVG);
   } else if (key === 'style') {
     style(el, value as Style);

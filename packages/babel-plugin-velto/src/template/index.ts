@@ -281,7 +281,7 @@ export default class Template {
       objectMethod(
         "method",
         updateIdentifier,
-        [reactiveIdentifier],
+        [],
         blockStatement(this.updateStatement)
       ),
       objectMethod(
