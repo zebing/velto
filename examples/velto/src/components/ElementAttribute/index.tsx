@@ -10,6 +10,12 @@ export default function ElementAttribute() {
   const hasAttr = ref(true);
   const dom = ref(null);
   const comp = ref(null);
+  const html = `
+  <div>
+  test html
+  <span style="color: green;border: 1px solid blue;">test html</span>
+  </div>
+  `
 
   onCreated(() => {
     console.log('++++++onCreated', dom.value, comp.value)
@@ -25,6 +31,8 @@ export default function ElementAttribute() {
 
   return (
     <div class={styles.blue} ref={dom}>
+      <div innerHTML={html}></div>
+      <div textContent={html}></div>
       <button onClick={() => hasAttr.setValue(!hasAttr.value)}>
         { hasAttr.value ? 'hasAttr' : 'noAttr'}
       </button>

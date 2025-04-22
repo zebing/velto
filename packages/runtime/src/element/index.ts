@@ -13,6 +13,10 @@ export const setAttribute = (
   if (key === 'ref') {
     // @ts-expect-error
     value?.setValue?.(el);
+  } else if (key === 'innerHTML') {
+    el.innerHTML = `${value}`;
+  } else if (key === 'textContent') {
+    el.textContent = `${value}`;
   } else if (key === 'class') {
     classe(el, value as string | null, isSVG);
   } else if (key === 'style') {
