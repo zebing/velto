@@ -29,17 +29,18 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   }
+  const li = list.value.map(({id}) => (
+    <div class={styles.item}>
+      <div>{student.id}</div>
+    </div>
+  ))
   return (
     <div class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
-      <button disabled>test</button>
-      {/* <div>text</div>
+      {/* <button disabled>test</button>
+      <div>text</div> */}
       <div class={styles.list}>
-        {list.value.map(({id}) => (
-            <div class={styles.item}>
-              <div>{student.id}</div>
-            </div>
-          ))}
-      </div> */}
+        {state ? li : 234}
+      </div>
       {/* {state && <div>Logical jsx</div>} */}
       {/* {render}
       <div>List Component</div>

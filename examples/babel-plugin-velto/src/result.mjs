@@ -1,4 +1,4 @@
-import { element as _element2, text as _text2, append as _append, remove as _remove, markRender as _markRender } from "@velto/runtime";
+import { renderList as _renderList, expression as _expression, createElement as _createElement, markRender as _markRender, condition as _condition } from "@velto/runtime";
 import { ref } from "@velto/runtime";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -50,35 +50,19 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   };
+  const li = _renderList(list.value, ({
+    id
+  }, _index, _array) => _markRender(() => {
+    return _createElement("div", {
+      class: styles.item
+    }, [_createElement("div", null, [_expression(student.id)])]);
+  }));
   return _markRender(() => {
-    const _element = _element2("div", {
+    return _createElement("div", {
       class: styles.wrap,
       onClick: i > 6 ? deletefrom10 : undefined
-    });
-    const _element3 = _element2("button", {
-      disabled: true
-    });
-    const _text = _text2("test");
-    return {
-      mount(target, anchor) {
-        _element.mount(target, anchor);
-        _element3.mount(_element.el);
-        _append(_element3.el, _text);
-      },
-      update(reactive) {
-        _element.update({
-          class: styles.wrap,
-          onClick: i > 6 ? deletefrom10 : undefined
-        });
-        _element3.update({
-          disabled: true
-        });
-      },
-      destroy() {
-        _element.destroy();
-        _element3.destroy();
-        _remove(_text);
-      }
-    };
+    }, [_createElement("div", {
+      class: styles.list
+    }, [_condition(state, _expression(li)), _condition(!state, _expression(234))])]);
   });
 }

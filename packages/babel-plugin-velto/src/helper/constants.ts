@@ -2,11 +2,8 @@ export enum RuntimeHelper {
   source = '@velto/runtime',
   markRender = 'markRender',
 
-  component = 'component',
-  element = 'element',
-  text = 'text',
-  remove = 'remove',
-  append = 'append',
+  createElement = 'createElement',
+  fragment = 'fragment',
   expression = 'expression',
   renderList = 'renderList',
   condition = 'condition',

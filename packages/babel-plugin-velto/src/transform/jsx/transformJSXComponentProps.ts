@@ -6,84 +6,91 @@ import {
   Expression,
   SpreadElement,
   spreadElement,
-  objectExpression,
   booleanLiteral,
-} from '@babel/types';
-import { transformJSX } from './transformJSX';
-import Template from '../../template';
-import { TransformJSXChildrenOptions } from '../../types';
+  nullLiteral,
+  variableDeclaration,
+  variableDeclarator,
+} from "@babel/types";
+import { NodePath } from "@babel/traverse";
+import { transformJSXElement } from "./transformJSXElement";
+import { transformJSXFragment } from "./transformJSXFragment";
+import { isEvent } from "@velto/shared";
 
-export function transformJSXComponentProps({ path, template }: TransformJSXChildrenOptions) {
-  const properties: (ObjectProperty | SpreadElement)[] = [];
+export function transformJSXComponentProps(path: NodePath<unknown>[]) {
+  return path.map((attribute): ObjectProperty | SpreadElement => {
+    const { helper } = attribute.state;
 
-  path.forEach((attribute) => {
     // JSXAttribute
     if (attribute.isJSXAttribute()) {
-      const nameLiteral = attribute.get('name').getSource();
-      const value = attribute.get('value');
+      const nameLiteral = attribute.get("name").getSource();
+      const value = attribute.get("value");
 
-      if (
-        value.isJSXElement() // JSXElement <div child=<div></div>></div>
-        || value.isJSXFragment() // JSXFragment <div child=<></>></div>
-      ) {
-        const subRender = new Template({
-          rootPath: template.rootPath,
-        });
-        transformJSX({ path: value, template: subRender, root: true });
-        properties.push(objectProperty(
+      // JSXElement <div child=<div></div>></div>
+      if (value.isJSXElement()) {
+        return objectProperty(
           identifier(nameLiteral),
-          subRender.generate(),
-        ));
+          transformJSXElement(value)
+        );
+
+        // JSXFragment <div child=<></>></div>
+      } else if (value.isJSXFragment()) {
+        return objectProperty(
+          identifier(nameLiteral),
+          transformJSXFragment(value)
+        );
 
         // JSXExpressionContainer
         // {expression}
       } else if (value.isJSXExpressionContainer()) {
-        const expression = value.get('expression');
+        const expression = value.get("expression");
 
         if (
-          expression.isJSXElement() // JSXElement <div child={<div></div>}></div>
-          || expression.isJSXFragment() // JSXFragment <div child={<></>}></div>
+          isEvent(nameLiteral) &&
+          (expression.isFunctionExpression() ||
+            expression.isArrowFunctionExpression())
         ) {
-          const subRender = new Template({
-            rootPath: template.rootPath,
-          });
-          transformJSX({ path: expression, template: subRender, root: true });
-          properties.push(objectProperty(
-            identifier(nameLiteral),
-            subRender.generate(),
-          ));
+          const eventName =
+            helper.rootPath.scope.generateUidIdentifier("handle");
+          helper.bodyStatement.push(
+            variableDeclaration("const", [
+              variableDeclarator(eventName, expression.node as Expression),
+            ])
+          );
+          return objectProperty(identifier(nameLiteral), eventName);
 
+          // JSXElement <div child=<div></div>></div>
+        } else if (expression.isJSXElement()) {
+          return objectProperty(
+            identifier(nameLiteral),
+            transformJSXElement(expression)
+          );
+
+          // JSXFragment <div child=<></>></div>
+        } else if (expression.isJSXFragment()) {
+          return objectProperty(
+            identifier(nameLiteral),
+            transformJSXFragment(expression)
+          );
         } else {
-          properties.push(
-            objectProperty(
-              identifier(nameLiteral),
-              expression.node as Expression,
-            )
+          return objectProperty(
+            identifier(nameLiteral),
+            expression.node as Expression
           );
         }
-        
       } else if (!value.type) {
-        properties.push(
-          objectProperty(
-            identifier(nameLiteral),
-            booleanLiteral(true),
-          )
-        );
+        return objectProperty(identifier(nameLiteral), booleanLiteral(true));
       } else if (value) {
-        properties.push(
-          objectProperty(
-            identifier(nameLiteral),
-            value.node as Expression,
-          )
+        return objectProperty(
+          identifier(nameLiteral),
+          value.node as Expression
         );
+      } else {
+        return objectProperty(identifier(nameLiteral), nullLiteral());
       }
 
       // JSXSpreadAttribute
     } else {
-      properties.push(spreadElement((attribute.node as JSXSpreadAttribute).argument));
+      return spreadElement((attribute.node as JSXSpreadAttribute).argument);
     }
   });
-
-
-  return objectExpression(properties);
 }

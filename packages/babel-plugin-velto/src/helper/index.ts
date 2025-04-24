@@ -1,11 +1,12 @@
-import { Program, Identifier, importDeclaration, identifier, stringLiteral, importSpecifier } from "@babel/types";
+import { Program, Identifier, importDeclaration, identifier, stringLiteral, importSpecifier, Statement } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import { RuntimeHelper } from './constants';
 
 export * from './constants';
 
 export class Helper {
-  private rootPath: NodePath<Program>;
+  public bodyStatement: Statement[] = [];
+  public rootPath: NodePath<Program>;
   private helperNameIdentifierMap = new Map<RuntimeHelper, Identifier>();
   public helperImportDeclaration = importDeclaration([], stringLiteral(RuntimeHelper.source));
 
@@ -16,6 +17,10 @@ export class Helper {
 
   get hasSpecifier() {
     return !!this.helperImportDeclaration.specifiers.length;
+  }
+
+  public pushStatement(statement: Statement) {
+    this.bodyStatement.push(statement);
   }
 
  public getHelperNameIdentifier(name: RuntimeHelper) {
