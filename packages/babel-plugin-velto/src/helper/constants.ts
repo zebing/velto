@@ -4,6 +4,7 @@ export enum RuntimeHelper {
 
   createElement = 'createElement',
   fragment = 'fragment',
+  text='text',
   expression = 'expression',
   renderList = 'renderList',
   condition = 'condition',

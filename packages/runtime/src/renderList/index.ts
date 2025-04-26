@@ -1,14 +1,14 @@
-import type { Render, CompileTemplate } from "../types";
+import type { Render, Template } from "../types";
 import { markRender } from "../utils";
-import { text, append, insert, remove } from "../dom";
+import { createText, append, insert, remove } from "../dom";
 
 interface cachedData {
-  template: CompileTemplate,
+  template: Template,
   anchor: Text,
   item: any,
 }
 
-export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render): Render {
+export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render) {
   let cacheTarget: Element;
   const cached: cachedData[] = [];
 
@@ -30,16 +30,17 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
     }
   }
 
-  return markRender(() => ({
+  return {
     mount: (target: Element, anchor?: Element) => {
       cacheTarget = target;
       list.forEach((_, index) => {
-        const itemAnchor = text('');
+        const itemAnchor = createText('');
         append(target, itemAnchor, anchor);
         create({ list, index, anchor: itemAnchor });
       });
     },
-    update(newList: unknown[]) {
+    update() {
+      const newList = list;
       const newLength = newList.length;
       const cachedLength = cached.length;
       const needAddCachedLength = newLength - cachedLength;
@@ -86,7 +87,7 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
             cachedItem.template.update();
           } else {
             const preItemCached = newCached[newListPreIndex - 1];
-            const itemAnchor = text('');
+            const itemAnchor = createText('');
             if (preItemCached) {
               insert(cacheTarget, itemAnchor, preItemCached.anchor.nextSibling);
             } else {
@@ -126,5 +127,5 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
       });
       cached.length = 0;
     }
-  }));
+  };
 }

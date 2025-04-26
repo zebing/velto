@@ -44,20 +44,24 @@ export function transformJSXComponentProps(path: NodePath<unknown>[]) {
       } else if (value.isJSXExpressionContainer()) {
         const expression = value.get("expression");
 
-        if (
-          isEvent(nameLiteral) &&
-          (expression.isFunctionExpression() ||
-            expression.isArrowFunctionExpression())
-        ) {
-          const eventName =
-            helper.rootPath.scope.generateUidIdentifier("handle");
+        if (isEvent(nameLiteral) && (expression.isFunctionExpression() || expression.isArrowFunctionExpression())) {
+          const eventName = helper.rootPath.scope.generateUidIdentifier("handle");
           helper.bodyStatement.push(
-            variableDeclaration("const", [
-              variableDeclarator(eventName, expression.node as Expression),
-            ])
-          );
-          return objectProperty(identifier(nameLiteral), eventName);
+            variableDeclaration(
+              'const', 
+              [
+                variableDeclarator(
+                  eventName,
+                  expression.node
+                ),
+              ]
+            )
+          )
 
+          return objectProperty(
+            identifier(nameLiteral),
+            eventName,
+          );
           // JSXElement <div child=<div></div>></div>
         } else if (expression.isJSXElement()) {
           return objectProperty(

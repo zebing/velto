@@ -1,10 +1,12 @@
 
 import { isRender, toDisplayString } from "../utils";
-import { insert, remove, text } from "../dom";
-import type { ExpressTemplate } from "../types";
+import { insert, remove, createText } from "../dom";
+import type { Template } from "../types";
+import { Render } from "../types";
 
-export function expression(express: any): ExpressTemplate {
-  if (isRender(express)) return express();
+export function expression(getExpress: () => unknown): Template {
+  let express = getExpress();
+  if (isRender(express)) return (express as Render)();
   
   let cacheTarget: Element;
   let cacheAnchor: Element | Text | undefined;
@@ -12,7 +14,7 @@ export function expression(express: any): ExpressTemplate {
   const update = (express: any) => {
     const content = toDisplayString(express);
     if (!node) {
-      node = text(content);
+      node = createText(content);
       insert(cacheTarget, node, cacheAnchor);
     } else {
       node.nodeValue = content;
@@ -25,7 +27,8 @@ export function expression(express: any): ExpressTemplate {
       cacheAnchor = anchor;
       update(express);
     },
-    update(newExpress: any) {
+    update() {
+      const newExpress = getExpress();
       if (express !== newExpress) {
         update(newExpress);
       }

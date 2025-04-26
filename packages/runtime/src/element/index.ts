@@ -2,7 +2,8 @@ import { isEvent } from "@velto/shared";
 import { append, insert, remove, createElement } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";
-import type { ElementTemplate } from "../types";
+import type { Template } from "../types";
+import { children } from '../children';
 
 export const setAttribute = (
   el: Element,
@@ -30,28 +31,40 @@ export const setAttribute = (
 
 export function element(
   tag: string,
-  props: Record<string, unknown>,
-): ElementTemplate {
+  getProps: null | (() => Record<string, unknown>),
+  childList?: Template[],
+): Template {
+  let props = {} as Record<string, unknown>;
   const el = createElement(tag);
+  const childTemplate = childList?.length ? children(childList) : undefined;
+
   return {
-    el,
     mount: (target: Element, anchor?: Element | Text) => {
       append(target, el, anchor);
-      for (let attr in props) {
-        setAttribute(el, attr, props[attr]);
-      }
-    },
-
-    update(newProps: Record<string, unknown>) {
-      for (let attr in newProps) {
-        if (newProps[attr] !== props?.[attr]) {
-          setAttribute(el, attr, newProps[attr]);
+      if (getProps) {
+        props = getProps();
+        for (let attr in props) {
+          setAttribute(el, attr, props[attr]);
         }
       }
-      props = newProps;
+      childTemplate?.mount(el);
+    },
+
+    update() {
+      if (getProps) {
+        const newProps = getProps();
+        for (let attr in newProps) {
+          if (newProps[attr] !== props[attr]) {
+            setAttribute(el, attr, newProps[attr]);
+          }
+        }
+        props = newProps;
+      }
+      childTemplate?.update();
     },
     destroy() {
       remove(el);
+      childTemplate?.destroy();
     }
   }
 }

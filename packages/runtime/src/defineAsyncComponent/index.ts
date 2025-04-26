@@ -1,8 +1,7 @@
-import { Component } from "../component";
 import { isFunction } from "@velto/shared";
 import { markRender } from "../utils";
-import { CompileTemplate } from "../types";
-import { text, append } from "../dom";
+import { Template, Component } from "../types";
+import { createText, append } from "../dom";
 
 export type AsyncComponentResolveResult<T = Component> = T | { default: T };
 
@@ -37,10 +36,10 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
   } = source;
 
   let retries = 0;
-  let componentTemplate: CompileTemplate | undefined;
+  let componentTemplate: Template | undefined;
   let props: Record<string, unknown> = {};
   let cacheTarget: Element;
-  const cacheAnchor = text(" ");
+  const cacheAnchor = createText(" ");
 
   const renderComponent = <T extends Record<string, unknown>>(currentComponent?: Component<T>, props: T = {} as T) => {
     componentTemplate?.destroy();

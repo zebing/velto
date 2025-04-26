@@ -3,6 +3,7 @@ import {
   onBeforeDestroy, onDestroyed,
 } from "@velto/runtime"
 import Test from "./components/Test";
+import Event from "./components/Event";
 import LogicalExpression from "./components/LogicalExpression";
 import ConditionalExpression from "./components/ConditionalExpression";
 import List from "./components/List";
@@ -37,8 +38,9 @@ export default function App() {
   })
   return (
     <div name={'name'}>
+      <Event />
       <ElementAttribute />
-      {/* {true ? <Test /> : null}
+      {true ? <Test /> : null}
       <div>test</div>
       <AsyncComponent />
       <LogicalExpression>
@@ -46,9 +48,9 @@ export default function App() {
       </LogicalExpression>
       <ConditionalExpression>
         <Test />
-      </ConditionalExpression> */}
+      </ConditionalExpression>
       <List />
-      {/* <ParentChild /> */}
+      <ParentChild />
     </div>
   )
 }

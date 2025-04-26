@@ -6,6 +6,7 @@ import {
   isIdentifier,
   callExpression,
   CallExpression,
+  arrowFunctionExpression,
 } from "@babel/types";
 import { transformJSXConditionalExpression } from "./transformJSXConditionalExpression";
 import { transformJSXLogicalExpression } from "./transformJSXLogicalExpression";
@@ -26,11 +27,19 @@ export function transformJSXConsequentExpression(
 
   if (consequent.isJSXElement()) {
     expressionList.push(
-      getCoditionCallExpression(id, test, transformJSXElement(consequent))
+      getCoditionCallExpression(
+        id,
+        arrowFunctionExpression([], test),
+        transformJSXElement(consequent)
+      )
     );
   } else if (consequent.isJSXFragment()) {
     expressionList.push(
-      getCoditionCallExpression(id, test, transformJSXFragment(consequent))
+      getCoditionCallExpression(
+        id,
+        arrowFunctionExpression([], test),
+        transformJSXFragment(consequent)
+      )
     );
 
     // ConditionalExpression
@@ -38,7 +47,13 @@ export function transformJSXConsequentExpression(
   } else if (consequent.isConditionalExpression()) {
     const expressList = transformJSXConditionalExpression(consequent, test);
     expressList.forEach((express) => {
-      expressionList.push(getCoditionCallExpression(id, test, express));
+      expressionList.push(
+        getCoditionCallExpression(
+          id,
+          arrowFunctionExpression([], test),
+          express
+        )
+      );
     });
 
     // LogicalExpression
@@ -46,14 +61,24 @@ export function transformJSXConsequentExpression(
   } else if (consequent.isLogicalExpression()) {
     const expressList = transformJSXLogicalExpression(consequent, test);
     expressList.forEach((express) => {
-      expressionList.push(getCoditionCallExpression(id, test, express));
+      expressionList.push(
+        getCoditionCallExpression(
+          id,
+          arrowFunctionExpression([], test),
+          express
+        )
+      );
     });
   } else if (
     !isNullLiteral(consequent.node) &&
     !(isIdentifier(consequent.node) && consequent.node.name === "undefined")
   ) {
     expressionList.push(
-      getCoditionCallExpression(id, test, transformJSXExpression(consequent))
+      getCoditionCallExpression(
+        id,
+        arrowFunctionExpression([], test),
+        transformJSXExpression(consequent)
+      )
     );
   }
 

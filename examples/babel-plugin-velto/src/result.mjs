@@ -1,4 +1,4 @@
-import { renderList as _renderList, expression as _expression, createElement as _createElement, markRender as _markRender, condition as _condition } from "@velto/runtime";
+import { renderList as _renderList, expression as _expression, createElement as _createElement, markRender as _markRender, text as _text, condition as _condition } from "@velto/runtime";
 import { ref } from "@velto/runtime";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -53,16 +53,16 @@ export default function List() {
   const li = _renderList(list.value, ({
     id
   }, _index, _array) => _markRender(() => {
-    return _createElement("div", {
+    return _createElement("div", () => ({
       class: styles.item
-    }, [_createElement("div", null, [_expression(student.id)])]);
+    }), [_createElement("div", null, [_expression(() => student.id)])]);
   }));
   return _markRender(() => {
-    return _createElement("div", {
+    return _createElement("div", () => ({
       class: styles.wrap,
       onClick: i > 6 ? deletefrom10 : undefined
-    }, [_createElement("div", {
+    }), [_createElement("Text", null, [_createElement("div", null, [_text("text")])]), _createElement("div", () => ({
       class: styles.list
-    }, [_condition(state, _expression(li)), _condition(!state, _expression(234))])]);
+    }), [_condition(() => state, _expression(() => li)), _condition(() => !state, _expression(() => 234))]), _expression(() => render)]);
   });
 }

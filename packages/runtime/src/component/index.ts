@@ -1,12 +1,9 @@
 import { LifecycleHooks, callHook } from "./lifecycle";
 import { Effect } from "@velto/reactive";
-import type { Render, CompileTemplate } from "../types";
+import type { LifecycleHook, Component, Template } from "../types";
 import { omit } from "@velto/shared";
 
 export * from "./lifecycle";
-
-export type Component<T = Record<string, unknown>> = (init: T) => Render;
-export type LifecycleHook<TFn = () => void> = TFn[] | null;
 
 export interface Props {
   [key: string]: unknown,
@@ -16,7 +13,7 @@ export interface ComponentInstance {
   uid: number;
   type: Component;
   props: Props;
-  template: CompileTemplate;
+  template: Template;
   target: Element;
   anchor?: Element;
 
@@ -102,6 +99,9 @@ export function component(type: Component, props: Props) {
       instance.target = target;
       instance.anchor = anchor;
       effect.run();
+    },
+    update() {
+
     },
 
     destroy() {

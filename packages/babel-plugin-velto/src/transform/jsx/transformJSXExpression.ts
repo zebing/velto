@@ -1,4 +1,4 @@
-import { callExpression, Expression } from "@babel/types";
+import { callExpression, Expression, arrowFunctionExpression } from "@babel/types";
 import { RuntimeHelper } from "../../helper";
 import { NodePath } from "@babel/traverse";
 import { getRenderList } from "../../utils";
@@ -12,6 +12,6 @@ export function transformJSXExpression(path: NodePath<Expression>) {
 
   return callExpression(
     path.state.helper.getHelperNameIdentifier(RuntimeHelper.expression),
-    [path.node as Expression]
+    [arrowFunctionExpression([], path.node as Expression)]
   );
 }

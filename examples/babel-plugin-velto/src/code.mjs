@@ -36,14 +36,16 @@ export default function List() {
   ))
   return (
     <div class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
-      {/* <button disabled>test</button>
-      <div>text</div> */}
+      {/* <button disabled>test</button> */}
+      <Text>
+        <div>text</div>
+      </Text>
       <div class={styles.list}>
         {state ? li : 234}
       </div>
       {/* {state && <div>Logical jsx</div>} */}
-      {/* {render}
-      <div>List Component</div>
+      {render}
+      {/* <div>List Component</div>
       <button onClick={unshift}>unshift</button>
       <button onClick={append}>append</button>
       <button onClick={insert}>insert</button>

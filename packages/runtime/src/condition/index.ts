@@ -1,24 +1,26 @@
-import type { ConditionTemplate, ExpressTemplate } from "../types";
-import { text, append } from "../dom";
+import type { Template } from "../types";
+import { createText, append } from "../dom";
 
-export function condition(template: ExpressTemplate, initCondition: boolean): ConditionTemplate {
+export function condition(getCondition: () => boolean, template: Template): Template {
   let cacheTarget: Element;
   let cacheAnchor: Element | Text | undefined;
+  let conditionValue = getCondition();
 
   return {
     mount: (target: Element, anchor?: Element | Text) => {
       cacheTarget = target;
-      cacheAnchor = text(" ");
+      cacheAnchor = createText(" ");
       append(target, cacheAnchor);
-      initCondition && template.mount(target, cacheAnchor);
+      conditionValue && template.mount(target, cacheAnchor);
     },
-    update(newCondition: boolean, newExpress: any) {
-      if (newCondition !== initCondition) {
-        newCondition ? template.mount(cacheTarget, cacheAnchor) : template.destroy();
+    update() {
+      const newConditionValue = getCondition();
+      if (newConditionValue !== conditionValue) {
+        newConditionValue ? template.mount(cacheTarget, cacheAnchor) : template.destroy();
       } else {
-        newCondition ? template.update(newExpress) : template.destroy();
+        newConditionValue ? template.update() : template.destroy();
       }
-      initCondition = newCondition;
+      conditionValue = newConditionValue;
     },
     destroy: () => {
       template.destroy();

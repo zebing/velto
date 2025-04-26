@@ -5,7 +5,7 @@ import {
 
 import styles from "./styles.module.scss";
 
-export default function Test() {
+export default function Event() {
   const computedRef = ref('computed');
   const style = ref<string>(styles.blue)
   const state = ref<{name: string}>({
@@ -13,7 +13,6 @@ export default function Test() {
   })
   console.log(style.value, state.value.name)
   const name: string = 'name';
-  const hasEvent = ref(false);
 
   const compuedValue = computed(() => {
     return computedRef.value + ' computed';
@@ -22,41 +21,9 @@ export default function Test() {
   watch([state, style], (value, oldValue) => {
     console.log('++++watch', value, oldValue)
   }, { immediate: false, once: true })
-  onCreated(() => {
-    console.log('+++++Test onCreated')
-  })
-  onBeforeMount(() => {
-    console.log('+++++Test onBeforeMount')
-  })
-  onMounted(() => {
-    console.log('+++++Test onMounted')
-  })
-  onBeforeUpdate(() => {
-    console.log('+++++Test onBeforeUpdate')
-  })
-  onUpdated(() => {
-    console.log('+++++Test onUpdated', state, style)
-  })
-  onBeforeDestroy(() => {
-    console.log('+++++Test onBeforeDestroy')
-  })
-  onDestroyed(() => {
-    console.log('+++++Test onDestroyed')
-  })
-  const click = () => {
-    console.log('+++++++click')
-    state.setValue({
-      name: 'new name' + Math.random()
-    });
-    style.setValue(styles.green);
-  }
 
   return (
     <div name="name" state={name} class={style.value}>
-      <button onClick={() => hasEvent.setValue(!hasEvent.value)}>
-        { hasEvent.value ? 'hasEvent' : 'noEvent'}
-      </button>
-      <div onClick={hasEvent.value ? click : undefined}>change name</div>
       <div onClick={() =>{
         computedRef.setValue('new computed' + Math.random())
         console.log('++++computedRef', compuedValue)

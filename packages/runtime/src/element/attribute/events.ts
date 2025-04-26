@@ -15,7 +15,6 @@ export default function event(
   }
 
   const oldEventValue = elEventMap[eventName];
-
   if (oldEventValue === value) {
     return;
   }
