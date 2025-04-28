@@ -1,15 +1,24 @@
 import { JSXExpressionContainer, JSXSpreadChild, Expression } from '@babel/types';
 import { TransformJSXOptions } from '../../types';
-import { getParentId } from '../parentId';
+import { getRenderList } from "../../utils";
 
 export function transformJSXExpression({
-  path, template,
+  path, template, target, anchor,
 }: TransformJSXOptions<JSXExpressionContainer | JSXSpreadChild>) {
   const expression = path.get('expression');
-  const parentId = getParentId(expression);
+  const renderListExpression = getRenderList(expression.node as Expression, expression);
+
+  if (renderListExpression) {
+    return template.renderList({
+      express: renderListExpression,
+      target,
+      anchor,
+    })
+  }
 
   template.expression({
-    target: parentId,
     express: expression.node as Expression,
+    target,
+    anchor,
   });
 }

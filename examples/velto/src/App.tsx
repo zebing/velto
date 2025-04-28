@@ -10,8 +10,6 @@ import ParentChild from "./components/ParentChild";
 import AsyncComponent from "./components/AsyncComponent";
 import ElementAttribute from './components/ElementAttribute'
 
-
-
 export default function App() {
   const name: string = 'name';
   onCreated(() => {
@@ -38,7 +36,7 @@ export default function App() {
   return (
     <div name={'name'}>
       <ElementAttribute />
-      {/* {true ? <Test /> : null}
+      {true ? <Test /> : null}
       <div>test</div>
       <AsyncComponent />
       <LogicalExpression>
@@ -46,9 +44,9 @@ export default function App() {
       </LogicalExpression>
       <ConditionalExpression>
         <Test />
-      </ConditionalExpression> */}
+      </ConditionalExpression>
       <List />
-      {/* <ParentChild /> */}
+      <ParentChild />
     </div>
   )
 }

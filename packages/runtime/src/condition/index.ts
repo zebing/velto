@@ -9,7 +9,7 @@ export function condition(template: ExpressTemplate, initCondition: boolean): Co
     mount: (target: Element, anchor?: Element | Text) => {
       cacheTarget = target;
       cacheAnchor = text(" ");
-      append(target, cacheAnchor);
+      append(target, cacheAnchor, anchor);
       initCondition && template.mount(target, cacheAnchor);
     },
     update(newCondition: boolean, newExpress: any) {

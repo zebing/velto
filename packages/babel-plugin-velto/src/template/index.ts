@@ -28,6 +28,7 @@ import {
   isJSXElement,
   isJSXFragment,
   isObjectProperty,
+  MemberExpression,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import {
@@ -44,8 +45,9 @@ import {
   getExpressionStatement,
   getVariableDeclaration,
 } from "../utils";
-import { getExpressionUpdateStatement, getRenderList } from "./util";
+import { getExpressionUpdateStatement } from "./util";
 import { isEvent } from "@velto/shared";
+import { getRenderList } from "../utils";
 
 export interface RenderOption {
   rootPath: NodePath<any>;
@@ -69,7 +71,7 @@ export default class Template {
     elementId: Identifier;
     tag: string;
     props: ObjectExpression;
-    target: Identifier;
+    target: Identifier | MemberExpression;
     anchor?: Identifier;
   }) {
     const {
@@ -135,7 +137,7 @@ export default class Template {
 
   public text(options: {
     str: StringLiteral;
-    target: Identifier;
+    target: Identifier | MemberExpression;
     anchor?: Identifier;
   }): Identifier {
     const { str, target, anchor } = options;
@@ -169,7 +171,7 @@ export default class Template {
   public component(options: {
     tag: string;
     props: ObjectExpression;
-    target: Identifier;
+    target: Identifier | MemberExpression;
     anchor?: Identifier;
   }): Identifier {
     const {
@@ -201,11 +203,11 @@ export default class Template {
     return id;
   }
 
-  public expression(options: {
+  public condition(options: {
     express: Expression;
-    target: Identifier;
+    test: Expression;
+    target: Identifier | MemberExpression;
     anchor?: Identifier;
-    test?: Expression;
   }): Identifier {
     const {
       express,
@@ -214,52 +216,35 @@ export default class Template {
       test,
     } = options;
     const expressId = this.rootPath.scope.generateUidIdentifier("express");
-    const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
-    let renderListId: Identifier | undefined;
-    let id = expressId;
 
-    const renderListExpression = getRenderList(express, this.rootPath);
-    if (renderListExpression) {
-      renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
-      this.bodyStatement.push(
-        variableDeclaration("const", [
-          variableDeclarator(renderListId, renderListExpression),
-        ])
-      );
-    }
+    this.bodyStatement.push(
+      getVariableDeclaration(
+        expressId,
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.expression),
+        [express]
+      )
+    );
+    const id = this.rootPath.scope.generateUidIdentifier("condition");
 
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
-        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.expression),
-        [renderListId || express]
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.condition),
+        [expressId, test]
       )
     );
-
-    if (test) {
-      id = conditionId;
-      this.bodyStatement.push(
-        getVariableDeclaration(
-          id,
-          this.pathState.helper.getHelperNameIdentifier(
-            RuntimeHelper.condition
-          ),
-          [expressId, test]
-        )
-      );
-      this.updateStatement.push(
-        getExpressionUpdateStatement(id, test, express, renderListId)
-      );
-    } else {
-      this.updateStatement.push(
-        getExpressionUpdateStatement(id, undefined, express, renderListId)
-      );
-    }
 
     this.mountStatement.push(
       getExpressionStatement(
         memberExpression(id, mountIdentifier),
         [target, anchor].filter(Boolean) as Identifier[]
+      )
+    );
+
+    this.updateStatement.push(
+      getExpressionStatement(
+        memberExpression(id, updateIdentifier),
+        [test, express],
       )
     );
 
@@ -269,6 +254,154 @@ export default class Template {
 
     return id;
   }
+
+  public expression(options: {
+    express: Expression;
+    target: Identifier | MemberExpression;
+    anchor?: Identifier;
+  }): Identifier {
+    const {
+      express,
+      target = targetIdentifier,
+      anchor,
+    } = options;
+    const id = this.rootPath.scope.generateUidIdentifier("express");
+
+    this.bodyStatement.push(
+      getVariableDeclaration(
+        id,
+        this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.expression),
+        [express]
+      )
+    );
+
+    this.mountStatement.push(
+      getExpressionStatement(
+        memberExpression(id, mountIdentifier),
+        [target, anchor].filter(Boolean) as Identifier[]
+      )
+    );
+
+    this.updateStatement.push(
+      getExpressionStatement(
+        memberExpression(id, updateIdentifier),
+        [express],
+      )
+    );
+
+    this.destroyStatement.push(
+      getExpressionStatement(memberExpression(id, destroyIdentifier), [])
+    );
+
+    return id;
+  }
+
+  public renderList(options: {
+    express: Expression;
+    target: Identifier | MemberExpression;
+    anchor?: Identifier;
+  }): Identifier {
+    const {
+      express,
+      target = targetIdentifier,
+      anchor,
+    } = options;
+    const id = this.rootPath.scope.generateUidIdentifier("renderList");
+    this.bodyStatement.push(
+      variableDeclaration("const", [
+        variableDeclarator(id, express),
+      ])
+    );
+
+    this.mountStatement.push(
+      getExpressionStatement(
+        memberExpression(id, mountIdentifier),
+        [target, anchor].filter(Boolean) as Identifier[]
+      )
+    );
+
+    this.updateStatement.push(
+      getExpressionStatement(
+        memberExpression(id, updateIdentifier),
+        [(express as CallExpression).arguments[0] as Expression],
+      )
+    );
+
+    this.destroyStatement.push(
+      getExpressionStatement(memberExpression(id, destroyIdentifier), [])
+    );
+
+    return id;
+  }
+
+  // public expression(options: {
+  //   express: Expression;
+  //   target: Identifier | MemberExpression;
+  //   anchor?: Identifier;
+  //   test?: Expression;
+  // }): Identifier {
+  //   const {
+  //     express,
+  //     target = targetIdentifier,
+  //     anchor,
+  //     test,
+  //   } = options;
+  //   const expressId = this.rootPath.scope.generateUidIdentifier("express");
+  //   const conditionId = this.rootPath.scope.generateUidIdentifier("condition");
+  //   let renderListId: Identifier | undefined;
+  //   let id = expressId;
+
+  //   const renderListExpression = getRenderList(express, this.rootPath);
+  //   if (renderListExpression) {
+  //     renderListId = this.rootPath.scope.generateUidIdentifier("renderList");
+  //     this.bodyStatement.push(
+  //       variableDeclaration("const", [
+  //         variableDeclarator(renderListId, renderListExpression),
+  //       ])
+  //     );
+  //   }
+
+  //   this.bodyStatement.push(
+  //     getVariableDeclaration(
+  //       id,
+  //       this.pathState.helper.getHelperNameIdentifier(RuntimeHelper.expression),
+  //       [renderListId || express]
+  //     )
+  //   );
+
+  //   if (test) {
+  //     id = conditionId;
+  //     this.bodyStatement.push(
+  //       getVariableDeclaration(
+  //         id,
+  //         this.pathState.helper.getHelperNameIdentifier(
+  //           RuntimeHelper.condition
+  //         ),
+  //         [expressId, test]
+  //       )
+  //     );
+  //     this.updateStatement.push(
+  //       getExpressionUpdateStatement(id, test, express, renderListId)
+  //     );
+  //   } else {
+  //     this.updateStatement.push(
+  //       getExpressionUpdateStatement(id, undefined, express, renderListId)
+  //     );
+  //   }
+
+  //   this.mountStatement.push(
+  //     getExpressionStatement(
+  //       memberExpression(id, mountIdentifier),
+  //       [target, anchor].filter(Boolean) as Identifier[]
+  //     )
+  //   );
+
+  //   this.destroyStatement.push(
+  //     getExpressionStatement(memberExpression(id, destroyIdentifier), [])
+  //   );
+
+  //   return id;
+  // }
 
   private getTemplateExpression() {
     return objectExpression([

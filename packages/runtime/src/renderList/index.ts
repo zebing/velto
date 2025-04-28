@@ -1,4 +1,4 @@
-import type { Render, CompileTemplate } from "../types";
+import type { Render, CompileTemplate, RenderListTemplate } from "../types";
 import { markRender } from "../utils";
 import { text, append, insert, remove } from "../dom";
 
@@ -8,7 +8,7 @@ interface cachedData {
   item: any,
 }
 
-export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render): Render {
+export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render): RenderListTemplate {
   let cacheTarget: Element;
   const cached: cachedData[] = [];
 
@@ -30,8 +30,8 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
     }
   }
 
-  return markRender(() => ({
-    mount: (target: Element, anchor?: Element) => {
+  return {
+    mount: (target: Element, anchor?: Element | Text) => {
       cacheTarget = target;
       list.forEach((_, index) => {
         const itemAnchor = text('');
@@ -126,5 +126,5 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
       });
       cached.length = 0;
     }
-  }));
+  };
 }

@@ -9,6 +9,8 @@ import {
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 
+export * from './getRenderList';
+
 export function getTagLiteral(path: NodePath<JSXOpeningElement>) {
   const namePath = path.get("name");
   return namePath.getSource();

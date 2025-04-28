@@ -1,29 +1,43 @@
 import { NodePath } from '@babel/core';
-import { Expression, Identifier, isNullLiteral, isIdentifier } from '@babel/types';
-import  { transformJSX } from './transformJSX';
+import { Expression, Identifier, isNullLiteral, isIdentifier, MemberExpression } from '@babel/types';
+import  { transformJSXElement } from './transformJSXElement';
+import  { transformJSXFragment } from './transformJSXFragment';
 import Template from '../../template';
-import { getParentId } from '../parentId';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
+import { targetIdentifier, anchorIdentifier } from '../../constants';
 
 export function transformJSXConsequentExpression(options: {
   test: Expression;
   consequent: NodePath<Expression>;
   template: Template;
+  target: Identifier | MemberExpression;
+  anchor?: Identifier;
 }) {
-  const { test, consequent, template } = options;
-  const target = getParentId(consequent);
-
-  if (consequent.isJSXElement() || consequent.isJSXFragment()) {
+  const { test, consequent, template, target, anchor } = options;
+  if (consequent.isJSXElement()) {
     const subRender = new Template({
       rootPath: template.rootPath,
     });
     
-    transformJSX({ path: consequent, template: subRender, root: true });
-    template.expression({
+    transformJSXElement({ path: consequent, template: subRender, target: targetIdentifier, anchor: anchorIdentifier });
+    template.condition({
       express: subRender.generate(),
       target,
       test,
+      anchor,
+    });
+  } else if (consequent.isJSXFragment()) {
+    const subRender = new Template({
+      rootPath: template.rootPath,
+    });
+    
+    transformJSXFragment({ path: consequent, template: subRender, target: targetIdentifier, anchor: anchorIdentifier });
+    template.condition({
+      express: subRender.generate(),
+      target,
+      test,
+      anchor,
     });
 
     // ConditionalExpression
@@ -33,6 +47,8 @@ export function transformJSXConsequentExpression(options: {
       path: consequent,
       template,
       test,
+      target,
+      anchor,
     });
 
     // LogicalExpression
@@ -42,16 +58,19 @@ export function transformJSXConsequentExpression(options: {
       path: consequent,
       template,
       test,
+      target,
+      anchor,
     });
 
   } else if (
     !isNullLiteral(consequent.node) && 
     !(isIdentifier(consequent.node) && consequent.node.name === 'undefined')
   ) {
-    template.expression({
+    template.condition({
       express: consequent.node,
       target,
       test,
+      anchor,
     });
   }
 }

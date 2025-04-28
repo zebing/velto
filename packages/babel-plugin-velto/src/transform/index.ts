@@ -1,1 +1,2 @@
-export * from './jsx/transformJSX';
+export * from './jsx/transformJSXFragment';
+export * from './jsx/transformJSXElement';
