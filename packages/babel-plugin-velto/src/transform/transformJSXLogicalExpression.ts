@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import { Identifier, MemberExpression, LogicalExpression, Expression, binaryExpression } from '@babel/types';
 import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
-import Template from '../../template';
+import Template from '../template';
 
 export function transformJSXLogicalExpression({ path, template, test, target, anchor }: {
   path: NodePath<LogicalExpression>;

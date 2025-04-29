@@ -6,7 +6,7 @@ import {
   JSXText,
   stringLiteral,
 } from '@babel/types';
-import { TransformJSXChildrenOptions } from '../../types';
+import { TransformJSXChildrenOptions } from '../types';
 import { transformJSXElement } from './transformJSXElement';
 import { transformJSXFragment } from './transformJSXFragment';
 import { transformJSXExpression } from './transformJSXExpression';

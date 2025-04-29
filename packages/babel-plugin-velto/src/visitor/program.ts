@@ -6,7 +6,7 @@ import { NodePathState } from '../types';
 export default {
   enter(path: NodePath<Program>) {
     path.state = {} as NodePathState;
-    path.state.helper = new Helper({ rootPath: path });
+    path.state.helper = new Helper(path);
   },
   exit(path: NodePath<Program>) {
     const state = path.state as NodePathState;

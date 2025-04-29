@@ -7,11 +7,6 @@ export interface NodePathState {
   helper: Helper;
 };
 
-export interface NodePathData {
-  parentId: Identifier;
-  reactiveList: Identifier[];
-};
-
 export interface TransformJSXOptions<T = any> {
   path: NodePath<T>;
   template: Template;

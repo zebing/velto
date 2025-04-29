@@ -11,9 +11,10 @@ import {
 } from "@babel/types";
 import { transformJSXElement } from "./transformJSXElement";
 import { transformJSXFragment } from "./transformJSXFragment";
-import Template from "../../template";
-import { TransformJSXChildrenOptions } from "../../types";
-import { anchorIdentifier, targetIdentifier } from "../../constants";
+import Template from "../template";
+import { TransformJSXChildrenOptions } from "../types";
+import { anchorIdentifier, targetIdentifier } from "../constants";
+import { isEvent } from "@velto/shared";
 
 export function transformJSXComponentProps({
   path,
@@ -29,9 +30,7 @@ export function transformJSXComponentProps({
 
       // JSXFragment <div child=<></>></div>
       if (value.isJSXFragment()) {
-        const subRender = new Template({
-          rootPath: template.rootPath,
-        });
+        const subRender = new Template(template.helper);
         transformJSXFragment({
           path: value,
           template: subRender,
@@ -44,9 +43,7 @@ export function transformJSXComponentProps({
 
         // JSXElement <div child=<div></div>></div>
       } else if (value.isJSXElement()) {
-        const subRender = new Template({
-          rootPath: template.rootPath,
-        });
+        const subRender = new Template(template.helper);
         transformJSXElement({
           path: value,
           template: subRender,
@@ -62,11 +59,19 @@ export function transformJSXComponentProps({
       } else if (value.isJSXExpressionContainer()) {
         const expression = value.get("expression");
 
+        if (isEvent(nameLiteral) && (expression.isFunctionExpression() || expression.isArrowFunctionExpression())) {
+          const eventName = template.hoistHandle(expression.node);
+
+          properties.push(
+            objectProperty(
+              identifier(nameLiteral),
+              eventName,
+            )
+          );
+
         // JSXFragment <div child=<></>></div>
-        if (expression.isJSXFragment()) {
-          const subRender = new Template({
-            rootPath: template.rootPath,
-          });
+        } else if (expression.isJSXFragment()) {
+          const subRender = new Template(template.helper);
           transformJSXFragment({
             path: expression,
             template: subRender,
@@ -79,9 +84,7 @@ export function transformJSXComponentProps({
 
           // JSXElement <div child=<div></div>></div>
         } else if (expression.isJSXElement()) {
-          const subRender = new Template({
-            rootPath: template.rootPath,
-          });
+          const subRender = new Template(template.helper);
           transformJSXElement({
             path: expression,
             template: subRender,

@@ -5,14 +5,12 @@ import { transformJSXFragment } from "../transform";
 import { targetIdentifier, anchorIdentifier } from "../constants";
 
 export default function JSXFragment(path: NodePath<JSXFragment>) {
-  const template = new Template({
-    rootPath: path,
-  });
+  const template = new Template(path.state.helper);
   transformJSXFragment({
     path,
     template,
     target: targetIdentifier,
     anchor: anchorIdentifier,
   });
-  template.replace();
+  path.replaceWith(template.generate());
 }

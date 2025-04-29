@@ -5,14 +5,10 @@ import { RuntimeHelper } from './constants';
 export * from './constants';
 
 export class Helper {
-  private rootPath: NodePath<Program>;
   private helperNameIdentifierMap = new Map<RuntimeHelper, Identifier>();
   public helperImportDeclaration = importDeclaration([], stringLiteral(RuntimeHelper.source));
 
-  constructor(options: { rootPath: NodePath<Program> }) {
-    const { rootPath } = options;
-    this.rootPath = rootPath;
-  }
+  constructor(public rootPath: NodePath<Program>) {}
 
   get hasSpecifier() {
     return !!this.helperImportDeclaration.specifiers.length;

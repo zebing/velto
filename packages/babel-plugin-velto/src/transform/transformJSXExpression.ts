@@ -1,6 +1,6 @@
 import { JSXExpressionContainer, JSXSpreadChild, Expression } from '@babel/types';
-import { TransformJSXOptions } from '../../types';
-import { getRenderList } from "../../utils";
+import { TransformJSXOptions } from '../types';
+import { getRenderList } from "../utils";
 
 export function transformJSXExpression({
   path, template, target, anchor,

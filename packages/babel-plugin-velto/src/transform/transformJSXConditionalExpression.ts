@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import { Identifier, MemberExpression, ConditionalExpression, unaryExpression, Expression, binaryExpression } from '@babel/types';
 import { transformJSXConsequentExpression } from './transformJSXConsequentExpression';
-import Template from '../../template';
+import Template from '../template';
 
 export function transformJSXConditionalExpression({ path, template, test, target, anchor }: {
   path: NodePath<ConditionalExpression>;
