@@ -1,14 +1,14 @@
 import type { ConditionTemplate, ExpressTemplate } from "../types";
-import { text, append } from "../dom";
+import { comment, append } from "../dom";
 
 export function condition(template: ExpressTemplate, initCondition: boolean): ConditionTemplate {
   let cacheTarget: Element;
-  let cacheAnchor: Element | Text | undefined;
+  let cacheAnchor: Element | Comment | undefined;
 
   return {
-    mount: (target: Element, anchor?: Element | Text) => {
+    mount: (target, anchor) => {
       cacheTarget = target;
-      cacheAnchor = text(" ");
+      cacheAnchor = comment('');
       append(target, cacheAnchor, anchor);
       initCondition && template.mount(target, cacheAnchor);
     },

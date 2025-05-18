@@ -1,21 +1,22 @@
 import type { Render, CompileTemplate, RenderListTemplate } from "../types";
-import { markRender } from "../utils";
-import { text, append, insert, remove } from "../dom";
+import { comment, append, insert, remove } from "../dom";
 
 interface cachedData {
   template: CompileTemplate,
-  anchor: Text,
   item: any,
+  lastElement: Element | null;
 }
 
 export function renderList(list: unknown[] = [], renderCallback: (value: any, index: number, array: any[]) => Render): RenderListTemplate {
   let cacheTarget: Element;
+  const startAnchor = comment('[');
+  const endAnchor = comment(']');
   const cached: cachedData[] = [];
 
   const create = (options: {
     list: unknown[];
     index: number;
-    anchor: Text;
+    anchor: Element | Comment;
   }) => {
     const { list, index, anchor } = options;
     const item = list[index];
@@ -25,18 +26,19 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
     template.mount(cacheTarget, anchor);
     cached[index] = {
       template,
-      anchor,
       item,
+      lastElement: anchor.previousElementSibling,
     }
   }
 
   return {
-    mount: (target: Element, anchor?: Element | Text) => {
+    mount: (target, anchor) => {
       cacheTarget = target;
+      append(target, startAnchor, anchor);
+      append(target, endAnchor, anchor);
+
       list.forEach((_, index) => {
-        const itemAnchor = text('');
-        append(target, itemAnchor, anchor);
-        create({ list, index, anchor: itemAnchor });
+        create({ list, index, anchor: endAnchor });
       });
     },
     update(newList: unknown[]) {
@@ -86,13 +88,11 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
             cachedItem.template.update();
           } else {
             const preItemCached = newCached[newListPreIndex - 1];
-            const itemAnchor = text('');
             if (preItemCached) {
-              insert(cacheTarget, itemAnchor, preItemCached.anchor.nextSibling);
+              create({ list: newList, index: newListPreIndex, anchor: preItemCached.lastElement?.nextSibling as Element });
             } else {
-              insert(cacheTarget, itemAnchor, cacheTarget.firstChild);
+              create({ list: newList, index: newListPreIndex, anchor: startAnchor.nextSibling as Element });
             }
-            create({ list: newList, index: newListPreIndex, anchor: itemAnchor });
           }
         }
       } else if (needAddCachedLength < 0) {
@@ -106,7 +106,6 @@ export function renderList(list: unknown[] = [], renderCallback: (value: any, in
             cachedItem.template.update();
           } else {
             cachedItem.template.destroy();
-            remove(cachedItem.anchor);
 
             if (startIndex === -1) {
               startIndex = cachedPreIndex;

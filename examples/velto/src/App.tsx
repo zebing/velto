@@ -35,7 +35,7 @@ export default function App() {
   })
   return (
     <div name={'name'}>
-      <ElementAttribute />
+      {/* <ElementAttribute />
       {true ? <Test /> : null}
       <div>test</div>
       <AsyncComponent />
@@ -44,9 +44,9 @@ export default function App() {
       </LogicalExpression>
       <ConditionalExpression>
         <Test />
-      </ConditionalExpression>
+      </ConditionalExpression> */}
       <List />
-      <ParentChild />
+      {/* <ParentChild /> */}
     </div>
   )
 }

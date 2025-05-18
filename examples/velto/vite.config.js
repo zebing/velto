@@ -29,8 +29,8 @@ function vitePluginLite() {
         root: projectRoot,
         filename: id,
         sourceFileName: id,
-        presets: ['@babel/preset-typescript'],
-        plugins: [velto],
+        presets: [],
+        plugins: [velto, ['@babel/plugin-transform-typescript', { isTSX: true, allowExtensions: true }]],
         ast: false,
         sourceMaps: true,
       });

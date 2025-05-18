@@ -19,9 +19,9 @@ export default function List() {
   const unshift = () => {
     // list.value[0].name = 'name'
     for(let j = 0; j < 2; j++) {
-      list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+      // list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     }
-    // list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
+    list.value.unshift({ id: i++, name: '小丽 unshift', grade: '一年级', age: 8 });
     list.setValue(list.value)
   }
 

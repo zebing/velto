@@ -2,7 +2,7 @@ import { Component } from "../component";
 import { isFunction } from "@velto/shared";
 import { markRender } from "../utils";
 import { CompileTemplate } from "../types";
-import { text, append } from "../dom";
+import { comment, append } from "../dom";
 
 export type AsyncComponentResolveResult<T = Component> = T | { default: T };
 
@@ -40,7 +40,7 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
   let componentTemplate: CompileTemplate | undefined;
   let props: Record<string, unknown> = {};
   let cacheTarget: Element;
-  const cacheAnchor = text(" ");
+  const cacheAnchor = comment(" ");
 
   const renderComponent = <T extends Record<string, unknown>>(currentComponent?: Component<T>, props: T = {} as T) => {
     componentTemplate?.destroy();

@@ -1,5 +1,5 @@
 interface Template {
-  mount: (target: Element, anchor?: Element | Text) => void;
+  mount: (target: Element, anchor?: Element | Comment) => void;
   destroy: () => void;
 }
 

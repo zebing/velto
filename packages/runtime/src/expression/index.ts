@@ -7,7 +7,7 @@ export function expression(express: any): ExpressTemplate {
   if (isRender(express)) return express();
   
   let cacheTarget: Element;
-  let cacheAnchor: Element | Text | undefined;
+  let cacheAnchor: Element | Comment | undefined;
   let node: Text | undefined;
   const update = (express: any) => {
     const content = toDisplayString(express);
@@ -20,7 +20,7 @@ export function expression(express: any): ExpressTemplate {
   }
 
   return {
-    mount: (target: Element, anchor?: Element | Text) => {
+    mount: (target, anchor) => {
       cacheTarget = target;
       cacheAnchor = anchor;
       update(express);

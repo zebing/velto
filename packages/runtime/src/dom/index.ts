@@ -2,18 +2,18 @@ export const svgNS = 'http://www.w3.org/2000/svg'
 
 const doc = (typeof document !== 'undefined' ? document : null) as Document
 
-export const append = (parent: Element, child: Element | Text, anchor?: any) => {
+export const append = (parent: Element, child: Element | Text | Comment, anchor?: any) => {
   if (anchor) {
     return insert(parent, child, anchor);
   }
   parent.appendChild(child);
 }
 
-export const insert = (parent: Element, child: Element | Text, anchor: any) => {
+export const insert = (parent: Element, child: Element | Text | Comment, anchor: any) => {
   parent.insertBefore(child, anchor || null)
 }
 
-export const remove = (child: Element | Text) => {
+export const remove = (child: Element | Comment) => {
   const parent = child.parentNode
   if (parent) {
     parent.removeChild(child)

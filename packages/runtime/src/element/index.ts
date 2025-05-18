@@ -35,7 +35,7 @@ export function element(
   const el = createElement(tag);
   return {
     el,
-    mount: (target: Element, anchor?: Element | Text) => {
+    mount: (target, anchor) => {
       append(target, el, anchor);
       for (let attr in props) {
         setAttribute(el, attr, props[attr]);
