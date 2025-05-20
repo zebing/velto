@@ -82,7 +82,11 @@ export function component(type: Component, props: Props) {
     } else if(!effect.active) {
       callHook(LifecycleHooks.BEFORE_DESTROY, instance);
       instance.template.destroy();
-      instance = getComponentInstance(type, instance.props);
+      instance = {
+        ...getComponentInstance(type, instance.props),
+        target: instance.target,
+        anchor: instance.target,
+      }
       callHook(LifecycleHooks.DESTROYED, instance);
       
     } else {
