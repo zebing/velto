@@ -65,6 +65,20 @@ export function component(type: Component, props: Props) {
   }
 
   const fn = () => {
+    if (!effect.active) {
+      if (instance.isCreated) {
+        callHook(LifecycleHooks.BEFORE_DESTROY, instance);
+        instance.template.destroy();
+        instance = {
+          ...getComponentInstance(type, instance.props),
+          target: instance.target,
+          anchor: instance.target,
+        }
+        callHook(LifecycleHooks.DESTROYED, instance);
+      }
+      return;
+    }
+    
     if (!instance.isMounted) {
       if (!instance.isCreated) {
         setCurrentInstance(instance);
@@ -79,16 +93,6 @@ export function component(type: Component, props: Props) {
       instance.isMounted = true;
       callHook(LifecycleHooks.MOUNTED, instance);
 
-    } else if(!effect.active) {
-      callHook(LifecycleHooks.BEFORE_DESTROY, instance);
-      instance.template.destroy();
-      instance = {
-        ...getComponentInstance(type, instance.props),
-        target: instance.target,
-        anchor: instance.target,
-      }
-      callHook(LifecycleHooks.DESTROYED, instance);
-      
     } else {
       callHook(LifecycleHooks.BEFORE_UPDATE, instance);
       instance.template.update();
@@ -96,7 +100,7 @@ export function component(type: Component, props: Props) {
     }
   }
   const scheduler = () => {
-    effect.run();
+    effect.trigger();
   }
   scheduler.id = instance.uid;
   const effect = new Effect(fn, scheduler);
@@ -105,11 +109,13 @@ export function component(type: Component, props: Props) {
     mount(target: Element, anchor?: Element) {
       instance.target = target;
       instance.anchor = anchor;
-      effect.run();
+      effect.trigger();
     },
 
     destroy() {
-      effect.destroy();
+      if (instance.isMounted) {
+        effect.destroy();
+      }
     }
   }
 }
