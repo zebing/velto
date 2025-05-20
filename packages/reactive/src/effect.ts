@@ -23,9 +23,13 @@ export class Effect {
     }
   }
 
+  trigger() {
+    this.active = true;
+    this.run();
+  }
+
   destroy() {
     this.active = false;
     this.run();
-    this.active = true;
   }
 }
