@@ -32,15 +32,15 @@ $ bun create velto
 ## 🚀 快速开始
 
 ```ts
-import { reactive, watch } from '@velto/runtime';
+import { ref, watch } from '@velto/runtime';
 
-const state = reactive({ count: 0 });
+const count = ref(0);
 
-watch(() => state.count, (newVal, oldVal) => {
+watch(() => count.value, (newVal, oldVal) => {
   console.log(`Count changed: ${oldVal} → ${newVal}`);
 });
 
-state.count++;
+count.setValue(count.value++);
 ```
 
 
