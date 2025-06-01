@@ -1,5 +1,8 @@
 import { isFunction, isString } from "@velto/shared";
-import { Render } from "../types";
+import { Render, RefFunction } from "../types";
+import type { Reactive } from "@velto/reactive";
+import { isReactive } from '@velto/reactive';
+import { ComponentInstance } from "../component";
 
 export * from './toDisplayString';
 
@@ -21,4 +24,12 @@ export function normalizeContainer(
   }
 
   return container as Element;
+}
+
+export function setRef(ref: Reactive | RefFunction, value: Element | ComponentInstance) {
+  if (isFunction()) {
+    (ref as RefFunction)(value);
+  } else if (isReactive(ref)) {
+    (ref as Reactive)?.setValue?.(value);
+  }
 }

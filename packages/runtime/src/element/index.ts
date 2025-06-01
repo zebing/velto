@@ -2,7 +2,8 @@ import { isEvent } from "@velto/shared";
 import { append, insert, remove, createElement } from "../dom";
 import { classe, attr, event, style } from './attribute';
 import type { Style } from "./attribute";
-import type { ElementTemplate } from "../types";
+import type { ElementTemplate, RefFunction } from "../types";
+import { setRef } from "../utils";
 
 export const setAttribute = (
   el: Element,
@@ -11,8 +12,7 @@ export const setAttribute = (
   isSVG = false,
 ) => {
   if (key === 'ref') {
-    // @ts-expect-error
-    value?.setValue?.(el);
+    setRef(value as RefFunction, el);
   } else if (key === 'innerHTML') {
     el.innerHTML = `${value}`;
   } else if (key === 'textContent') {

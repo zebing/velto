@@ -1,7 +1,8 @@
 import { LifecycleHooks, callHook } from "./lifecycle";
 import { Effect } from "@velto/reactive";
-import type { Render, CompileTemplate } from "../types";
+import type { Render, CompileTemplate, RefFunction } from "../types";
 import { omit } from "@velto/shared";
+import { setRef } from "../utils";
 
 export * from "./lifecycle";
 
@@ -60,8 +61,7 @@ export function component(type: Component, props: Props) {
   let instance = getComponentInstance(type, componentProps);
 
   if (!!props.ref) {
-    // @ts-expect-error
-    props.ref?.setValue?.(instance);
+    setRef(props.ref as RefFunction, instance)
   }
 
   const fn = () => {
