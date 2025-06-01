@@ -51,7 +51,7 @@ count.setValue(count.value++);
 
 ## 🧪 示例项目
 
-查看 [examples](https://github.com/zebing/velto/tree/master/examples) 目录，了解如何使用 Velto 构建应用。
+查看 [examples](https://github.com/zebing/velto/tree/master/examples/velto) 目录，了解如何使用 Velto 构建应用。
 
 ## 🛠️ 贡献指南
 
