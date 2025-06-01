@@ -32,7 +32,7 @@ $ bun create velto
 ## 🚀 快速开始
 
 ```ts
-import { reactive, watch } from '@velto/core';
+import { reactive, watch } from '@velto/runtime';
 
 const state = reactive({ count: 0 });
 
