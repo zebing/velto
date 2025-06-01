@@ -9,6 +9,7 @@ import List from "./components/List";
 import ParentChild from "./components/ParentChild";
 import AsyncComponent from "./components/AsyncComponent";
 import ElementAttribute from './components/ElementAttribute'
+import WatchComp from './components/WatchComp';
 
 export default function App() {
   const name: string = 'name';
@@ -35,7 +36,8 @@ export default function App() {
   })
   return (
     <div name={'name'}>
-      <ElementAttribute />
+      <WatchComp />
+      {/* <ElementAttribute />
       {true ? <Test /> : null}
       <div>test</div>
       <AsyncComponent />
@@ -46,7 +48,7 @@ export default function App() {
         <Test />
       </ConditionalExpression>
       <List />
-      <ParentChild />
+      <ParentChild /> */}
     </div>
   )
 }

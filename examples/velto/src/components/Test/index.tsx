@@ -1,11 +1,11 @@
 import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
-  onBeforeDestroy, onDestroyed, ref, watch, computed
+  onBeforeDestroy, onDestroyed, ref, watch, computed, Reactive
 } from "@velto/runtime"
 
 import styles from "./styles.module.scss";
 
-export default function Test() {
+export default function Test(props: { state?: Reactive<boolean> }) {
   const computedRef = ref('computed');
   const style = ref<string>(styles.blue)
   const state = ref<{name: string}>({
@@ -63,6 +63,7 @@ export default function Test() {
       }}>change computed</div>
       <div>{style.value}</div>
       <div>{compuedValue.value}</div>
+      <div>{props.state?.value ? 'true' : false}</div>
     </div>
   ) 
 }

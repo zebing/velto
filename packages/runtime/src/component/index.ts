@@ -65,20 +65,6 @@ export function component(type: Component, props: Props) {
   }
 
   const fn = () => {
-    if (!effect.active) {
-      if (instance.isCreated) {
-        callHook(LifecycleHooks.BEFORE_DESTROY, instance);
-        instance.template.destroy();
-        instance = {
-          ...getComponentInstance(type, instance.props),
-          target: instance.target,
-          anchor: instance.target,
-        }
-        callHook(LifecycleHooks.DESTROYED, instance);
-      }
-      return;
-    }
-    
     if (!instance.isMounted) {
       if (!instance.isCreated) {
         setCurrentInstance(instance);
@@ -113,8 +99,15 @@ export function component(type: Component, props: Props) {
     },
 
     destroy() {
-      if (instance.isMounted) {
-        effect.destroy();
+      if (instance.isCreated) {
+        callHook(LifecycleHooks.BEFORE_DESTROY, instance);
+        instance.template.destroy();
+        instance = {
+          ...getComponentInstance(type, instance.props),
+          target: instance.target,
+          anchor: instance.target,
+        }
+        callHook(LifecycleHooks.DESTROYED, instance);
       }
     }
   }

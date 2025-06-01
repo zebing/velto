@@ -10,17 +10,22 @@ export interface WatchOptions {
   immediate?: boolean;
   once?: boolean;
 }
-export type WatchStopHandle = () => void;
+export type WatchStopHandle = {
+  pause: () => void;
+  resume: () => void;
+  stop: () => void;
+}
 
 export function watch(
   source: WatchSource | WatchSource[] | WatchSourceFn,
   cb?: WatchCallback | null,
   options: WatchOptions = {}
-): void {
+): WatchStopHandle {
   const { immediate, once } = options;
 
   let getter: () => any;
   let oldValue: any;
+  let pause = false;
 
   if (isReactive(source)) {
     getter = () => (source as WatchSource).value;
@@ -33,20 +38,31 @@ export function watch(
   }
 
   const scheduler = () => {
+    if (pause) {
+      return;
+    }
     const value = effect.run();
     cb?.(value, oldValue);
     oldValue = value;
   };
   scheduler.id = 0;
-  const effect = new Effect(getter, scheduler);
+  const effect = new Effect(getter, scheduler, true);
   oldValue = effect.run();
+
+  const watchHandle = {
+    pause: () => pause = true,
+    resume: () => pause = false,
+    stop: () => {
+      effect.destroy();
+    },
+  }
 
   if (cb) {
     if (once) {
       const _cb = cb;
       cb = (...args) => {
         _cb(...args);
-        cb = undefined;
+        watchHandle.stop();
       };
     }
 
@@ -54,4 +70,6 @@ export function watch(
       cb(oldValue, undefined);
     }
   }
+
+  return watchHandle;
 }

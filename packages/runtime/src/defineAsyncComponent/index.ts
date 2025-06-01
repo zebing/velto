@@ -26,7 +26,7 @@ export interface AsyncComponentOptions<T = any> {
 
 export function defineAsyncComponent(source: AsyncComponentLoader<Component> | AsyncComponentOptions<Component>): Component {
   if (isFunction(source)) {
-    source = { loader: source };
+    source = { loader: source } as AsyncComponentOptions<Component>;
   }
 
   const {
@@ -34,7 +34,7 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
     loadingComponent,
     errorComponent,
     timeout,
-  } = source;
+  } = source as AsyncComponentOptions<Component>;
 
   let retries = 0;
   let componentTemplate: CompileTemplate | undefined;
