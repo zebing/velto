@@ -9,7 +9,7 @@ export * from './element';
 export * from './expression';
 export * from './renderList';
 export * from './condition';
-export * from './defineAsyncComponent';
+export * from './BuiltInComponents';
 export { markRender } from './utils';
 
 export function createApp(type: Component, containerOrSelector: HTMLElement| Element | string | null, init: Props = {}) {

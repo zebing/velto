@@ -10,6 +10,7 @@ import ParentChild from "./components/ParentChild";
 import AsyncComponent from "./components/AsyncComponent";
 import ElementAttribute from './components/ElementAttribute'
 import WatchComp from './components/WatchComp';
+import AttachComponent from './components/AttachComponent';
 
 export default function App() {
   const name: string = 'name';
@@ -36,6 +37,7 @@ export default function App() {
   })
   return (
     <div name={'name'}>
+      <AttachComponent to="body" />
       <WatchComp />
       {/* <ElementAttribute />
       {true ? <Test /> : null}

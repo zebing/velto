@@ -1,12 +1,12 @@
 import { isFunction, isString } from "@velto/shared";
-import { Render, RefFunction } from "../types";
+import { Render, RefFunction, RenderFN } from "../types";
 import type { Reactive } from "@velto/reactive";
 import { isReactive } from '@velto/reactive';
 import { ComponentInstance } from "../component";
 
 export * from './toDisplayString';
 
-export function markRender(fn: Function) {
+export function markRender(fn: RenderFN) {
   const render = fn as Render;
   render.__isRender = true;
   return render;
@@ -27,7 +27,7 @@ export function normalizeContainer(
 }
 
 export function setRef(ref: Reactive | RefFunction, value: Element | ComponentInstance) {
-  if (isFunction()) {
+  if (isFunction(ref)) {
     (ref as RefFunction)(value);
   } else if (isReactive(ref)) {
     (ref as Reactive)?.setValue?.(value);

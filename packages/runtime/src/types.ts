@@ -26,8 +26,10 @@ export interface RenderListTemplate extends Template {
   update: (newList: unknown[]) => void;
 }
 
-export type RenderFN = () => CompileTemplate;
+export type RenderFN<T = CompileTemplate> = () => T;
 
 export interface Render extends RenderFN { __isRender: boolean; }
 
 export type RefFunction  = ((value: Element | ComponentInstance) => void);
+
+export type PropsWithChildren<T = unknown> =  T & { children?: Render };
