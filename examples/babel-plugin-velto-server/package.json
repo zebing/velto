@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "name": "babel-jsx-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:babel-plugin-velto-server": "node src/index.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/generator": "^7.27.1",
+    "@babel/plugin-syntax-jsx": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/traverse": "^7.27.1",
+    "@babel/types": "^7.27.1",
+    "@velto/babel-plugin-velto-server": "workspace:*",
+    "@velto/runtime": "workspace:*"
+  }
+}

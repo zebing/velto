@@ -9,7 +9,11 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebing/velto.git"
+  },
+  "keywords": ["velto", "runtime"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

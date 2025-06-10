@@ -69,6 +69,36 @@ importers:
         specifier: workspace:*
         version: link:../../packages/runtime
 
+  examples/babel-plugin-velto-server:
+    dependencies:
+      '@babel/core':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/generator':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/plugin-syntax-jsx':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-env':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/traverse':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/types':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@velto/babel-plugin-velto-server':
+        specifier: workspace:*
+        version: link:../../packages/babel-plugin-velto-server
+      '@velto/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
+
   examples/velto:
     dependencies:
       '@babel/plugin-transform-typescript':
@@ -100,6 +130,46 @@ importers:
         version: 1.0.21
 
   packages/babel-plugin-velto:
+    dependencies:
+      '@babel/core':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/helper-module-imports':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/plugin-syntax-jsx':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/traverse':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@babel/types':
+        specifier: ^7.27.1
+        version: 7.27.1
+      '@velto/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/babel__helper-module-imports':
+        specifier: ^7.18.3
+        version: 7.18.3
+      '@types/babel__traverse':
+        specifier: ^7.20.7
+        version: 7.20.7
+      '@types/node':
+        specifier: ^20.17.32
+        version: 20.17.32
+      tsup:
+        specifier: ^8.4.0
+        version: 8.4.0(typescript@5.8.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
+  packages/babel-plugin-velto-server:
     dependencies:
       '@babel/core':
         specifier: ^7.27.1

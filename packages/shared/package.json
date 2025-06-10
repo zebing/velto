@@ -13,7 +13,11 @@
     "tsup": "^8.4.0",
     "typescript": "^5.8.3"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebing/velto.git"
+  },
+  "keywords": ["velto", "shared"],
   "author": "",
   "license": "ISC"
 }

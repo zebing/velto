@@ -16,7 +16,11 @@
   "dependencies": {
     "@velto/shared": "workspace:*"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebing/velto.git"
+  },
+  "keywords": ["velto", "reactive"],
   "author": "",
   "license": "ISC"
 }

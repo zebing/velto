@@ -1,5 +1,5 @@
 {
-  "name": "@velto/babel-plugin-velto",
+  "name": "@velto/babel-plugin-velto-server",
   "version": "1.0.0-beta.6",
   "description": "",
   "main": "dist/index.js",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/zebing/velto.git"
   },
-  "keywords": ["velto", "babel-plugin-velto"],
+  "keywords": ["velto", "babel-plugin-velto-server"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

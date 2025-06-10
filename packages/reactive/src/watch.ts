@@ -38,6 +38,7 @@ export function watch(
   }
 
   const scheduler = () => {
+    console.log('++++++++', pause)
     if (pause) {
       return;
     }
