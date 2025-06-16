@@ -38,12 +38,10 @@ export function watch(
   }
 
   const scheduler = () => {
-    console.log('++++++++', pause)
-    if (pause) {
-      return;
-    }
     const value = effect.run();
-    cb?.(value, oldValue);
+    if (!pause) {
+      cb?.(value, oldValue);
+    }
     oldValue = value;
   };
   scheduler.id = 0;

@@ -30,18 +30,21 @@ export default function List() {
     list.splice(10, 1);
   }
   return (
-    <div class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+    <div {...styles} disabled test="test" class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+      <Test name="test" onClick={() => {}} style={{color: 'red'}} />
       <button disabled>test</button>
-      {/* <div>text</div>
+      <div>
+        <div>text</div>
+      </div>
       <div class={styles.list}>
         {list.value.map(({id}) => (
             <div class={styles.item}>
               <div>{student.id}</div>
             </div>
           ))}
-      </div> */}
-      {/* {state && <div>Logical jsx</div>} */}
-      {/* {render}
+      </div>
+      {state && <div>Logical jsx</div>}
+      {render}
       <div>List Component</div>
       <button onClick={unshift}>unshift</button>
       <button onClick={append}>append</button>
@@ -56,7 +59,7 @@ export default function List() {
             <div>{student.age}</div>
           </div>
         ))}
-      </div> */}
+      </div>
     </div>
  
 )

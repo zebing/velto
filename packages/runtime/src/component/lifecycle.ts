@@ -1,6 +1,6 @@
 import { isArray, callUnstableFunc } from "@velto/shared";
-import type { ComponentInstance } from "./";
-import { currentInstance } from "./";
+import type { ComponentInstance } from ".";
+import { currentInstance } from ".";
 
 export enum LifecycleHooks {
   CREATED = 'created',

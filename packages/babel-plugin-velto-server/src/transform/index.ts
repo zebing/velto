@@ -1,46 +1,43 @@
 import { NodePath } from "@babel/traverse";
-import {stringLiteral, returnStatement, JSXElement, JSXFragment, Statement, callExpression, arrowFunctionExpression, blockStatement } from "@babel/types";
-// import { transformJSXElement } from "./transformJSXElement";
-// import { transformJSXFragment } from './transformJSXFragment'
+import {stringLiteral, returnStatement, JSXElement, JSXFragment, Statement, callExpression, arrowFunctionExpression, blockStatement, templateLiteral, templateElement } from "@babel/types";
+import { transformJSXElement } from "./transformJSXElement";
+import { transformJSXFragment } from './transformJSXFragment'
 import { RuntimeHelper } from "../helper";
+import TemplateLiteralContext from "../TemplateLiteralContext";
 
 export default function JSXRoot(path: NodePath<JSXElement | JSXFragment>) {
-  const hoistList: Statement[] = [];
+  const context = new TemplateLiteralContext();
 
-  // if (path.isJSXFragment()) {
-  //   transformJSXFragment({
-  //     path,
-  //     template,
-  //     target: targetIdentifier,
-  //     anchor: anchorIdentifier,
-  //   });
-  // } else {
-  //   transformJSXElement({
-  //     path: path as NodePath<JSXElement>,
-  //     template,
-  //     target: targetIdentifier,
-  //     anchor: anchorIdentifier,
-  //   });
-  // }
+  if (path.isJSXFragment()) {
+    transformJSXFragment({
+      path,
+      context,
+    });
+  } else {
+    transformJSXElement({
+      path: path as NodePath<JSXElement>,
+      context,
+    });
+  }
 
-  const node = callExpression(
+  const statement = path.getStatementParent();
+
+  statement!.insertBefore(
+    context.hoistExpressions
+  )
+  path.replaceWith(callExpression(
     path.state.helper.getHelperNameIdentifier(
-        RuntimeHelper.markRender
+      RuntimeHelper.markRender
+    ),
+    [
+      arrowFunctionExpression(
+        [],
+        blockStatement([
+          returnStatement(
+            context.generateTemplateLiteral(),
+          ),
+        ])
       ),
-      [
-        arrowFunctionExpression(
-          [],
-          blockStatement([
-            ...hoistList,
-            returnStatement(
-              stringLiteral(
-                path.getSource()
-              )
-            ),
-          ])
-        ),
-      ]
-    );
-  
-  path.replaceWith(node);
+    ]
+  ));
 }

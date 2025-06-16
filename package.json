@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "pnpm -r dev",
+    "test": "vitest run",
     "clean": "pnpm -r clean",
     "release": "pnpm build && node scripts/release.mjs",
     "release:beta": "pnpm build && pnpm -r publish --access public",
@@ -17,11 +18,10 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
     "@changesets/cli": "^2.29.2",
-    "@types/jest": "^29.5.14",
     "@types/node": "^20.17.32",
     "enquirer": "^2.4.1",
     "glob": "^11.0.2",
-    "jest": "^29.7.0",
-    "minimist": "^1.2.8"
+    "minimist": "^1.2.8",
+    "vitest": "^3.2.3"
   }
 }

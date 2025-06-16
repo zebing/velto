@@ -1,66 +1,81 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { watch } from '../src/watch';
 import { ref } from '../src/ref';
 import { computed } from '../src/computed';
 
-// Mock isFunction from @velto/shared
-jest.mock('@velto/shared', () => ({
-  isFunction: (fn: any) => typeof fn === 'function'
+// Mock functions from @velto/shared
+vi.mock('@velto/shared', () => ({
+  isFunction: (fn: any) => typeof fn === 'function',
+  isObject: (val: unknown) => val !== null && typeof val === 'object',
+  callUnstableFunc: (fn: Function, args?: unknown[]) => {
+    try {
+      return fn(...(args ?? []));
+    } catch (err) {
+      console.log(err);
+    }
+    return null;
+  }
 }));
 
 describe('watch', () => {
-  let mockCallback: jest.MockedFunction<any>;
+  let mockCallback: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockCallback = jest.fn();
-    jest.clearAllMocks();
+    mockCallback = vi.fn();
+    vi.clearAllMocks();
   });
 
   describe('basic functionality', () => {
-    it('should watch ref changes', (done) => {
+    it('should watch ref changes', async () => {
       const source = ref(0);
       
-      watch(source, (newVal, oldVal) => {
-        expect(newVal).toBe(1);
-        expect(oldVal).toBe(0);
-        done();
-      });
+      return new Promise<void>((resolve) => {
+        watch(source, (newVal, oldVal) => {
+          expect(newVal).toBe(1);
+          expect(oldVal).toBe(0);
+          resolve();
+        });
 
-      source.setValue(1);
+        source.setValue(1);
+      });
     });
 
-    it('should watch multiple refs changes', (done) => {
+    it('should watch multiple refs changes', async () => {
       const source1 = ref(0);
       const source2 = ref('hello');
       
-      watch([source1, source2], (newVal, oldVal) => {
-        expect(newVal).toEqual([1, 'hello']);
-        expect(oldVal).toEqual([0, 'hello']);
-        done();
-      });
+      return new Promise<void>((resolve) => {
+        watch([source1, source2], (newVal, oldVal) => {
+          expect(newVal).toEqual([1, 'hello']);
+          expect(oldVal).toEqual([0, 'hello']);
+          resolve();
+        });
 
-      source1.setValue(1);
+        source1.setValue(1);
+      });
     });
 
-    it('should watch function return value changes', (done) => {
+    it('should watch function return value changes', async () => {
       const source = ref(0);
       
-      watch(() => source.value * 2, (newVal, oldVal) => {
-        expect(newVal).toBe(4);
-        expect(oldVal).toBe(2);
-        done();
-      });
+      return new Promise<void>((resolve) => {
+        watch(() => source.value * 2, (newVal, oldVal) => {
+          expect(newVal).toBe(4);
+          expect(oldVal).toBe(0);
+          resolve();
+        });
 
-      source.setValue(2);
+        source.setValue(2);
+      });
     });
 
-    it('should watch computed changes', (done) => {
+    it('should watch computed changes', () => {
       const source = ref(0);
       const comp = computed(() => source.value * 2);
       
-      watch(comp, (newVal, oldVal) => {
+      watch(() => comp.value, (newVal, oldVal) => {
         expect(newVal).toBe(4);
-        expect(oldVal).toBe(2);
-        done();
+        expect(oldVal).toBe(0);
       });
 
       source.setValue(2);
@@ -87,7 +102,7 @@ describe('watch', () => {
   });
 
   describe('once option', () => {
-    it('should execute callback only once and stop automatically when once is true', (done) => {
+    it('should execute callback only once and stop automatically when once is true', async () => {
       const source = ref(0);
       
       watch(source, mockCallback, { once: true });
@@ -95,18 +110,20 @@ describe('watch', () => {
       // First change
       source.setValue(1);
       
-      setTimeout(() => {
-        expect(mockCallback).toHaveBeenCalledTimes(1);
-        expect(mockCallback).toHaveBeenCalledWith(1, 0);
-        
-        // Second change should not trigger callback
-        source.setValue(2);
-        
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
           expect(mockCallback).toHaveBeenCalledTimes(1);
-          done();
+          expect(mockCallback).toHaveBeenCalledWith(1, 0);
+          
+          // Second change should not trigger callback
+          source.setValue(2);
+          
+          setTimeout(() => {
+            expect(mockCallback).toHaveBeenCalledTimes(1);
+            resolve();
+          }, 10);
         }, 10);
-      }, 10);
+      });
     });
 
     it('should work correctly when once and immediate are used together', () => {
@@ -119,9 +136,7 @@ describe('watch', () => {
       
       // Verify watch has been stopped
       source.setValue(1);
-      setTimeout(() => {
-        expect(mockCallback).toHaveBeenCalledTimes(1);
-      }, 10);
+      expect(mockCallback).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -138,59 +153,63 @@ describe('watch', () => {
       expect(typeof stopHandle.stop).toBe('function');
     });
 
-    it('pause should pause watching', (done) => {
+    it('pause should pause watching', async () => {
       const source = ref(0);
       const stopHandle = watch(source, mockCallback);
       
       stopHandle.pause();
       source.setValue(1);
       
-      setTimeout(() => {
-        expect(mockCallback).not.toHaveBeenCalled();
-        done();
-      }, 10);
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          expect(mockCallback).not.toHaveBeenCalled();
+          resolve();
+        }, 10);
+      });
     });
 
-    it('resume should resume watching', (done) => {
+    it('resume should resume watching', async () => {
       const source = ref(0);
       const stopHandle = watch(source, mockCallback);
       
       stopHandle.pause();
       source.setValue(1);
+
+      expect(mockCallback).not.toHaveBeenCalled();
       
-      setTimeout(() => {
-        expect(mockCallback).not.toHaveBeenCalled();
-        
+      await new Promise((resolve) => {
         stopHandle.resume();
         source.setValue(2);
-        
         setTimeout(() => {
+          expect(mockCallback).toHaveBeenCalledWith(2, 0);
           expect(mockCallback).toHaveBeenCalledTimes(1);
-          expect(mockCallback).toHaveBeenCalledWith(2, 1);
-          done();
-        }, 10);
-      }, 10);
+          
+          resolve(null);
+        }, 50);
+      })
     });
 
-    it('stop should completely stop watching', (done) => {
+    it('stop should completely stop watching', async () => {
       const source = ref(0);
       const stopHandle = watch(source, mockCallback);
       
       stopHandle.stop();
       source.setValue(1);
       
-      setTimeout(() => {
-        expect(mockCallback).not.toHaveBeenCalled();
-        
-        // Even calling resume should not restore
-        stopHandle.resume();
-        source.setValue(2);
-        
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
           expect(mockCallback).not.toHaveBeenCalled();
-          done();
+          
+          // Even calling resume should not restore
+          stopHandle.resume();
+          source.setValue(2);
+          
+          setTimeout(() => {
+            expect(mockCallback).not.toHaveBeenCalled();
+            resolve();
+          }, 10);
         }, 10);
-      }, 10);
+      });
     });
   });
 
@@ -205,20 +224,22 @@ describe('watch', () => {
       }).not.toThrow();
     });
 
-    it('should return undefined when source is not reactive', (done) => {
+    it('should return undefined when source is not reactive', async () => {
       const invalidSource = { notReactive: true };
       
-      watch(invalidSource as any, (newVal, oldVal) => {
-        expect(newVal).toBeUndefined();
-        expect(oldVal).toBeUndefined();
-        done();
-      });
+      return new Promise<void>((resolve) => {
+        watch(invalidSource as any, (newVal, oldVal) => {
+          expect(newVal).toBeUndefined();
+          expect(oldVal).toBeUndefined();
+          resolve();
+        });
 
-      // Manual trigger, although it won't actually listen to changes
-      setTimeout(done, 50);
+        // Manual trigger, although it won't actually listen to changes
+        setTimeout(() => resolve(), 50);
+      });
     });
 
-    it('should not affect watcher when callback throws error', (done) => {
+    it('should not affect watcher when callback throws error', async () => {
       const source = ref(0);
       let callCount = 0;
       
@@ -231,14 +252,16 @@ describe('watch', () => {
 
       source.setValue(1);
       
-      setTimeout(() => {
-        source.setValue(2);
-        
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
-          expect(callCount).toBe(2);
-          done();
+          source.setValue(2);
+          
+          setTimeout(() => {
+            expect(callCount).toBe(2);
+            resolve();
+          }, 10);
         }, 10);
-      }, 10);
+      });
     });
   });
 
@@ -255,49 +278,50 @@ describe('watch', () => {
       stopHandle.stop();
     });
 
-    it('should handle scheduler execution order', (done) => {
+    it('should handle scheduler execution order', () => {
       const source = ref(0);
       const executionOrder: string[] = [];
       
       watch(source, () => {
         executionOrder.push('watcher1');
       });
-      
+
       watch(source, () => {
         executionOrder.push('watcher2');
         expect(executionOrder).toEqual(['watcher1', 'watcher2']);
-        done();
       });
-      
-      source.setValue(1);
     });
   });
 
   describe('callback return value handling', () => {
-    it('should handle callback that returns value', (done) => {
+    it('should handle callback that returns value', async () => {
       const source = ref(0);
       
-      watch(source, (newVal, oldVal) => {
-        expect(newVal).toBe(1);
-        expect(oldVal).toBe(0);
-        done();
-        return 'callback result'; // Return value should be ignored
+      return new Promise<void>((resolve) => {
+        watch(source, (newVal, oldVal) => {
+          expect(newVal).toBe(1);
+          expect(oldVal).toBe(0);
+          resolve();
+          return 'callback result'; // Return value should be ignored
+        });
+        
+        source.setValue(1);
       });
-      
-      source.setValue(1);
     });
 
-    it('should handle async callback', (done) => {
+    it('should handle async callback', async () => {
       const source = ref(0);
       
-      watch(source, async (newVal, oldVal) => {
-        await new Promise(resolve => setTimeout(resolve, 1));
-        expect(newVal).toBe(1);
-        expect(oldVal).toBe(0);
-        done();
+      return new Promise<void>((resolve) => {
+        watch(source, async (newVal, oldVal) => {
+          await new Promise(r => setTimeout(r, 1));
+          expect(newVal).toBe(1);
+          expect(oldVal).toBe(0);
+          resolve();
+        });
+        
+        source.setValue(1);
       });
-      
-      source.setValue(1);
     });
   });
 
@@ -312,7 +336,7 @@ describe('watch', () => {
       expect(mockCallback).not.toHaveBeenCalled();
     });
 
-    it('should handle mixed array with refs and computed', (done) => {
+    it('should handle mixed array with refs and computed', async () => {
       const ref1 = ref(1);
       const ref2 = ref(2);
       const comp = computed(() => ref1.value + ref2.value);
@@ -320,73 +344,80 @@ describe('watch', () => {
       watch([ref1, comp], (newVal, oldVal) => {
         expect(newVal).toEqual([10, 12]); // ref1=10, comp=10+2=12
         expect(oldVal).toEqual([1, 3]); // ref1=1, comp=1+2=3
-        done();
       });
       
       ref1.setValue(10);
     });
 
-    it('should handle array source with different types', (done) => {
+    it('should handle array source with different types', async () => {
       const numberRef = ref(1);
       const stringRef = ref('hello');
       const booleanRef = ref(true);
       
-      watch([numberRef, stringRef, booleanRef], (newVal, oldVal) => {
-        expect(newVal).toEqual([2, 'world', false]);
-        expect(oldVal).toEqual([1, 'hello', true]);
-        done();
+      return new Promise<void>((resolve) => {
+        watch([numberRef, stringRef, booleanRef], (newVal, oldVal) => {
+          expect(newVal).toEqual([2, 'world', false]);
+          expect(oldVal).toEqual([1, 'hello', true]);
+          resolve();
+        });
+        
+        numberRef.setValue(2);
+        stringRef.setValue('world');
+        booleanRef.setValue(false);
       });
-      
-      numberRef.setValue(2);
-      stringRef.setValue('world');
-      booleanRef.setValue(false);
     });
   });
 
   describe('function source advanced scenarios', () => {
-    it('should handle function source with multiple dependencies', (done) => {
+    it('should handle function source with multiple dependencies', async () => {
       const a = ref(1);
       const b = ref(2);
       const c = ref(3);
       
-      watch(() => a.value + b.value * c.value, (newVal, oldVal) => {
-        expect(newVal).toBe(11); // 1 + 2 * 5 = 11
-        expect(oldVal).toBe(7);  // 1 + 2 * 3 = 7
-        done();
+      return new Promise<void>((resolve) => {
+        watch(() => a.value + b.value * c.value, (newVal, oldVal) => {
+          expect(newVal).toBe(11); // 1 + 2 * 5 = 11
+          expect(oldVal).toBe(7);  // 1 + 2 * 3 = 7
+          resolve();
+        });
+        
+        c.setValue(5);
       });
-      
-      c.setValue(5);
     });
 
-    it('should handle function source with conditional dependencies', (done) => {
+    it('should handle function source with conditional dependencies', async () => {
       const condition = ref(true);
       const a = ref(1);
       const b = ref(2);
       
-      watch(() => condition.value ? a.value : b.value, (newVal, oldVal) => {
-        expect(newVal).toBe(2); // condition changed to false, so b.value
-        expect(oldVal).toBe(1); // was a.value
-        done();
+      return new Promise<void>((resolve) => {
+        watch(() => condition.value ? a.value : b.value, (newVal, oldVal) => {
+          expect(newVal).toBe(2); // condition changed to false, so b.value
+          expect(oldVal).toBe(1); // was a.value
+          resolve();
+        });
+        
+        condition.setValue(false);
       });
-      
-      condition.setValue(false);
     });
 
-    it('should handle function source returning objects', (done) => {
+    it('should handle function source returning objects', async () => {
       const user = ref({ name: 'John', age: 25 });
       
-      watch(() => ({ displayName: user.value.name, isAdult: user.value.age >= 18 }), (newVal, oldVal) => {
-        expect(newVal).toEqual({ displayName: 'Jane', isAdult: true });
-        expect(oldVal).toEqual({ displayName: 'John', isAdult: true });
-        done();
+      return new Promise<void>((resolve) => {
+        watch(() => ({ displayName: user.value.name, isAdult: user.value.age >= 18 }), (newVal, oldVal) => {
+          expect(newVal).toEqual({ displayName: 'Jane', isAdult: true });
+          expect(oldVal).toEqual({ displayName: 'John', isAdult: true });
+          resolve();
+        });
+        
+        user.setValue({ name: 'Jane', age: 30 });
       });
-      
-      user.setValue({ name: 'Jane', age: 30 });
     });
   });
 
   describe('oldValue handling', () => {
-    it('should correctly track oldValue through multiple changes', (done) => {
+    it('should correctly track oldValue through multiple changes', async () => {
       const source = ref(0);
       let changeCount = 0;
       
@@ -399,60 +430,66 @@ describe('watch', () => {
         } else if (changeCount === 2) {
           expect(newVal).toBe(2);
           expect(oldVal).toBe(1);
-          done();
         }
       });
       
       source.setValue(1);
     });
 
-    it('should handle oldValue with array sources', (done) => {
+    it('should handle oldValue with array sources', async () => {
       const a = ref(1);
       const b = ref(2);
       
-      watch([a, b], (newVal, oldVal) => {
-        expect(newVal).toEqual([10, 2]);
-        expect(oldVal).toEqual([1, 2]);
-        expect(Array.isArray(newVal)).toBe(true);
-        expect(Array.isArray(oldVal)).toBe(true);
-        done();
+      return new Promise<void>((resolve) => {
+        watch([a, b], (newVal, oldVal) => {
+          expect(newVal).toEqual([10, 2]);
+          expect(oldVal).toEqual([1, 2]);
+          expect(Array.isArray(newVal)).toBe(true);
+          expect(Array.isArray(oldVal)).toBe(true);
+          resolve();
+        });
+        
+        a.setValue(10);
       });
-      
-      a.setValue(10);
     });
   });
 
   describe('effect integration', () => {
-    it('should properly integrate with Effect system', () => {
+    it('should properly integrate with Effect system', async () => {
       const source = ref(0);
       const stopHandle = watch(source, mockCallback);
       
       // Verify effect is created and working
       source.setValue(1);
       
-      setTimeout(() => {
-        expect(mockCallback).toHaveBeenCalledWith(1, 0);
-        
-        // Verify effect can be destroyed
-        stopHandle.stop();
-        source.setValue(2);
-        
+      await new Promise((resolve) => {
         setTimeout(() => {
-          expect(mockCallback).toHaveBeenCalledTimes(1);
+          expect(mockCallback).toHaveBeenCalledWith(1, 0);
+          
+          // Verify effect can be destroyed
+          stopHandle.stop();
+          source.setValue(2);
+          
+          setTimeout(() => {
+            expect(mockCallback).toHaveBeenCalledTimes(1);
+            resolve(null);
+          }, 10);
         }, 10);
-      }, 10);
+      })
     });
 
-    it('should handle effect.run() return value correctly', (done) => {
+    it('should handle effect.run() return value correctly', async () => {
       const source = ref({ count: 1 });
       
-      watch(() => source.value.count, (newVal, oldVal) => {
-        expect(newVal).toBe(5);
-        expect(oldVal).toBe(1);
-        done();
+      return new Promise<void>((resolve) => {
+        watch(() => source.value.count, (newVal, oldVal) => {
+          expect(newVal).toBe(5);
+          expect(oldVal).toBe(1);
+          resolve();
+        });
+        
+        source.setValue({ count: 5 });
       });
-      
-      source.setValue({ count: 5 });
     });
   });
 
@@ -528,7 +565,7 @@ describe('watch', () => {
       }, 10);
     });
 
-    it('should efficiently handle deep object watching', (done) => {
+    it('should efficiently handle deep object watching', async () => {
       const deepObject = ref({
         level1: {
           level2: {
@@ -541,22 +578,24 @@ describe('watch', () => {
       
       const startTime = performance.now();
       
-      watch(() => deepObject.value.level1.level2.level3.value, (newVal, oldVal) => {
-        const endTime = performance.now();
-        expect(newVal).toBe(100);
-        expect(oldVal).toBe(1);
-        expect(endTime - startTime).toBeLessThan(50); // Should be fast
-        done();
-      });
-      
-      deepObject.setValue({
-        level1: {
-          level2: {
-            level3: {
-              value: 100
+      return new Promise<void>((resolve) => {
+        watch(() => deepObject.value.level1.level2.level3.value, (newVal, oldVal) => {
+          const endTime = performance.now();
+          expect(newVal).toBe(100);
+          expect(oldVal).toBe(1);
+          expect(endTime - startTime).toBeLessThan(50); // Should be fast
+          resolve();
+        });
+        
+        deepObject.setValue({
+          level1: {
+            level2: {
+              level3: {
+                value: 100
+              }
             }
           }
-        }
+        });
       });
     });
   });

@@ -37,9 +37,9 @@ export default function App() {
   })
   return (
     <div name={'name'}>
-      <AttachComponent to="body" />
+      {/* <AttachComponent to="body" /> */}
       <WatchComp />
-      <ElementAttribute />
+      {/* <ElementAttribute />
       {true ? <Test /> : null}
       <div>test</div>
       <AsyncComponent />
@@ -50,7 +50,7 @@ export default function App() {
         <Test />
       </ConditionalExpression>
       <List />
-      <ParentChild />
+      <ParentChild /> */}
     </div>
   )
 }

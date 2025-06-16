@@ -8,8 +8,8 @@ export default function TestComp() {
     console.log('++++++count change immediate once', count.value, count)
   }, { immediate: true, once: true })
 
-  const handle = watch(() => count.value, () => {
-    console.log('++++++count change ', count.value, count)
+  const handle = watch(() => count.value, (newValue, oldValue) => {
+    console.log('++++++count change ', count.value, count, newValue, oldValue)
   })
 
   return (
