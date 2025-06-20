@@ -1,4 +1,4 @@
-import { ref } from "@velto/runtime";
+import { ref } from "velto";
 
 const state = ref<{ name: string }>({
   name: 'name1',

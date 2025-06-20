@@ -1,7 +1,7 @@
 import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
   onBeforeDestroy, onDestroyed, ref, watch, computed
-} from "@velto/runtime"
+} from "velto"
 
 import styles from "./styles.module.scss";
 import Test from '../Test';
@@ -9,7 +9,7 @@ import Test from '../Test';
 export default function ElementAttribute() {
   const hasAttr = ref(true);
   const dom = ref(null);
-  const comp = ref(null);
+  const comp = ref(undefined);
   const html = `
   <div>
   test html

@@ -1,4 +1,5 @@
 import { ComponentInstance } from "./component";
+import { Ref } from "@velto/reactive";
 
 interface Template {
   mount: (target: Element, anchor?: Element | Comment) => void;
@@ -33,3 +34,4 @@ export interface Render extends RenderFN { __isRender: boolean; }
 export type RefFunction  = ((value: Element | ComponentInstance) => void);
 
 export type PropsWithChildren<T = unknown> =  T & { children?: Render };
+export type PropsWithRef<T = unknown> =  T & { ref?: Ref };

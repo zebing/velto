@@ -15,7 +15,7 @@
   },
   "keywords": ["velto", "babel-plugin-velto-server"],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
     "@types/babel__helper-module-imports": "^7.18.3",

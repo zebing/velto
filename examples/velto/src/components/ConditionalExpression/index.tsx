@@ -1,7 +1,7 @@
 import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
   onBeforeDestroy, onDestroyed, ref,
-} from "@velto/runtime"
+} from "velto"
 import styles from './styles.module.scss';
 
 export default function ConditionalExpression(props: Record<string, unknown>) {

@@ -1,4 +1,4 @@
-import { Attach, ref, onMounted } from '@velto/runtime';
+import { Attach, ref, onMounted } from 'velto';
 import styles from './styles.module.scss';
 
 export default (props: Record<string, unknown>) => {

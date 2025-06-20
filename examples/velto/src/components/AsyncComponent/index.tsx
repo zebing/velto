@@ -1,11 +1,12 @@
-import { defineAsyncComponent } from '@velto/runtime';
+import { defineAsyncComponent } from 'velto';
 import styles from './styles.module.scss';
 
 export default (props: Record<string, unknown>) => {
   const Comp = defineAsyncComponent({
+    // @ts-expect-error
     loader: () => import('http://localhost:4173/test.js1'),
     loadingComponent: (props) => (<div> {props.name} loading</div>),
-    errorComponent: (props) => (<div> {props.name} error</div>),
+    errorComponent: (error) => (<div> {error.props.name} error</div>),
   });
   return (
     <div class={styles.asyncComponent}>

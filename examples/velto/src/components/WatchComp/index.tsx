@@ -1,4 +1,4 @@
-import { watch, ref } from '@velto/runtime';
+import { watch, ref } from 'velto';
 import styles from './styles.module.scss';
 
 export default function TestComp() {

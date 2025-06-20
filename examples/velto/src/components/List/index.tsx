@@ -1,4 +1,4 @@
-import { ref } from "@velto/runtime"
+import { ref } from "velto"
 
 import styles from "./styles.module.scss";
 

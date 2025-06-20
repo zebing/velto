@@ -1,7 +1,7 @@
 import {
   onCreated, onBeforeMount, onMounted, onBeforeUpdate, onUpdated,
   onBeforeDestroy, onDestroyed,
-} from "@velto/runtime"
+} from "velto"
 import Test from "./components/Test";
 import LogicalExpression from "./components/LogicalExpression";
 import ConditionalExpression from "./components/ConditionalExpression";
