@@ -4,25 +4,34 @@ import { transformJSXElement } from "./transformJSXElement";
 import { transformJSXFragment } from './transformJSXFragment'
 import Template from "../template";
 import { targetIdentifier, anchorIdentifier } from "../constants";
+import { isArray } from "@velto/shared";
+import { transformJSXChildren } from "./transformJSXChildren";
 
-export default function JSXRoot(path: NodePath<JSXElement | JSXFragment>) {
-  const template = new Template(path.state.helper);
+export default function JSXRoot(path: NodePath<JSXElement | JSXFragment> | NodePath[]) {
+  const pahtState = isArray(path) ? path[0].state : path.state;
+  const template = new Template(pahtState.helper);
+  const commonOptions = {
+    template,
+    target: targetIdentifier,
+    anchor: anchorIdentifier,
+  };
 
-  if (path.isJSXFragment()) {
-    transformJSXFragment({
+  if (isArray(path)) {
+    transformJSXChildren({
+      ...commonOptions,
       path,
-      template,
-      target: targetIdentifier,
-      anchor: anchorIdentifier,
+    });
+  } else if (path.isJSXFragment()) {
+    transformJSXFragment({
+      ...commonOptions,
+      path,
     });
   } else {
     transformJSXElement({
+      ...commonOptions,
       path: path as NodePath<JSXElement>,
-      template,
-      target: targetIdentifier,
-      anchor: anchorIdentifier,
     });
   }
   
-  path.replaceWith(template.generate());
+  return template.generate();
 }

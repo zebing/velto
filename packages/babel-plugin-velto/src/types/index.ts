@@ -1,4 +1,4 @@
-import { Identifier, MemberExpression } from '@babel/types';
+import { Identifier, MemberExpression , JSXElement, JSXExpressionContainer, JSXFragment, JSXSpreadChild, JSXText} from '@babel/types';
 import { Helper } from '../helper';
 import { NodePath } from '@babel/traverse';
 import Template from '../template';

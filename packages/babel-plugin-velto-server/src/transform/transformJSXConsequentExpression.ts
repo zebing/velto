@@ -54,7 +54,7 @@ export function transformJSXConsequentExpression(options: {
     context.newline();
     context.pushExpression(
       callExpression(
-        consequent.state.rootPath.helper.getHelperNameIdentifier(RuntimeHelper.ssrExpression),
+        consequent.state.helper.getHelperNameIdentifier(RuntimeHelper.ssrExpression),
         [consequent.node],
       ),
     );

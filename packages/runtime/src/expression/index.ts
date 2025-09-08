@@ -1,6 +1,6 @@
 
 import { isRender, toDisplayString } from "../utils";
-import { insert, remove, text } from "../dom";
+import { insert, remove, createText } from "../dom";
 import type { ExpressTemplate } from "../types";
 
 export function expression(express: any): ExpressTemplate {
@@ -12,7 +12,7 @@ export function expression(express: any): ExpressTemplate {
   const update = (express: any) => {
     const content = toDisplayString(express);
     if (!node) {
-      node = text(content);
+      node = createText(content);
       insert(cacheTarget, node, cacheAnchor);
     } else {
       node.nodeValue = content;

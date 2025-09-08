@@ -1,8 +1,4 @@
 import {
-  JSXElement,
-  JSXExpressionContainer,
-  JSXFragment,
-  JSXSpreadChild,
   JSXText,
   stringLiteral,
 } from '@babel/types';
@@ -14,7 +10,7 @@ import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 
 export function transformJSXChildren(
-  { path, template, target, anchor }: TransformJSXChildrenOptions<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>
+  { path, template, target, anchor }: TransformJSXChildrenOptions
 ){
   path.forEach((children) => {
     // JSXElement

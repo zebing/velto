@@ -1,7 +1,7 @@
 import { ComponentInstance } from "./component";
 import { Ref } from "@velto/reactive";
 
-interface Template {
+export interface Template {
   mount: (target: Element, anchor?: Element | Comment) => void;
   destroy: () => void;
 }

@@ -31,16 +31,20 @@ export default function List() {
   }
   return (
     <div class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+      <Test>
+        <div>test children</div>
+      </Test>
       <button disabled>test</button>
-      {/* <div>text</div>
+      <div>text</div>
       <div class={styles.list}>
         {list.value.map(({id}) => (
             <div class={styles.item}>
               <div>{student.id}</div>
             </div>
           ))}
-      </div> */}
-      {/* {state && <div>Logical jsx</div>} */}
+      </div>
+      {state && <div>Logical jsx</div>}
+      {state ? <div>codition1</div> : <div>condition2</div>}
       {/* {render}
       <div>List Component</div>
       <button onClick={unshift}>unshift</button>

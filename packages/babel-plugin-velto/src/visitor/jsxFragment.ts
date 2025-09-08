@@ -3,5 +3,5 @@ import { JSXFragment } from "@babel/types";
 import JSXRoot from "../transform";
 
 export default function JSXFragment(path: NodePath<JSXFragment>) {
-  JSXRoot(path);
+  path.replaceWith(JSXRoot(path));
 }

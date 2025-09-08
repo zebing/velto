@@ -1,11 +1,9 @@
 import { NodePath } from '@babel/core';
 import { Expression, Identifier, isNullLiteral, isIdentifier, MemberExpression } from '@babel/types';
-import  { transformJSXElement } from './transformJSXElement';
-import  { transformJSXFragment } from './transformJSXFragment';
 import Template from '../template';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
-import { targetIdentifier, anchorIdentifier } from '../constants';
+import JSXRoot from "./";
 
 export function transformJSXConsequentExpression(options: {
   test: Expression;
@@ -16,21 +14,15 @@ export function transformJSXConsequentExpression(options: {
 }) {
   const { test, consequent, template, target, anchor } = options;
   if (consequent.isJSXElement()) {
-    const subRender = new Template(template.helper);
-    
-    transformJSXElement({ path: consequent, template: subRender, target: targetIdentifier, anchor: anchorIdentifier });
     template.condition({
-      express: subRender.generate(),
+      express: JSXRoot(consequent),
       target,
       test,
       anchor,
     });
   } else if (consequent.isJSXFragment()) {
-    const subRender = new Template(template.helper);
-    
-    transformJSXFragment({ path: consequent, template: subRender, target: targetIdentifier, anchor: anchorIdentifier });
     template.condition({
-      express: subRender.generate(),
+      express: JSXRoot(consequent),
       target,
       test,
       anchor,

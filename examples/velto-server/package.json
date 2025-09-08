@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "name": "velto-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server",
+    "build:velto-server": "npm run build:client && npm run build:server",
+    "build:client": "vite build --outDir dist/client",
+    "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
+    "preview": "cross-env NODE_ENV=production node server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/plugin-transform-typescript": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@velto/babel-plugin-velto": "workspace:*",
+    "@velto/babel-plugin-velto-server": "workspace:*",
+    "@velto/runtime": "workspace:*",
+    "@velto/server": "workspace:*",
+    "compression": "^1.8.0",
+    "express": "^5.0.1",
+    "sass": "^1.87.0",
+    "sirv": "^3.0.1",
+    "velto": "workspace:*",
+    "vite": "^5.4.19",
+    "vite-plugin-require-transform": "^1.0.21"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "vite": "^6.1.1"
+  }
+}

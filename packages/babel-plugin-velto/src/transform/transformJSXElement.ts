@@ -9,8 +9,8 @@ import { getTagLiteral } from "../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSXComponentProps } from "./transformJSXComponentProps";
 import { anchorIdentifier, targetIdentifier } from "../constants";
-import Template from "../template";
 import { TransformJSXOptions } from "../types";
+import JSXRoot from "./";
 
 export function transformJSXElement({
   path,
@@ -41,18 +41,12 @@ export function transformJSXElement({
       anchor: undefined,
     });
 
+    template.elementEnd();
+
   } else {
     if (childrenPath.length) {
-      const subRender = new Template(template.helper);
-      transformJSXChildren({
-        path: childrenPath,
-        template: subRender,
-        target: targetIdentifier,
-        anchor: anchorIdentifier,
-      });
-  
       props.properties.push(
-        objectProperty(identifier("children"), subRender.generate())
+        objectProperty(identifier("children"), JSXRoot(childrenPath))
       );
     }
   

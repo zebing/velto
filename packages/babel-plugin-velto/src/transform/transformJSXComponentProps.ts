@@ -9,12 +9,9 @@ import {
   objectExpression,
   booleanLiteral,
 } from "@babel/types";
-import { transformJSXElement } from "./transformJSXElement";
-import { transformJSXFragment } from "./transformJSXFragment";
-import Template from "../template";
 import { TransformJSXChildrenOptions } from "../types";
-import { anchorIdentifier, targetIdentifier } from "../constants";
 import { isEvent } from "@velto/shared";
+import JSXRoot from "./";
 
 export function transformJSXComponentProps({
   path,
@@ -30,28 +27,14 @@ export function transformJSXComponentProps({
 
       // JSXFragment <div child=<></>></div>
       if (value.isJSXFragment()) {
-        const subRender = new Template(template.helper);
-        transformJSXFragment({
-          path: value,
-          template: subRender,
-          target: targetIdentifier,
-          anchor: anchorIdentifier,
-        });
         properties.push(
-          objectProperty(identifier(nameLiteral), subRender.generate())
+          objectProperty(identifier(nameLiteral), JSXRoot(value))
         );
 
         // JSXElement <div child=<div></div>></div>
       } else if (value.isJSXElement()) {
-        const subRender = new Template(template.helper);
-        transformJSXElement({
-          path: value,
-          template: subRender,
-          target: targetIdentifier,
-          anchor: anchorIdentifier,
-        });
         properties.push(
-          objectProperty(identifier(nameLiteral), subRender.generate())
+          objectProperty(identifier(nameLiteral), JSXRoot(value))
         );
 
         // JSXExpressionContainer
@@ -71,28 +54,14 @@ export function transformJSXComponentProps({
 
         // JSXFragment <div child=<></>></div>
         } else if (expression.isJSXFragment()) {
-          const subRender = new Template(template.helper);
-          transformJSXFragment({
-            path: expression,
-            template: subRender,
-            target: targetIdentifier,
-            anchor: anchorIdentifier,
-          });
           properties.push(
-            objectProperty(identifier(nameLiteral), subRender.generate())
+            objectProperty(identifier(nameLiteral), JSXRoot(expression))
           );
 
           // JSXElement <div child=<div></div>></div>
         } else if (expression.isJSXElement()) {
-          const subRender = new Template(template.helper);
-          transformJSXElement({
-            path: expression,
-            template: subRender,
-            target: targetIdentifier,
-            anchor: anchorIdentifier,
-          });
           properties.push(
-            objectProperty(identifier(nameLiteral), subRender.generate())
+            objectProperty(identifier(nameLiteral), JSXRoot(expression))
           );
         } else {
           properties.push(

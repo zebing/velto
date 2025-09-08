@@ -1,9 +1,8 @@
 export enum RuntimeHelper {
-  source = '@velto/runtime',
+  source = '@velto/server',
   markRender = 'markRender',
 
   ssrComponent = 'ssrComponent',
   ssrExpression = 'ssrExpression',
   ssrRenderList = 'ssrRenderList',
-  ssrCondition = 'ssrCondition',
 }

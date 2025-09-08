@@ -28,7 +28,7 @@ export const createElement = (tag: string, isSVG?: boolean, is?: string): Elemen
   return el
 }
 
-export const text = (text: string) => doc.createTextNode(text);
+export const createText = (text: string) => doc.createTextNode(text);
 
 export const comment = (text: string) => doc.createComment(text);
 

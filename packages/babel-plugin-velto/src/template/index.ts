@@ -17,6 +17,8 @@ import {
   variableDeclaration,
   variableDeclarator,
   MemberExpression,
+  arrayExpression,
+  numericLiteral,
 } from "@babel/types";
 import {
   targetIdentifier,
@@ -24,6 +26,8 @@ import {
   mountIdentifier,
   updateIdentifier,
   destroyIdentifier,
+  hydradeIdentifier,
+  NodeType,
 } from "../constants";
 import { RuntimeHelper } from "../helper";
 import {
@@ -31,12 +35,14 @@ import {
   getVariableDeclaration,
 } from "../utils";
 import { Helper } from "../helper";
+import Hydrate from "./hydrate";
 
 export default class Template {
   private bodyStatement: Statement[] = [];
   private mountStatement: Statement[] = [];
   private updateStatement: Statement[] = [];
   private destroyStatement: Statement[] = [];
+  private hydrate: Hydrate = new Hydrate();
 
   constructor(public helper: Helper) {}
 
@@ -71,6 +77,11 @@ export default class Template {
     } = options;
     const id = this.helper.rootPath.scope.generateUidIdentifier("_element");
 
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.element),
+      tag,
+    });
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -101,6 +112,10 @@ export default class Template {
     return id;
   }
 
+  public elementEnd() {
+    this.hydrate.parent();
+  }
+
   public text(options: {
     str: StringLiteral;
     target: Identifier | MemberExpression;
@@ -108,6 +123,12 @@ export default class Template {
   }): Identifier {
     const { str, target, anchor } = options;
     const id = this.helper.rootPath.scope.generateUidIdentifier("text");
+
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.text),
+    });
+    this.hydrate.parent();
 
     this.bodyStatement.push(
       getVariableDeclaration(
@@ -119,16 +140,13 @@ export default class Template {
 
     this.mountStatement.push(
       getExpressionStatement(
-        this.helper.getHelperNameIdentifier(RuntimeHelper.append),
-        [target, id, anchor].filter(Boolean) as Identifier[]
+        memberExpression(id, mountIdentifier),
+        [target, anchor].filter(Boolean) as Identifier[]
       )
     );
 
     this.destroyStatement.push(
-      getExpressionStatement(
-        this.helper.getHelperNameIdentifier(RuntimeHelper.remove),
-        [id]
-      )
+      getExpressionStatement(memberExpression(id, destroyIdentifier), [])
     );
 
     return id;
@@ -147,6 +165,13 @@ export default class Template {
       anchor,
     } = options;
     const id = this.helper.rootPath.scope.generateUidIdentifier("_component");
+
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.component),
+    });
+    this.hydrate.parent();
+
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -192,6 +217,12 @@ export default class Template {
     );
     const id = this.helper.rootPath.scope.generateUidIdentifier("condition");
 
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.condition),
+    });
+    this.hydrate.parent();
+
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -233,6 +264,12 @@ export default class Template {
     } = options;
     const id = this.helper.rootPath.scope.generateUidIdentifier("express");
 
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.expression),
+    });
+    this.hydrate.parent();
+
     this.bodyStatement.push(
       getVariableDeclaration(
         id,
@@ -273,6 +310,13 @@ export default class Template {
       anchor,
     } = options;
     const id = this.helper.rootPath.scope.generateUidIdentifier("renderList");
+
+    this.hydrate.node({
+      id,
+      type: numericLiteral(NodeType.renderList),
+    });
+    this.hydrate.parent();
+
     this.bodyStatement.push(
       variableDeclaration("const", [
         variableDeclarator(id, express),
@@ -301,7 +345,15 @@ export default class Template {
   }
 
   private getTemplateExpression() {
-    return objectExpression([
+    const methods = [
+      objectMethod(
+        "method",
+        hydradeIdentifier,
+        [],
+        blockStatement([
+          returnStatement(this.hydrate.statement),
+        ])
+      ),
       objectMethod(
         "method",
         mountIdentifier,
@@ -320,7 +372,9 @@ export default class Template {
         [],
         blockStatement(this.destroyStatement)
       ),
-    ]);
+    ];
+
+    return objectExpression(methods);
   }
 
   public generate(): CallExpression {
