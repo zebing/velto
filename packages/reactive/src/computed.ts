@@ -1,5 +1,5 @@
 import { createDep } from "./dep";
-import { Effect } from "./effect";
+import { Effect, EffectType } from "./effect";
 import { activeEffect } from "./effect";
 import { trackEffect, triggerEffect } from "./refEffect";
 import { isFunction } from "@velto/shared";
@@ -17,6 +17,7 @@ export class Computed<T = any> {
   public dep = createDep();
   private __value!: T;
   private dirty = true;
+  private effect: EffectType;
   
 
   constructor(
@@ -24,23 +25,24 @@ export class Computed<T = any> {
     private setter: ComputedSetter<T>
   ) {
     const scheduler = () => {
-      effect.run();
+      this.dirty = true;
       triggerEffect(this, this.dep);
     };
-    scheduler.id = 0;
 
-    const effect = new Effect(() => {
+    this.effect = new Effect(() => {
       this.__value = this.getter();
     }, scheduler);
-
-    effect.run();
   }
 
   public refreshValue () {
-
+    this.effect.run();
+    this.dirty = false
   }
 
   public get value() {
+    if (this.dirty) {
+      this.refreshValue();
+    }
     trackEffect(activeEffect, this);
     return this.__value;
   }
