@@ -13,17 +13,18 @@ export interface ComputedOptions<T> {
 }
 
 export class Computed<T = any> {
+  public [ReactiveFlags.IS_COMPUTED] = true;
   public dep = createDep();
   private __value!: T;
-  public [ReactiveFlags.IS_COMPUTED] = true;
+  private dirty = true;
+  
 
   constructor(
     private getter: ComputedGetter<T>,
     private setter: ComputedSetter<T>
   ) {
     const scheduler = () => {
-      const value = this.getter();
-      this.__value = value;
+      effect.run();
       triggerEffect(this, this.dep);
     };
     scheduler.id = 0;
@@ -33,6 +34,10 @@ export class Computed<T = any> {
     }, scheduler);
 
     effect.run();
+  }
+
+  public refreshValue () {
+
   }
 
   public get value() {

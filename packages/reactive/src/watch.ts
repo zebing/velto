@@ -37,14 +37,27 @@ export function watch(
     getter = () => undefined;
   }
 
+  const isEqual = (a: unknown, b: unknown) => {
+    if (Array.isArray(source)) {
+      return (a as Array<unknown>).every((value: unknown, index: number) => 
+        value === (b as Array<unknown>)[index]
+      );
+    }
+    return a === b;
+  }
+
   const scheduler = () => {
     const value = effect.run();
-    if (!pause) {
-      cb?.(value, oldValue);
+    console.log('+++++', value)
+    if (pause || isEqual(value, oldValue)) {
+      return;
     }
+    const cacheOldValue = oldValue;
     oldValue = value;
+    try {
+      cb?.(value, cacheOldValue);
+    } catch(err) {}
   };
-  scheduler.id = 0;
   const effect = new Effect(getter, scheduler, true);
   oldValue = effect.run();
 

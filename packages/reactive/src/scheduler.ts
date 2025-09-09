@@ -2,7 +2,7 @@ import { callUnstableFunc } from "@velto/shared";
 import { Reactive } from "./types";
 
 export interface Scheduler extends Function {
-  id: number;
+  id?: number;
   ref?: Reactive;
 }
 
@@ -16,7 +16,7 @@ export function enqueueScheduler(schedule: Scheduler) {
   // Inserted after an id smaller than it. Ensure that updates from parent to child components.
   let insertIndex = 0;
   const existInQueue = queue.some((item, index) => {
-    if (item.id < schedule.id) {
+    if (item.id! < schedule.id!) {
       insertIndex = index + 1;
     }
     

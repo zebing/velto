@@ -3,20 +3,6 @@ import { watch } from '../src/watch';
 import { ref } from '../src/ref';
 import { computed } from '../src/computed';
 
-// Mock functions from @velto/shared
-vi.mock('@velto/shared', () => ({
-  isFunction: (fn: any) => typeof fn === 'function',
-  isObject: (val: unknown) => val !== null && typeof val === 'object',
-  callUnstableFunc: (fn: Function, args?: unknown[]) => {
-    try {
-      return fn(...(args ?? []));
-    } catch (err) {
-      console.log(err);
-    }
-    return null;
-  }
-}));
-
 describe('watch', () => {
   let mockCallback: ReturnType<typeof vi.fn>;
 
@@ -353,17 +339,21 @@ describe('watch', () => {
       const numberRef = ref(1);
       const stringRef = ref('hello');
       const booleanRef = ref(true);
+      const hasChange = ref(false);
       
       return new Promise<void>((resolve) => {
-        watch([numberRef, stringRef, booleanRef], (newVal, oldVal) => {
-          expect(newVal).toEqual([2, 'world', false]);
-          expect(oldVal).toEqual([1, 'hello', true]);
+        watch([numberRef, stringRef, booleanRef, hasChange], (newVal, oldVal) => {
+          if (hasChange.value) {
+            expect(newVal).toEqual([2, 'world', false, true]);
+            expect(oldVal).toEqual([1, 'hello', true, true]);
+          }
           resolve();
         });
         
         numberRef.setValue(2);
         stringRef.setValue('world');
         booleanRef.setValue(false);
+        hasChange.setValue(true);
       });
     });
   });
@@ -461,21 +451,18 @@ describe('watch', () => {
       
       // Verify effect is created and working
       source.setValue(1);
-      
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          expect(mockCallback).toHaveBeenCalledWith(1, 0);
           
-          // Verify effect can be destroyed
-          stopHandle.stop();
-          source.setValue(2);
-          
-          setTimeout(() => {
-            expect(mockCallback).toHaveBeenCalledTimes(1);
-            resolve(null);
-          }, 10);
-        }, 10);
-      })
+      // 等待回调执行
+      await new Promise((res) => setTimeout(res, 50));
+      expect(mockCallback).toHaveBeenCalledWith(1, 0);
+
+      // Verify effect can be destroyed
+      stopHandle.stop();
+      source.setValue(2);
+
+      // 再等待一点时间，确保 stop 生效
+      await new Promise((res) => setTimeout(res, 10));
+      expect(mockCallback).toHaveBeenCalledTimes(1);
     });
 
     it('should handle effect.run() return value correctly', async () => {

@@ -18,9 +18,11 @@ export function trackEffect(activeEffect: EffectType | undefined, reactive: Reac
 
 export function triggerEffect(key: Reactive, dep: Dep) {
   dep?.forEach((effect) => {
-    if (effect.scheduler) {
+    if (effect.scheduler?.id) {
       effect.scheduler.ref = key;
       enqueueScheduler(effect.scheduler);
+    } else {
+      effect.scheduler();
     }
   });
 }
