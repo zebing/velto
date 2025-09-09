@@ -107,8 +107,8 @@ describe('watch', () => {
           setTimeout(() => {
             expect(mockCallback).toHaveBeenCalledTimes(1);
             resolve();
-          }, 10);
-        }, 10);
+          });
+        });
       });
     });
 
@@ -150,7 +150,7 @@ describe('watch', () => {
         setTimeout(() => {
           expect(mockCallback).not.toHaveBeenCalled();
           resolve();
-        }, 10);
+        });
       });
     });
 
@@ -171,7 +171,7 @@ describe('watch', () => {
           expect(mockCallback).toHaveBeenCalledTimes(1);
           
           resolve(null);
-        }, 50);
+        });
       })
     });
 
@@ -193,8 +193,8 @@ describe('watch', () => {
           setTimeout(() => {
             expect(mockCallback).not.toHaveBeenCalled();
             resolve();
-          }, 10);
-        }, 10);
+          });
+        });
       });
     });
   });
@@ -221,7 +221,7 @@ describe('watch', () => {
         });
 
         // Manual trigger, although it won't actually listen to changes
-        setTimeout(() => resolve(), 50);
+        setTimeout(() => resolve());
       });
     });
 
@@ -245,8 +245,8 @@ describe('watch', () => {
           setTimeout(() => {
             expect(callCount).toBe(2);
             resolve();
-          }, 10);
-        }, 10);
+          });
+        });
       });
     });
   });
@@ -453,7 +453,7 @@ describe('watch', () => {
       source.setValue(1);
           
       // 等待回调执行
-      await new Promise((res) => setTimeout(res, 50));
+      await new Promise((res) => setTimeout(res));
       expect(mockCallback).toHaveBeenCalledWith(1, 0);
 
       // Verify effect can be destroyed
@@ -461,7 +461,7 @@ describe('watch', () => {
       source.setValue(2);
 
       // 再等待一点时间，确保 stop 生效
-      await new Promise((res) => setTimeout(res, 10));
+      await new Promise((res) => setTimeout(res));
       expect(mockCallback).toHaveBeenCalledTimes(1);
     });
 
@@ -549,7 +549,7 @@ describe('watch', () => {
       source.setValue(1);
       setTimeout(() => {
         expect(mockCallback).not.toHaveBeenCalled();
-      }, 10);
+      });
     });
 
     it('should efficiently handle deep object watching', async () => {
