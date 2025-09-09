@@ -48,7 +48,6 @@ export function watch(
 
   const scheduler = () => {
     const value = effect.run();
-    console.log('+++++', value)
     if (pause || isEqual(value, oldValue)) {
       return;
     }
