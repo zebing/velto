@@ -47,10 +47,10 @@ export function watch(
   }
 
   const scheduler = () => {
+    if (pause) return;
     const value = effect.run();
-    if (pause || isEqual(value, oldValue)) {
-      return;
-    }
+
+    if (isEqual(value, oldValue)) return;
     const cacheOldValue = oldValue;
     oldValue = value;
     try {
