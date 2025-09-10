@@ -34,8 +34,6 @@ export class Computed<T = any> {
       const oldValue = this.__value;
       this.__value = this.getter(oldValue);
     }, scheduler);
-    
-    this.refreshValue();
   }
 
   public refreshValue () {
