@@ -18,6 +18,7 @@ export class Computed<T = any> {
   private __value!: T;
   private dirty = true;
   private effect: EffectType;
+  private running = false;
   
 
   constructor(
@@ -30,13 +31,23 @@ export class Computed<T = any> {
     };
 
     this.effect = new Effect(() => {
-      this.__value = this.getter();
+      const oldValue = this.__value;
+      this.__value = this.getter(oldValue);
     }, scheduler);
+    
+    this.refreshValue();
   }
 
   public refreshValue () {
-    this.effect.run();
-    this.dirty = false
+    if (this.running) {
+      return;
+    }
+    this.running = true;
+    try {
+      this.effect.run();
+      this.dirty = false;
+    } catch(err) {}
+    this.running = false;
   }
 
   public get value() {
