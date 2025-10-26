@@ -59,10 +59,7 @@ export function transformJSXChildren(
       const str = (children.node as JSXText).value;
       // 过滤 "\n      ..." 字符
       if (!/^\n\s+$/gi.test(str)) {
-        context.indent();
-        context.newline();
         context.pushStringLiteral(stringLiteral(str));
-        context.deindent();
       }
     }
   });

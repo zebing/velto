@@ -5,25 +5,8 @@ export default class TemplateLiteralContext {
 	public hoistExpressions: VariableDeclaration[] = [];
 
 	constructor(
-		public indentLevel = 0,
 		public rootContext?: TemplateLiteralContext,
 	) {}
-
-	private pushNewline(n: number) {
-		this.materielList.push(stringLiteral('\n' + `  `.repeat(n)));
-	}
-
-	public indent() {
-		++this.indentLevel;
-	}
-
-	public deindent() {
-		--this.indentLevel
-	}
-
-	public newline() {
-		this.pushNewline(this.indentLevel);
-	}
 
 	public pushHoistExpressions(expression: VariableDeclaration) {
 		if (this.rootContext) {

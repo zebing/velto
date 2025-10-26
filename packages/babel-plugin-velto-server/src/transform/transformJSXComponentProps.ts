@@ -30,7 +30,7 @@ export function transformJSXComponentProps({
 
       // JSXFragment <div child=<></>></div>
       if (value.isJSXFragment()) {
-        const subContext = new TemplateLiteralContext(context.indentLevel, context);
+        const subContext = new TemplateLiteralContext(context);
         transformJSXFragment({
           path: value,
           context: subContext,
@@ -41,7 +41,7 @@ export function transformJSXComponentProps({
 
         // JSXElement <div child=<div></div>></div>
       } else if (value.isJSXElement()) {
-        const subContext = new TemplateLiteralContext(context.indentLevel, context);
+        const subContext = new TemplateLiteralContext(context);
         transformJSXElement({
           path: value,
           context: subContext,
@@ -57,7 +57,7 @@ export function transformJSXComponentProps({
 
         // JSXFragment <div child=<></>></div>
         if (expression.isJSXFragment()) {
-          const subContext = new TemplateLiteralContext(context.indentLevel, context);
+          const subContext = new TemplateLiteralContext(context);
           transformJSXFragment({
             path: expression,
             context: subContext,
@@ -68,7 +68,7 @@ export function transformJSXComponentProps({
 
           // JSXElement <div child=<div></div>></div>
         } else if (expression.isJSXElement()) {
-          const subContext = new TemplateLiteralContext(context.indentLevel, context);
+          const subContext = new TemplateLiteralContext(context);
           transformJSXElement({
             path: expression,
             context: subContext,

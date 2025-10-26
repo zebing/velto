@@ -14,14 +14,14 @@ export function transformJSXConsequentExpression(options: {
 }) {
   const { test, consequent, context } = options;
   if (consequent.isJSXElement()) {
-    const subContext = new TemplateLiteralContext(context.indentLevel + 1, context);
+    const subContext = new TemplateLiteralContext(context);
     transformJSXElement({ path: consequent, context: subContext });
     context.pushExpression(
       conditionalExpression(test, subContext.generateTemplateLiteral(), stringLiteral(''))
     );
     
   } else if (consequent.isJSXFragment()) {
-    const subContext = new TemplateLiteralContext(context.indentLevel + 1, context);
+    const subContext = new TemplateLiteralContext(context);
     transformJSXFragment({ path: consequent, context: subContext });
     context.pushExpression(
       conditionalExpression(test, subContext.generateTemplateLiteral(), stringLiteral(''))
@@ -50,14 +50,11 @@ export function transformJSXConsequentExpression(options: {
     !(isIdentifier(consequent.node) && consequent.node.name === 'undefined')
   ) {
 
-    context.indent();
-    context.newline();
     context.pushExpression(
       callExpression(
         consequent.state.helper.getHelperNameIdentifier(RuntimeHelper.ssrExpression),
         [consequent.node],
       ),
     );
-    context.deindent();
   }
 }

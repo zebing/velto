@@ -27,8 +27,6 @@ export function transformJSXElement({
   
   
   if (isNativeTag(tag)) {
-    context.indent();
-    context.newline();
     context.pushStringLiteral(
         stringLiteral(`<${tag}`)
     );
@@ -45,18 +43,16 @@ export function transformJSXElement({
       context,
     });
 
-    context.newline();
     context.pushStringLiteral(
       stringLiteral(`</${tag}>`)
     );
-    context.deindent();
   } else {
     const props = transformJSXComponentProps({
         path: attributesPath,
         context,
       });
     if (childrenPath.length) {
-      const subContext = new TemplateLiteralContext(context.indentLevel, context);
+      const subContext = new TemplateLiteralContext(context);
       transformJSXChildren({
         path: childrenPath,
         context: subContext,
@@ -76,16 +72,11 @@ export function transformJSXElement({
       )
     );
 
-    context.indent();
-    context.newline();
-
     context.pushExpression(
       callExpression(
         id,
         [],
       )
     );
-
-    context.deindent();
   }
 }

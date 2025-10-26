@@ -9,8 +9,6 @@ export function transformJSXExpression({
   const expression = path.get('expression');
   const renderListExpression = getRenderList(expression.node as Expression, expression);
 
-  context.indent();
-  context.newline();
   let id = expression.node  as Identifier;
   if (renderListExpression) {
     id = path.state.helper.rootPath.scope.generateUidIdentifier("renderList");
@@ -27,6 +25,4 @@ export function transformJSXExpression({
       [id],
     ),
   );
-
-  context.deindent();
 }
