@@ -21,20 +21,20 @@ import { NodePath } from "@babel/traverse";
 import { TransformJSXChildrenOptions } from "../types";
 import { isEvent } from "@velto/shared";
 
-const SPECIAL_ATTRIBUTES = ['innerHTML', 'textContent', 'ref'];
-
 export function transformJSXElementAttribute({
   path,
   context,
 }: TransformJSXChildrenOptions) {
   path.forEach((attribute) => {
+    // JSXSpreadAttribute
+    if (attribute.isJSXSpreadAttribute()) {
+      handleJSXSpreadAttribute(attribute, context);
+      return;
+    }
+
     // JSXAttribute
     if (attribute.isJSXAttribute()) {
       handleJSXAttribute(attribute, context);
-
-      // JSXSpreadAttribute
-    } else {
-      handleJSXSpreadAttribute(attribute, context);
     }
   });
 }
@@ -46,13 +46,21 @@ function handleJSXAttribute(attribute: NodePath<JSXAttribute>, context: Transfor
   // JSXFragment <div child=<></>></div>
   // JSXElement <div child=<div></div>></div>
   if (value.isJSXFragment() || value.isJSXElement()) {
+    context.pushStringLiteral(
+      stringLiteral(` ${nameLiteral}='${value.getSource()}'`)
+    );
     return;
   }
 
   if (value.isJSXExpressionContainer()) {
     const expression = value.get("expression");
 
-    if (!(isEvent(nameLiteral) || SPECIAL_ATTRIBUTES.includes(nameLiteral) || expression.isJSXFragment() || expression.isJSXElement())) {
+    if (expression.isJSXFragment() || expression.isJSXElement()) {
+      context.pushStringLiteral(
+        stringLiteral(` ${nameLiteral}=${expression.getSource()}`)
+      );
+      
+    } else if (!(isEvent(nameLiteral) || ['ref'].includes(nameLiteral))) {
       context.pushStringLiteral(
         stringLiteral(` ${nameLiteral}=`)
       );
@@ -61,7 +69,7 @@ function handleJSXAttribute(attribute: NodePath<JSXAttribute>, context: Transfor
 
   } else if (value.node) {
     context.pushStringLiteral(
-      stringLiteral(` ${nameLiteral}=${value.getSource()}`)
+      stringLiteral(` ${nameLiteral}='${value.getSource()}'`)
     );
 
   } else {

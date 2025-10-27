@@ -49,12 +49,15 @@ export function transformJSXConsequentExpression(options: {
     !isNullLiteral(consequent.node) && 
     !(isIdentifier(consequent.node) && consequent.node.name === 'undefined')
   ) {
-
     context.pushExpression(
-      callExpression(
-        consequent.state.helper.getHelperNameIdentifier(RuntimeHelper.ssrExpression),
-        [consequent.node],
-      ),
+      conditionalExpression(
+        test, 
+        callExpression(
+          consequent.state.helper.getHelperNameIdentifier(RuntimeHelper.ssrExpression),
+          [consequent.node],
+        ), 
+        stringLiteral('')
+      )
     );
   }
 }

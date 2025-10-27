@@ -1,7 +1,13 @@
-import { ssrComponent as _ssrComponent, ssrRenderList as _ssrRenderList, ssrExpression as _ssrExpression, markRender as _markRender } from "@velto/runtime";
+import { markRender as _markRender } from "@velto/server";
 import { ref } from "@velto/runtime";
 import styles from "./styles.module.scss";
 let i = 0;
+const html = `
+  <div>
+  test html
+  <span style="color: green;border: 1px solid blue;">test html</span>
+  </div>
+  `;
 export default function List() {
   let state = ref(true);
   const list = ref([{
@@ -50,77 +56,41 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   };
-  const _renderTest = _ssrComponent(Test, {
-    name: "test",
-    onClick: () => {},
-    style: {
-      color: 'red'
-    }
-  });
-  const _renderList = _ssrRenderList(list.value, ({
-    id
-  }, _index, _array) => _markRender(() => {
-    return `
-  <div class=${styles.item}>
-    <div>
-      ${_ssrExpression(student.id)}
-    </div>
-  </div>`;
-  }));
-  const _renderList2 = _ssrRenderList(list, (student, _index2, _array2) => _markRender(() => {
-    return `
-  <div class=${styles.item}>
-    <div>
-      ${_ssrExpression(student.id)}
-    </div>
-    <div>
-      ${_ssrExpression(student.name)}
-    </div>
-    <div>
-      ${_ssrExpression(student.grade)}
-    </div>
-    <div>
-      ${_ssrExpression(student.age)}
-    </div>
-  </div>`;
-  }));
   return _markRender(() => {
-    return `
-  <div${Object.entries(styles).map(([key, value]) => ` ${key}=${value}`)} disabled="true" test="test" class=${styles.wrap}>
-    ${_renderTest()}
-    <button disabled="true">
-      test
-    </button>
-    <div>
-      <div>
-        text
-      </div>
-    </div>
-    <div class=${styles.list}>
-      ${_ssrExpression(_renderList)}
-    </div>${state ? `
-      <div>
-        Logical jsx
-      </div>` : ""}
-    ${_ssrExpression(render)}
-    <div>
-      List Component
-    </div>
-    <button>
-      unshift
-    </button>
-    <button>
-      append
-    </button>
-    <button>
-      insert
-    </button>
-    <button>
-      deletefrom10
-    </button>
-    <div class=${styles.list}>
-      ${_ssrExpression(_renderList2)}
-    </div>
-  </div>`;
+    return `<div><div innerHTML=${html}></div><div textContent=${html}></div></div>`;
   });
+  //   return (
+  //     <div {...styles} disabled test="test" class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+  //       <Test name="test" onClick={() => {}} style={{color: 'red'}} />
+  //       <button disabled>test</button>
+  //       <div>
+  //         <div>text</div>
+  //       </div>
+  //       <div class={styles.list}>
+  //         {list.value.map(({id}) => (
+  //             <div class={styles.item}>
+  //               <div>{student.id}</div>
+  //             </div>
+  //           ))}
+  //       </div>
+  //       {state && <div>Logical jsx</div>}
+  //       {render}
+  //       <div>List Component</div>
+  //       <button onClick={unshift}>unshift</button>
+  //       <button onClick={append}>append</button>
+  //       <button onClick={insert}>insert</button>
+  //       <button onClick={deletefrom10}>deletefrom10</button>
+  //       <div class={styles.list}>
+  //         {list.map((student) => (
+  //           <div class={styles.item}>
+  //             <div>{student.id}</div>
+  //             <div>{student.name}</div>
+  //             <div>{student.grade}</div>
+  //             <div>{student.age}</div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     </div>
+
+  // )
 }

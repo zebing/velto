@@ -42,7 +42,7 @@ export default function App() {
       <ElementAttribute />
       {true ? <Test /> : null}
       <div>test</div>
-      {/* <AsyncComponent /> */}
+      <AsyncComponent />
       <LogicalExpression>
         <Test />
       </LogicalExpression>

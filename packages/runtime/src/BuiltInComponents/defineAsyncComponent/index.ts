@@ -40,12 +40,21 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
   let componentTemplate: CompileTemplate | undefined;
   let props: Record<string, unknown> = {};
   let cacheTarget: Element;
-  const cacheAnchor = comment(" ");
+  let cacheAnchor: Comment | undefined = undefined;
+
+  const getComment = (): Comment => {
+    if (!cacheAnchor) {
+      return comment('');
+    }
+
+    return cacheAnchor;
+  }
 
   const renderComponent = <T extends Record<string, unknown>>(currentComponent?: Component<T>, props: T = {} as T) => {
     componentTemplate?.destroy();
 
     if (currentComponent) {
+      const cacheAnchor = getComment();
       const componentRender = currentComponent(props);
       componentTemplate = componentRender?.();
       componentTemplate?.mount(cacheTarget, cacheAnchor);
@@ -94,6 +103,7 @@ export function defineAsyncComponent(source: AsyncComponentLoader<Component> | A
 
     return markRender(() => ({
       mount: (target, anchor) => {
+        const cacheAnchor = getComment();
         cacheTarget = target;
         append(target, cacheAnchor);
         renderComponent(loadingComponent, props),

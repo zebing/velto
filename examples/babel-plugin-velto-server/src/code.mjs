@@ -4,6 +4,13 @@ import styles from "./styles.module.scss";
 
 let i = 0;
 
+  const html = `
+  <div>
+  test html
+  <span style="color: green;border: 1px solid blue;">test html</span>
+  </div>
+  `
+
 export default function List() {
   let state = ref(true)
   const list = ref([
@@ -29,38 +36,42 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   }
-  return (
-    <div {...styles} disabled test="test" class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
-      <Test name="test" onClick={() => {}} style={{color: 'red'}} />
-      <button disabled>test</button>
-      <div>
-        <div>text</div>
-      </div>
-      <div class={styles.list}>
-        {list.value.map(({id}) => (
-            <div class={styles.item}>
-              <div>{student.id}</div>
-            </div>
-          ))}
-      </div>
-      {state && <div>Logical jsx</div>}
-      {render}
-      <div>List Component</div>
-      <button onClick={unshift}>unshift</button>
-      <button onClick={append}>append</button>
-      <button onClick={insert}>insert</button>
-      <button onClick={deletefrom10}>deletefrom10</button>
-      <div class={styles.list}>
-        {list.map((student) => (
-          <div class={styles.item}>
-            <div>{student.id}</div>
-            <div>{student.name}</div>
-            <div>{student.grade}</div>
-            <div>{student.age}</div>
-          </div>
-        ))}
-      </div>
-    </div>
+  return <div>
+    <div innerHTML={html}></div>
+      <div textContent={html}></div>
+  </div>
+//   return (
+//     <div {...styles} disabled test="test" class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >
+//       <Test name="test" onClick={() => {}} style={{color: 'red'}} />
+//       <button disabled>test</button>
+//       <div>
+//         <div>text</div>
+//       </div>
+//       <div class={styles.list}>
+//         {list.value.map(({id}) => (
+//             <div class={styles.item}>
+//               <div>{student.id}</div>
+//             </div>
+//           ))}
+//       </div>
+//       {state && <div>Logical jsx</div>}
+//       {render}
+//       <div>List Component</div>
+//       <button onClick={unshift}>unshift</button>
+//       <button onClick={append}>append</button>
+//       <button onClick={insert}>insert</button>
+//       <button onClick={deletefrom10}>deletefrom10</button>
+//       <div class={styles.list}>
+//         {list.map((student) => (
+//           <div class={styles.item}>
+//             <div>{student.id}</div>
+//             <div>{student.name}</div>
+//             <div>{student.grade}</div>
+//             <div>{student.age}</div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
  
-)
+// )
 }
