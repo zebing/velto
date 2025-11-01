@@ -5,7 +5,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm -r dev",
     "test": "vitest run",
     "clean": "pnpm -r clean",
     "release": "pnpm build && node scripts/release.mjs",

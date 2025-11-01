@@ -1,4 +1,4 @@
-import { markRender as _markRender } from "@velto/server";
+import { ssrComponent as _ssrComponent, ssrExpression as _ssrExpression, ssrEscapeHtml as _ssrEscapeHtml, markRender as _markRender } from "@velto/server";
 import { ref } from "@velto/runtime";
 import styles from "./styles.module.scss";
 let i = 0;
@@ -56,8 +56,11 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   };
+  const _renderTest = _ssrComponent(Test, {
+    child: `<div>child</div>`
+  });
   return _markRender(() => {
-    return `<div><div innerHTML=${html}></div><div textContent=${html}></div></div>`;
+    return `<div name='name'>${_renderTest()}<div${Object.entries(List).map(([key, value]) => ` ${key}=${value}`).join("")}>${_ssrExpression(html)}</div><div>${_ssrEscapeHtml(html)}</div></div>`;
   });
   //   return (
   //     <div {...styles} disabled test="test" class={styles.wrap} onClick={i > 6  ? deletefrom10 : undefined} >

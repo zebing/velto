@@ -36,8 +36,11 @@ export default function List() {
   const deletefrom10 = () => {
     list.splice(10, 1);
   }
-  return <div>
-    <div innerHTML={html}></div>
+  return <div name={'name'}>
+    <Test
+      child={<div>child</div>}
+    ></Test>
+    <div innerHTML={html} {...List}></div>
       <div textContent={html}></div>
   </div>
 //   return (

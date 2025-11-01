@@ -5,4 +5,9 @@ export enum RuntimeHelper {
   ssrComponent = 'ssrComponent',
   ssrExpression = 'ssrExpression',
   ssrRenderList = 'ssrRenderList',
+  ssrEscapeHtml = 'ssrEscapeHtml',
+  ssrSpreadAttribute = 'ssrSpreadAttribute',
+  ssrClass = 'ssrClass',
+  ssrStyle = 'ssrStyle',
+  ssrAttribute = 'ssrAttribute',
 }

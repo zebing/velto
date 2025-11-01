@@ -14,6 +14,14 @@ import AttachComponent from './components/AttachComponent';
 
 export default function App() {
   const name: string = 'name';
+  const spreadAttribute = {
+    style: 'color: blue',
+    class: 'test',
+    name: 'spread',
+    child: `
+      <div>test</div>
+    `
+  }
   onCreated(() => {
     console.log('+++++onCreated')
   })
@@ -51,6 +59,7 @@ export default function App() {
       </ConditionalExpression>
       <List />
       <ParentChild />
+      <div {...spreadAttribute}>handleJSXSpreadAttribute</div>
     </div>
   )
 }

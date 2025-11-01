@@ -1,4 +1,4 @@
-import { isFunction, isString } from "@velto/shared";
+import { isFunction, isString, stringCurrying } from "@velto/shared";
 import { SSRRender, RefFunction, SSRRenderFN } from "../types";
 import type { Reactive } from "@velto/reactive";
 import { isReactive } from '@velto/reactive';
@@ -33,3 +33,7 @@ export function setRef(ref: Reactive | RefFunction, value: Element | ComponentIn
     (ref as Reactive)?.setValue?.(value);
   }
 }
+
+export const shouldIgnoreAttribute = stringCurrying(
+  `key,ref,innerHTML,textContent`,
+)

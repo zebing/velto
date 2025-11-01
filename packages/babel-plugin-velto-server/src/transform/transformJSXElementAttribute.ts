@@ -1,25 +1,15 @@
 import {
   JSXSpreadAttribute,
-  objectProperty,
-  ObjectProperty,
-  identifier,
   Expression,
-  SpreadElement,
-  spreadElement,
-  objectExpression,
-  booleanLiteral,
   stringLiteral,
   callExpression,
-  memberExpression,
-  arrowFunctionExpression,
-  templateLiteral,
-  templateElement,
-  arrayPattern,
   JSXAttribute,
+  isStringLiteral,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import { TransformJSXChildrenOptions } from "../types";
-import { isEvent } from "@velto/shared";
+import { isEvent, isBooleanAttribute } from "@velto/shared";
+import { RuntimeHelper } from "../helper";
 
 export function transformJSXElementAttribute({
   path,
@@ -39,70 +29,66 @@ export function transformJSXElementAttribute({
   });
 }
 
-function handleJSXAttribute(attribute: NodePath<JSXAttribute>, context: TransformJSXChildrenOptions['context']) {
+function handleJSXAttribute(
+  attribute: NodePath<JSXAttribute>,
+  context: TransformJSXChildrenOptions["context"]
+) {
   const nameLiteral = attribute.get("name").getSource();
   const value = attribute.get("value");
 
-  // JSXFragment <div child=<></>></div>
-  // JSXElement <div child=<div></div>></div>
-  if (value.isJSXFragment() || value.isJSXElement()) {
-    context.pushStringLiteral(
-      stringLiteral(` ${nameLiteral}='${value.getSource()}'`)
-    );
+  if (
+    isEvent(nameLiteral) ||
+    ["innerHTML", "textContent", "ref"].includes(nameLiteral)
+  ) {
     return;
   }
 
+  let resultValue: Expression | string;
+
   if (value.isJSXExpressionContainer()) {
     const expression = value.get("expression");
-
-    if (expression.isJSXFragment() || expression.isJSXElement()) {
-      context.pushStringLiteral(
-        stringLiteral(` ${nameLiteral}=${expression.getSource()}`)
-      );
-      
-    } else if (!(isEvent(nameLiteral) || ['ref'].includes(nameLiteral))) {
-      context.pushStringLiteral(
-        stringLiteral(` ${nameLiteral}=`)
-      );
-      context.pushExpression(expression.node as Expression);
-    }
-
-  } else if (value.node) {
-    context.pushStringLiteral(
-      stringLiteral(` ${nameLiteral}='${value.getSource()}'`)
-    );
-
+    resultValue = expression.node as Expression;
   } else {
-    context.pushStringLiteral(stringLiteral(` ${nameLiteral}="true"`))
+    resultValue = stringLiteral(value.getSource() || "true");
+  }
+
+  if (isBooleanAttribute(nameLiteral)) {
+    resultValue = stringLiteral("");
+  }
+
+  let helperId: string;
+
+  if (nameLiteral === "class") {
+    helperId = RuntimeHelper.ssrClass;
+  } else if (nameLiteral === "style") {
+    helperId = RuntimeHelper.ssrStyle;
+  } else {
+    helperId = RuntimeHelper.ssrAttribute;
+  }
+
+  if (isStringLiteral(resultValue)) {
+    context.pushStringLiteral(
+      stringLiteral(` ${nameLiteral}=${resultValue.value}`)
+    );
+  } else {
+    context.pushStringLiteral(stringLiteral(` ${nameLiteral}='`));
+    context.pushExpression(
+      callExpression(attribute.state.helper.getHelperNameIdentifier(helperId), [
+        resultValue,
+      ])
+    );
+    context.pushStringLiteral(stringLiteral(`'`));
   }
 }
 
-function handleJSXSpreadAttribute(attribute: NodePath<JSXSpreadAttribute>, context: TransformJSXChildrenOptions['context']) {
+function handleJSXSpreadAttribute(
+  attribute: NodePath<JSXSpreadAttribute>,
+  context: TransformJSXChildrenOptions["context"]
+) {
   context.pushExpression(
     callExpression(
-      memberExpression(
-        callExpression(
-          memberExpression(
-            identifier('Object'),
-            identifier('entries'),
-          ),
-          [(attribute.node as JSXSpreadAttribute).argument]
-        ),
-        identifier('map'),
-      ),
-      [
-        arrowFunctionExpression(
-          [arrayPattern([identifier('key'), identifier('value')])],
-          templateLiteral(
-            [
-              templateElement({ raw: ' ', cooked: ' ' }, false),
-              templateElement({ raw: '=', cooked: '=' }, false),
-              templateElement({ raw: '', cooked: '' }, true),
-            ],
-            [identifier('key'), identifier('value')]
-          ),
-        )
-      ]
+      attribute.state.helper.getHelperNameIdentifier(RuntimeHelper.ssrSpreadAttribute), 
+      [(attribute.node as JSXSpreadAttribute).argument]
     )
   );
 }

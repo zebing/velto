@@ -2,6 +2,8 @@ import { stringCurrying } from './stringCurrying';
 import { HTML_TAGS, SVG_TAGS, BOOLEAN_ATTRIBUTE } from '../constants';
 
 export * from './stringCurrying';
+export * from './escapeHtml';
+export * from './normalizeAttribute';
 
 export const isHTMLTag = stringCurrying(HTML_TAGS, true);
 export const isSVGTag = stringCurrying(SVG_TAGS, true);

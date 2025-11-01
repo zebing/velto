@@ -8,9 +8,9 @@ interface Student {
   grade: string,
   age: number;
 }
-let i = 0;
 
 export default function List() {
+  let i = 0;
   const list = ref<Student[]>([
     { id: i++, name: '小张', grade: '一年级', age: 8 },
     { id: i++, name: '小王', grade: '二年级', age: 9 },

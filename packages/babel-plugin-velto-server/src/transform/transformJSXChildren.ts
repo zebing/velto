@@ -5,6 +5,7 @@ import {
   JSXSpreadChild,
   JSXText,
   stringLiteral,
+  StringLiteral,
 } from '@babel/types';
 import { TransformJSXChildrenOptions } from '../types';
 import { transformJSXElement } from './transformJSXElement';
@@ -14,7 +15,7 @@ import { transformJSXLogicalExpression } from './transformJSXLogicalExpression';
 import { transformJSXConditionalExpression } from './transformJSXConditionalExpression';
 
 export function transformJSXChildren(
-  { path, context }: TransformJSXChildrenOptions<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText>
+  { path, context }: TransformJSXChildrenOptions<JSXElement | JSXExpressionContainer | JSXFragment | JSXSpreadChild | JSXText | StringLiteral>
 ){
   path.forEach((children) => {
     // JSXElement
@@ -54,7 +55,7 @@ export function transformJSXChildren(
     }  else if (children.isJSXSpreadChild()) {
       transformJSXExpression({ path: children, context });
 
-      // JSXText
+      // JSXText StringLiteral
     } else {
       const str = (children.node as JSXText).value;
       // 过滤 "\n      ..." 字符
