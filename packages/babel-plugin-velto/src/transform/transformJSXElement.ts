@@ -4,7 +4,7 @@ import {
   identifier,
   memberExpression,
 } from "@babel/types";
-import { isNativeTag } from "@velto/shared";
+import { isNativeTag, idGenerator } from "@velto/shared";
 import { getTagLiteral } from "../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSXComponentProps } from "./transformJSXComponentProps";

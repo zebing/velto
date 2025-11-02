@@ -15,7 +15,7 @@ import {
   Expression,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
-import { isNativeTag } from "@velto/shared";
+import { isNativeTag, idGenerator } from "@velto/shared";
 import { getTagLiteral } from "../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSXElementAttribute } from "./transformJSXElementAttribute";
@@ -33,6 +33,8 @@ export function transformJSXElement({
   const attributesPath = openingElementPath.get("attributes");
   const childrenPath = path.get("children");
   const tag = getTagLiteral(openingElementPath);
+
+  idGenerator.setId(path.node.start!, path.node.end!);
 
   if (isNativeTag(tag)) {
     context.pushStringLiteral(stringLiteral(`<${tag}`));

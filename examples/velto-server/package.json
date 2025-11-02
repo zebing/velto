@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node server",
-    "build:velto-server": "npm run build:client && npm run build:server",
+    "build:velto-server": "npm run build:server && npm run build:client",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
     "preview": "cross-env NODE_ENV=production node server"
