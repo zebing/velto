@@ -192,6 +192,9 @@ importers:
       '@babel/types':
         specifier: ^7.27.1
         version: 7.27.6
+      '@velto/id-generator':
+        specifier: workspace:*
+        version: link:../id-generator
       '@velto/shared':
         specifier: workspace:*
         version: link:../shared
@@ -232,6 +235,9 @@ importers:
       '@babel/types':
         specifier: ^7.27.1
         version: 7.27.6
+      '@velto/id-generator':
+        specifier: workspace:*
+        version: link:../id-generator
       '@velto/shared':
         specifier: workspace:*
         version: link:../shared
@@ -248,6 +254,15 @@ importers:
       '@types/node':
         specifier: ^20.17.32
         version: 20.19.1
+      tsup:
+        specifier: ^8.4.0
+        version: 8.5.0(postcss@8.5.6)(typescript@5.8.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
+  packages/id-generator:
+    devDependencies:
       tsup:
         specifier: ^8.4.0
         version: 8.5.0(postcss@8.5.6)(typescript@5.8.3)

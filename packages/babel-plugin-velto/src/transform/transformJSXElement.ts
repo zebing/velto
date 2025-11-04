@@ -4,13 +4,14 @@ import {
   identifier,
   memberExpression,
 } from "@babel/types";
-import { isNativeTag, idGenerator } from "@velto/shared";
+import { isNativeTag } from "@velto/shared";
 import { getTagLiteral } from "../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSXComponentProps } from "./transformJSXComponentProps";
 import { anchorIdentifier, targetIdentifier } from "../constants";
 import { TransformJSXOptions } from "../types";
 import JSXRoot from "./";
+import idGenerator from '@velto/id-generator';
 
 export function transformJSXElement({
   path,
@@ -28,6 +29,10 @@ export function transformJSXElement({
     target: targetIdentifier,
     anchor: anchorIdentifier,
   });
+
+  const id = idGenerator.getId(path.node.start!, path.node.end!);
+
+  
 
   if (isNativeTag(tag)) {
     const elementId = template.element({

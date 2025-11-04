@@ -15,7 +15,7 @@ import {
   Expression,
 } from "@babel/types";
 import { NodePath } from "@babel/traverse";
-import { isNativeTag, idGenerator } from "@velto/shared";
+import { isNativeTag } from "@velto/shared";
 import { getTagLiteral } from "../utils";
 import { transformJSXChildren } from "./transformJSXChildren";
 import { transformJSXElementAttribute } from "./transformJSXElementAttribute";
@@ -24,6 +24,7 @@ import { TransformJSXOptions } from "../types";
 import TemplateLiteralContext from "../TemplateLiteralContext";
 import { getVariableDeclaration } from "../utils";
 import { RuntimeHelper } from "../helper";
+import idGenerator from '@velto/id-generator';
 
 export function transformJSXElement({
   path,
@@ -34,7 +35,7 @@ export function transformJSXElement({
   const childrenPath = path.get("children");
   const tag = getTagLiteral(openingElementPath);
 
-  idGenerator.setId(path.node.start!, path.node.end!);
+  idGenerator.getId(path.node.start!, path.node.end!);
 
   if (isNativeTag(tag)) {
     context.pushStringLiteral(stringLiteral(`<${tag}`));
